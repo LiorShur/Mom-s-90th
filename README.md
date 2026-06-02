@@ -41,7 +41,7 @@ service cloud.firestore {
     // 👇 Change this to YOUR Google email (must match ORGANIZER_EMAIL in src/Gallery.jsx).
     function isOrganizer() {
       return request.auth != null
-        && request.auth.token.email == 'liorshur@gmail.com'
+        && request.auth.token.email == 'lior.shur@gmail.com'
         && request.auth.token.email_verified == true;
     }
     match /messages/{id} {

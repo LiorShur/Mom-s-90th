@@ -20,7 +20,7 @@ import { useLang } from "./i18n.jsx";
 // The Google account allowed to review submissions. This MUST match the email
 // in your Firestore security rules — that rule is what actually enforces it;
 // this line just gives a friendly message if the wrong account signs in.
-const ORGANIZER_EMAIL = "liorshur@gmail.com";
+const ORGANIZER_EMAIL = "lior.shur@gmail.com";
 
 const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
 
