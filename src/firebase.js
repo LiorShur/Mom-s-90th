@@ -38,4 +38,4 @@ export function ensureSignedIn() {
 
 // Flip to true only when you (the organizer) want to see the admin gallery.
 // Simplest approach: append ?gallery=YOUR_SECRET to the URL (see App.jsx).
-export const GALLERY_SECRET = "change-me-to-something-private";
+export const GALLERY_SECRET = "miriam-90-book";

@@ -2,30 +2,16 @@ import { useRef, useState } from "react";
 import { db, storage, ensureSignedIn } from "./firebase.js";
 import { collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-
-// Edit this list freely — it's what keeps 20+ notes from sounding identical.
-const PROMPTS = [
-  "A memory only I have of you",
-  "Something you taught me without meaning to",
-  "A saying of yours I still use",
-  "The first thing I picture when I think of you",
-  "What I want my own children to know about you",
-  "A time you made me laugh",
-  "I'll write my own",
-];
-
-const GENERATIONS = [
-  { value: "child", label: "Your child" },
-  { value: "grandchild", label: "Grandchild" },
-  { value: "greatgrand", label: "Great-grandchild" },
-  { value: "other", label: "Family / friend" },
-];
+import { useLang } from "./i18n.jsx";
 
 export default function Submit() {
+  const { t, lang } = useLang();
   const [name, setName] = useState("");
   const [relationship, setRelationship] = useState("");
   const [generation, setGeneration] = useState("grandchild");
-  const [prompt, setPrompt] = useState(PROMPTS[0]);
+  // Track the prompt by index so switching language keeps the same choice
+  // (the stored value is the localized prompt text, resolved at submit time).
+  const [promptIndex, setPromptIndex] = useState(0);
   const [text, setText] = useState("");
   const [photos, setPhotos] = useState([]);
   const [clip, setClip] = useState(null); // {blob, ext, kind}
@@ -44,8 +30,9 @@ export default function Submit() {
         name: name.trim(),
         relationship: relationship.trim(),
         generation,
-        prompt,
+        prompt: t.prompts[promptIndex],
         text: text.trim(),
+        lang,
         photoURLs: [],
         clipURL: null,
         clipKind: clip?.kind || null,
@@ -76,7 +63,7 @@ export default function Submit() {
       setStatus("done");
     } catch (e) {
       console.error(e);
-      setError(e.message || "Something went wrong.");
+      setError(e.message || t.genericError);
       setStatus("error");
     }
   }
@@ -85,12 +72,9 @@ export default function Submit() {
     return (
       <main className="page narrow">
         <div className="card thanks">
-          <p className="kicker">Received with love</p>
-          <h1>Thank you, {name.split(" ")[0]}.</h1>
-          <p className="lede">
-            Your words and your voice are now part of the book. She's going to
-            treasure them.
-          </p>
+          <p className="kicker">{t.thanksKicker}</p>
+          <h1>{t.thanksTitle(name.split(" ")[0])}</h1>
+          <p className="lede">{t.thanksLede}</p>
           <button
             className="ghost"
             onClick={() => {
@@ -102,7 +86,7 @@ export default function Submit() {
               setStatus("idle");
             }}
           >
-            Add another from someone else
+            {t.addAnother}
           </button>
         </div>
       </main>
@@ -112,33 +96,30 @@ export default function Submit() {
   return (
     <main className="page narrow">
       <header className="masthead">
-        <p className="kicker">For Grandma's 90th</p>
-        <h1>A Book of Voices</h1>
-        <p className="lede">
-          We're making a keepsake from all of us — children, grandchildren and
-          great-grandchildren. Leave a short note and, if you can, a few seconds
-          of your actual voice. Hearing you will mean the world to her.
-        </p>
+        <p className="kicker">{t.forGrandma}</p>
+        <h1>{t.appTitle}</h1>
+        <p className="lede">{t.submitLede}</p>
       </header>
 
       <div className="card">
         <label className="field">
-          <span>Your name</span>
+          <span>{t.nameLabel}</span>
           <input
             value={name}
+            dir="auto"
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Sarah"
+            placeholder={t.namePlaceholder}
           />
         </label>
 
         <div className="row">
           <label className="field">
-            <span>You are her…</span>
+            <span>{t.youAreHer}</span>
             <select
               value={generation}
               onChange={(e) => setGeneration(e.target.value)}
             >
-              {GENERATIONS.map((g) => (
+              {t.generations.map((g) => (
                 <option key={g.value} value={g.value}>
                   {g.label}
                 </option>
@@ -146,20 +127,24 @@ export default function Submit() {
             </select>
           </label>
           <label className="field">
-            <span>Exactly (optional)</span>
+            <span>{t.relationshipLabel}</span>
             <input
               value={relationship}
+              dir="auto"
               onChange={(e) => setRelationship(e.target.value)}
-              placeholder="e.g. eldest granddaughter"
+              placeholder={t.relationshipPlaceholder}
             />
           </label>
         </div>
 
         <label className="field">
-          <span>Pick a prompt to answer</span>
-          <select value={prompt} onChange={(e) => setPrompt(e.target.value)}>
-            {PROMPTS.map((p) => (
-              <option key={p} value={p}>
+          <span>{t.promptLabel}</span>
+          <select
+            value={promptIndex}
+            onChange={(e) => setPromptIndex(Number(e.target.value))}
+          >
+            {t.prompts.map((p, i) => (
+              <option key={i} value={i}>
                 {p}
               </option>
             ))}
@@ -167,14 +152,15 @@ export default function Submit() {
         </label>
 
         <label className="field">
-          <span>Your note for the page</span>
+          <span>{t.noteLabel}</span>
           <textarea
             rows={5}
             value={text}
+            dir="auto"
             onChange={(e) => setText(e.target.value)}
-            placeholder="Write it the way you'd say it to her…"
+            placeholder={t.notePlaceholder}
           />
-          <small>{text.trim().length} characters</small>
+          <small>{t.charsCount(text.trim().length)}</small>
         </label>
 
         <PhotoPicker photos={photos} setPhotos={setPhotos} />
@@ -183,7 +169,7 @@ export default function Submit() {
         {error && <p className="error">{error}</p>}
 
         <button className="primary" disabled={!canSubmit} onClick={handleSubmit}>
-          {status === "saving" ? "Saving…" : "Add to the book"}
+          {status === "saving" ? t.savingBtn : t.submitBtn}
         </button>
       </div>
     </main>
@@ -191,20 +177,17 @@ export default function Submit() {
 }
 
 function PhotoPicker({ photos, setPhotos }) {
+  const { t } = useLang();
   return (
     <label className="field">
-      <span>A photo or two (optional)</span>
+      <span>{t.photoLabel}</span>
       <input
         type="file"
         accept="image/*"
         multiple
         onChange={(e) => setPhotos(Array.from(e.target.files).slice(0, 3))}
       />
-      {photos.length > 0 && (
-        <small>
-          {photos.length} photo{photos.length > 1 ? "s" : ""} selected
-        </small>
-      )}
+      {photos.length > 0 && <small>{t.photosSelected(photos.length)}</small>}
     </label>
   );
 }
@@ -212,6 +195,7 @@ function PhotoPicker({ photos, setPhotos }) {
 // Lets people either upload a clip recorded on their phone, or record audio
 // right here in the browser (great for kids — one big button).
 function ClipPicker({ clip, setClip }) {
+  const { t } = useLang();
   const [recording, setRecording] = useState(false);
   const recorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -231,7 +215,7 @@ function ClipPicker({ clip, setClip }) {
       recorderRef.current = rec;
       setRecording(true);
     } catch (e) {
-      alert("Couldn't access the microphone. You can upload a clip instead.");
+      alert(t.micError);
     }
   }
 
@@ -250,32 +234,28 @@ function ClipPicker({ clip, setClip }) {
 
   return (
     <div className="field">
-      <span>Your voice (the part she'll love most)</span>
+      <span>{t.voiceLabel}</span>
       <div className="clip-controls">
         {!recording ? (
           <button type="button" className="record" onClick={startRecording}>
-            ● Record audio
+            {t.recordBtn}
           </button>
         ) : (
           <button type="button" className="record stop" onClick={stopRecording}>
-            ■ Stop
+            {t.stopBtn}
           </button>
         )}
-        <span className="or">or</span>
+        <span className="or">{t.or}</span>
         <label className="upload-btn">
-          Upload audio / video
+          {t.uploadBtn}
           <input type="file" accept="audio/*,video/*" onChange={onUpload} hidden />
         </label>
       </div>
       {clip && (
         <small className="clip-ok">
-          ✓ {clip.kind} clip ready{" "}
-          <button
-            type="button"
-            className="link"
-            onClick={() => setClip(null)}
-          >
-            remove
+          {t.clipReady(t.kinds[clip.kind] || clip.kind)}{" "}
+          <button type="button" className="link" onClick={() => setClip(null)}>
+            {t.remove}
           </button>
         </small>
       )}
