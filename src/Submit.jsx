@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { db, storage, ensureSignedIn } from "./firebase.js";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // Edit this list freely — it's what keeps 20+ notes from sounding identical.
@@ -71,7 +71,6 @@ export default function Submit() {
       }
 
       // Patch in the URLs now that uploads are done.
-      const { updateDoc } = await import("firebase/firestore");
       await updateDoc(docRef, { photoURLs, clipURL });
 
       setStatus("done");
