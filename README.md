@@ -126,6 +126,7 @@ Your share link becomes e.g. `https://your-project.web.app/`.
 | `generation` | string | `child` / `grandchild` / `greatgrand` / `other` |
 | `prompt` | string | which prompt they answered |
 | `text` | string | the written note for the page |
+| `lang` | string | UI language used to submit (`he` / `en`) |
 | `photoURLs` | string[] | download URLs |
 | `clipURL` | string \| null | audio/video download URL |
 | `clipKind` | string \| null | `audio` / `video` |
@@ -134,10 +135,20 @@ Your share link becomes e.g. `https://your-project.web.app/`.
 
 ---
 
+## Languages (Hebrew + English)
+
+The app opens in **Hebrew, right-to-left**, with a visible **עברית / English**
+toggle pinned to the top corner of every screen. The choice is remembered per
+device (localStorage). All UI text — the form, the QR pages, and the organizer
+gallery — lives in `src/i18n.jsx`; edit the `he` / `en` dictionaries there to
+reword anything (the prompts are in that file too). Contributors' own notes are
+shown with `dir="auto"`, so a Hebrew note reads RTL and an English note reads
+LTR regardless of which language the *viewer* has selected.
+
 ## Notes
 
-- Edit the prompt list and copy in `src/Submit.jsx` — that's what keeps 20+
-  notes from sounding identical.
+- Edit the prompt list and all copy in `src/i18n.jsx` — that's what keeps 20+
+  notes from sounding identical (and it's where both languages live).
 - In-browser recording produces `audio/webm`; if you need iOS-friendly playback
   everywhere, ask contributors to upload a clip recorded on their phone instead.
 - Keep the QR target URLs stable: don't change the deployed domain after

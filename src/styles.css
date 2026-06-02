@@ -8,11 +8,43 @@
   --accent-deep: #7d4529;
   --gold: #b08746;
   --shadow: 0 1px 2px rgba(60, 45, 30, 0.06), 0 12px 30px rgba(60, 45, 30, 0.08);
-  --display: "Fraunces", Georgia, serif;
-  --body: "Newsreader", Georgia, serif;
+  /* Latin glyphs use Fraunces/Newsreader; Hebrew glyphs fall through to
+     Frank Ruhl Libre (a serif that matches the keepsake feel). */
+  --display: "Fraunces", "Frank Ruhl Libre", Georgia, serif;
+  --body: "Newsreader", "Frank Ruhl Libre", Georgia, serif;
 }
 
 * { box-sizing: border-box; }
+
+/* ---- Language toggle (fixed, always visible) ---- */
+.lang-toggle {
+  position: fixed;
+  top: 14px;
+  inset-inline-end: 14px;
+  z-index: 50;
+  display: inline-flex;
+  gap: 2px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  box-shadow: var(--shadow);
+}
+.lang-toggle button {
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--display);
+  font-size: 0.85rem;
+  padding: 5px 14px;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+.lang-toggle button.on {
+  background: var(--accent);
+  color: #fff;
+}
+.lang-toggle button:not(.on):hover { color: var(--accent); }
 
 html, body {
   margin: 0;
@@ -166,8 +198,9 @@ button { cursor: pointer; font-family: var(--display); }
   font-size: 1.5rem;
   line-height: 1.4;
   margin: 0 0 18px;
-  padding-left: 18px;
-  border-left: 3px solid var(--gold);
+  /* Logical props so the accent bar sits on the start edge in both LTR + RTL. */
+  padding-inline-start: 18px;
+  border-inline-start: 3px solid var(--gold);
   white-space: pre-wrap;
 }
 .note.small { font-size: 1.1rem; }
@@ -189,7 +222,7 @@ button { cursor: pointer; font-family: var(--display); }
 .print-only { display: none; }
 @media print {
   body { background: #fff; }
-  .screen-only, .masthead { display: none !important; }
+  .screen-only, .masthead, .lang-toggle { display: none !important; }
   .print-only { display: block; }
   .qr-sheet-grid {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;

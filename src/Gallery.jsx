@@ -9,16 +9,12 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import QRCode from "qrcode";
+import { useLang } from "./i18n.jsx";
 
 const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
-const GEN_LABEL = {
-  child: "Her children",
-  grandchild: "Grandchildren",
-  greatgrand: "Great-grandchildren",
-  other: "Family & friends",
-};
 
 export default function Gallery() {
+  const { t } = useLang();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
@@ -59,7 +55,7 @@ export default function Gallery() {
   if (loading) {
     return (
       <main className="page center">
-        <p className="kicker">Loading submissions…</p>
+        <p className="kicker">{t.loading}</p>
       </main>
     );
   }
@@ -67,39 +63,39 @@ export default function Gallery() {
   return (
     <main className="page gallery">
       <header className="masthead">
-        <p className="kicker">Organizer view</p>
-        <h1>The submissions</h1>
-        <p className="lede">
-          {items.length} received · {approvedCount} approved. Approve the ones
-          you want in the book, then print the QR sheet to drop codes into your
-          photobook layout.
-        </p>
+        <p className="kicker">{t.organizerKicker}</p>
+        <h1>{t.submissionsTitle}</h1>
+        <p className="lede">{t.galleryLede(items.length, approvedCount)}</p>
         <button className="primary" onClick={() => window.print()}>
-          Print QR sheet (approved only)
+          {t.printBtn}
         </button>
       </header>
 
       {GEN_ORDER.filter((g) => grouped[g]?.length).map((g) => (
         <section key={g} className="screen-only">
-          <h2 className="gen-head">{GEN_LABEL[g]}</h2>
+          <h2 className="gen-head">{t.genHeads[g]}</h2>
           <div className="grid">
             {grouped[g].map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
-                <p className="kicker">{it.prompt}</p>
-                <blockquote className="note small">{it.text}</blockquote>
-                <p className="signoff">
+                <p className="kicker" dir="auto">{it.prompt}</p>
+                <blockquote className="note small" dir="auto">{it.text}</blockquote>
+                <p className="signoff" dir="auto">
                   — {it.name}
                   {it.relationship ? `, ${it.relationship}` : ""}
                 </p>
                 <div className="sub-meta">
-                  {it.clipURL ? <span className="tag">🔊 {it.clipKind}</span> : <span className="tag muted">no voice</span>}
+                  {it.clipURL ? (
+                    <span className="tag">🔊 {t.kinds[it.clipKind] || it.clipKind}</span>
+                  ) : (
+                    <span className="tag muted">{t.noVoice}</span>
+                  )}
                   {it.photoURLs?.length ? <span className="tag">🖼 {it.photoURLs.length}</span> : null}
                 </div>
                 {qrMap[it.id] && (
                   <div className="qr-block">
                     <img src={qrMap[it.id]} alt="QR" className="qr" />
                     <a className="link" href={qrMap[it.id]} download={`qr-${it.name}.png`}>
-                      Download QR
+                      {t.downloadQR}
                     </a>
                   </div>
                 )}
@@ -107,7 +103,7 @@ export default function Gallery() {
                   className={it.approved ? "ghost" : "primary small"}
                   onClick={() => toggleApprove(it)}
                 >
-                  {it.approved ? "✓ Approved — undo" : "Approve for book"}
+                  {it.approved ? t.approvedBtn : t.approveBtn}
                 </button>
               </article>
             ))}
@@ -117,14 +113,14 @@ export default function Gallery() {
 
       {/* Print-only QR contact sheet: clean labels for laying out the book. */}
       <section className="print-only qr-sheet">
-        <h2>QR codes — A Book of Voices</h2>
+        <h2>{t.qrSheetTitle}</h2>
         <div className="qr-sheet-grid">
           {items
             .filter((i) => i.approved && qrMap[i.id])
             .map((i) => (
               <figure key={i.id}>
                 <img src={qrMap[i.id]} alt="" />
-                <figcaption>
+                <figcaption dir="auto">
                   {i.name}
                   {i.relationship ? ` · ${i.relationship}` : ""}
                 </figcaption>

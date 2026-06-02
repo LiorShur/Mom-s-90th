@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Submit from "./Submit.jsx";
 import MessageView from "./MessageView.jsx";
 import Gallery from "./Gallery.jsx";
+import LanguageToggle from "./LanguageToggle.jsx";
 import { GALLERY_SECRET } from "./firebase.js";
 
 // Tiny router — no dependency needed for three views.
@@ -29,7 +30,16 @@ function parse() {
 
 export default function App() {
   const route = useRoute();
-  if (route.view === "message") return <MessageView id={route.id} />;
-  if (route.view === "gallery") return <Gallery />;
-  return <Submit />;
+  return (
+    <>
+      <LanguageToggle />
+      {route.view === "message" ? (
+        <MessageView id={route.id} />
+      ) : route.view === "gallery" ? (
+        <Gallery />
+      ) : (
+        <Submit />
+      )}
+    </>
+  );
 }

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { db } from "./firebase.js";
 import { doc, getDoc } from "firebase/firestore";
+import { useLang } from "./i18n.jsx";
 
 export default function MessageView({ id }) {
+  const { t } = useLang();
   const [msg, setMsg] = useState(null);
   const [state, setState] = useState("loading"); // loading | ready | missing
 
@@ -25,7 +27,7 @@ export default function MessageView({ id }) {
   if (state === "loading") {
     return (
       <main className="page narrow center">
-        <p className="kicker">Opening…</p>
+        <p className="kicker">{t.opening}</p>
       </main>
     );
   }
@@ -33,14 +35,16 @@ export default function MessageView({ id }) {
   if (state === "missing") {
     return (
       <main className="page narrow center">
-        <p className="lede">This page of the book couldn't be found.</p>
+        <p className="lede">{t.missing}</p>
       </main>
     );
   }
 
   return (
     <main className="page narrow message-view">
-      <p className="kicker">{msg.prompt}</p>
+      {/* The note and prompt are shown in whatever language the contributor
+          wrote them, so let the browser auto-detect direction per item. */}
+      <p className="kicker" dir="auto">{msg.prompt}</p>
 
       {msg.clipURL && (
         <div className="player">
@@ -49,13 +53,13 @@ export default function MessageView({ id }) {
           ) : (
             <audio src={msg.clipURL} controls />
           )}
-          <small>▶ Press play to hear {msg.name.split(" ")[0]}</small>
+          <small>{t.pressPlay(msg.name.split(" ")[0])}</small>
         </div>
       )}
 
-      <blockquote className="note">{msg.text}</blockquote>
+      <blockquote className="note" dir="auto">{msg.text}</blockquote>
 
-      <p className="signoff">
+      <p className="signoff" dir="auto">
         — {msg.name}
         {msg.relationship ? `, ${msg.relationship}` : ""}
       </p>
