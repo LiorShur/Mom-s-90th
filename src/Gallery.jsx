@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { db } from "./firebase.js";
+import { auth, db } from "./firebase.js";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth";
 import {
   collection,
   getDocs,
@@ -11,19 +17,35 @@ import {
 import QRCode from "qrcode";
 import { useLang } from "./i18n.jsx";
 
+// The Google account allowed to review submissions. This MUST match the email
+// in your Firestore security rules — that rule is what actually enforces it;
+// this line just gives a friendly message if the wrong account signs in.
+const ORGANIZER_EMAIL = "liorshur@gmail.com";
+
 const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
 
 export default function Gallery() {
   const { t } = useLang();
+  const [user, setUser] = useState(undefined); // undefined = still checking
+  const [authError, setAuthError] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
 
+  const isOrganizer =
+    user && !user.isAnonymous && user.email === ORGANIZER_EMAIL;
+
+  useEffect(() => onAuthStateChanged(auth, (u) => setUser(u || null)), []);
+
   useEffect(() => {
+    if (!isOrganizer) return;
+    let cancelled = false;
     (async () => {
+      setLoading(true);
       const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
       const snap = await getDocs(q);
       const rows = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      if (cancelled) return;
       setItems(rows);
       setLoading(false);
 
@@ -33,15 +55,27 @@ export default function Gallery() {
         const url = `${window.location.origin}/m/${r.id}`;
         map[r.id] = await QRCode.toDataURL(url, { margin: 1, width: 320 });
       }
-      setQrMap(map);
+      if (!cancelled) setQrMap(map);
     })();
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [isOrganizer]);
 
   const grouped = useMemo(() => {
     const g = {};
     for (const it of items) (g[it.generation] ||= []).push(it);
     return g;
   }, [items]);
+
+  async function handleSignIn() {
+    setAuthError("");
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (e) {
+      setAuthError(e.message || "");
+    }
+  }
 
   async function toggleApprove(it) {
     await updateDoc(doc(db, "messages", it.id), { approved: !it.approved });
@@ -51,6 +85,39 @@ export default function Gallery() {
   }
 
   const approvedCount = items.filter((i) => i.approved).length;
+
+  // --- Auth gate: only the organizer's Google account reaches the data ---
+  if (user === undefined) {
+    return (
+      <main className="page center">
+        <p className="kicker">{t.checkingAuth}</p>
+      </main>
+    );
+  }
+
+  if (!isOrganizer) {
+    return (
+      <main className="page narrow center">
+        <div className="card thanks">
+          <p className="kicker">{t.organizerKicker}</p>
+          <h1>{t.reviewSignInTitle}</h1>
+          <p className="lede">{t.reviewSignInLede}</p>
+          <button className="primary" onClick={handleSignIn}>
+            {t.signInBtn}
+          </button>
+          {user && user.email && user.email !== ORGANIZER_EMAIL && (
+            <p className="error" style={{ marginTop: 16 }}>
+              {t.notOrganizer(user.email)}{" "}
+              <button className="link" onClick={() => signOut(auth)}>
+                {t.signOutBtn}
+              </button>
+            </p>
+          )}
+          {authError && <p className="error">{authError}</p>}
+        </div>
+      </main>
+    );
+  }
 
   if (loading) {
     return (
@@ -66,9 +133,14 @@ export default function Gallery() {
         <p className="kicker">{t.organizerKicker}</p>
         <h1>{t.submissionsTitle}</h1>
         <p className="lede">{t.galleryLede(items.length, approvedCount)}</p>
-        <button className="primary" onClick={() => window.print()}>
-          {t.printBtn}
-        </button>
+        <div className="gallery-actions">
+          <button className="primary" onClick={() => window.print()}>
+            {t.printBtn}
+          </button>
+          <button className="ghost" onClick={() => signOut(auth)}>
+            {t.signOutBtn}
+          </button>
+        </div>
       </header>
 
       {GEN_ORDER.filter((g) => grouped[g]?.length).map((g) => (

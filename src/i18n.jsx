@@ -55,6 +55,14 @@ const STRINGS = {
 
     // Gallery (organizer)
     organizerKicker: "תצוגת מארגן",
+    checkingAuth: "בודק הרשאות…",
+    reviewSignInTitle: "כניסת מארגן",
+    reviewSignInLede:
+      "כדי לצפות בהגשות ולאשר אותן, היכנסו עם חשבון ה-Google של המארגן.",
+    signInBtn: "כניסה עם Google",
+    signOutBtn: "התנתקות",
+    notOrganizer: (email) =>
+      `החשבון ${email} אינו חשבון המארגן. התנתקו ונסו שוב עם החשבון הנכון.`,
     submissionsTitle: "ההגשות",
     galleryLede: (n, m) =>
       `${n} התקבלו · ${m} אושרו. אשרו את אלה שתרצו בספר, ואז הדפיסו את גיליון ה-QR כדי לשבץ את הקודים בעיצוב הספר.`,
@@ -134,6 +142,14 @@ const STRINGS = {
     pressPlay: (first) => `▶ Press play to hear ${first}`,
 
     organizerKicker: "Organizer view",
+    checkingAuth: "Checking access…",
+    reviewSignInTitle: "Organizer sign-in",
+    reviewSignInLede:
+      "To review and approve submissions, sign in with the organizer's Google account.",
+    signInBtn: "Sign in with Google",
+    signOutBtn: "Sign out",
+    notOrganizer: (email) =>
+      `${email} isn't the organizer account. Sign out and try again with the right one.`,
     submissionsTitle: "The submissions",
     galleryLede: (n, m) =>
       `${n} received · ${m} approved. Approve the ones you want in the book, then print the QR sheet to drop codes into your photobook layout.`,
