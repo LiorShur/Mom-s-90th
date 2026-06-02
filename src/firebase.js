@@ -14,12 +14,13 @@ import { getStorage } from "firebase/storage";
 import { getAuth, signInAnonymously } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "PASTE_ME",
-  authDomain: "PASTE_ME.firebaseapp.com",
-  projectId: "PASTE_ME",
-  storageBucket: "PASTE_ME.appspot.com",
-  messagingSenderId: "PASTE_ME",
-  appId: "PASTE_ME",
+  apiKey: "AIzaSyBDV__k9aN2L6648atm04gx8LRan4zGwUE",
+  authDomain: "miriam-s-90th-album.firebaseapp.com",
+  projectId: "miriam-s-90th-album",
+  storageBucket: "miriam-s-90th-album.firebasestorage.app",
+  messagingSenderId: "604826170908",
+  appId: "1:604826170908:web:7ac0fad6439ca5405f91d9",
+  measurementId: "G-FL2DJHZNH1"
 };
 
 const app = initializeApp(firebaseConfig);
