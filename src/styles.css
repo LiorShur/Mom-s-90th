@@ -216,21 +216,60 @@ button { cursor: pointer; font-family: var(--display); }
 .sub-meta { display: flex; gap: 8px; }
 .tag { font-size: 0.75rem; background: #efe6d6; padding: 2px 8px; border-radius: 999px; color: var(--ink-soft); }
 .tag.muted { opacity: 0.6; }
+.thumb-strip { display: flex; gap: 8px; flex-wrap: wrap; }
+.thumb-strip img {
+  width: 64px; height: 64px; object-fit: cover;
+  border-radius: 3px; border: 1px solid var(--line);
+}
 .qr-block { display: flex; align-items: center; gap: 12px; margin-top: auto; }
 .qr { width: 84px; height: 84px; }
 
-/* ---- Print: only the QR contact sheet ---- */
+/* ---- Print layouts (book pages + QR contact sheet) ---- */
 .print-only { display: none; }
 @media print {
   body { background: #fff; }
   .screen-only, .masthead, .lang-toggle { display: none !important; }
   .print-only { display: block; }
+
+  /* QR-only contact sheet */
   .qr-sheet-grid {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
   }
   .qr-sheet figure { margin: 0; text-align: center; break-inside: avoid; }
   .qr-sheet figure img { width: 150px; height: 150px; }
   .qr-sheet figcaption { font-family: var(--display); font-size: 0.85rem; margin-top: 6px; }
+
+  /* Composed "book page" per person — one printed page each */
+  .book-page {
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    min-height: 92vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 16px;
+  }
+  .book-page:last-child { break-after: auto; page-break-after: auto; }
+  .bp-prompt {
+    font-family: var(--body); font-style: italic;
+    color: var(--accent); margin: 0 0 16px; font-size: 1rem;
+  }
+  .bp-photo {
+    max-width: 100%; max-height: 46vh; object-fit: contain;
+    border-radius: 4px; margin: 0 0 20px;
+  }
+  .bp-note {
+    font-family: var(--display); font-size: 1.5rem; line-height: 1.45;
+    white-space: pre-wrap; margin: 0 0 16px; max-width: 34ch;
+  }
+  .bp-signoff { font-family: var(--body); font-style: italic; color: var(--ink-soft); margin: 0; }
+  .bp-extra { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+  .bp-extra img { width: 110px; height: 110px; object-fit: cover; border-radius: 3px; }
+  .bp-qr { margin-top: auto; padding-top: 20px; }
+  .bp-qr img { width: 120px; height: 120px; }
+  .bp-qr span { display: block; font-size: 0.8rem; color: var(--ink-soft); margin-top: 6px; }
 }
 
 @media (max-width: 520px) {

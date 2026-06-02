@@ -31,6 +31,13 @@ export default function Gallery() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
+  const [printMode, setPrintMode] = useState("proof"); // proof | qr
+
+  // Switch the print layout, then open the print dialog once it has rendered.
+  function printAs(mode) {
+    setPrintMode(mode);
+    setTimeout(() => window.print(), 60);
+  }
 
   const isOrganizer =
     user && !user.isAnonymous && user.email === ORGANIZER_EMAIL;
@@ -134,7 +141,10 @@ export default function Gallery() {
         <h1>{t.submissionsTitle}</h1>
         <p className="lede">{t.galleryLede(items.length, approvedCount)}</p>
         <div className="gallery-actions">
-          <button className="primary" onClick={() => window.print()}>
+          <button className="primary" onClick={() => printAs("proof")}>
+            {t.printProofBtn}
+          </button>
+          <button className="ghost" onClick={() => printAs("qr")}>
             {t.printBtn}
           </button>
           <button className="ghost" onClick={() => signOut(auth)}>
@@ -163,6 +173,15 @@ export default function Gallery() {
                   )}
                   {it.photoURLs?.length ? <span className="tag">🖼 {it.photoURLs.length}</span> : null}
                 </div>
+                {it.photoURLs?.length > 0 && (
+                  <div className="thumb-strip">
+                    {it.photoURLs.map((u, i) => (
+                      <a key={i} href={u} target="_blank" rel="noreferrer">
+                        <img src={u} alt="" />
+                      </a>
+                    ))}
+                  </div>
+                )}
                 {qrMap[it.id] && (
                   <div className="qr-block">
                     <img src={qrMap[it.id]} alt="QR" className="qr" />
@@ -183,23 +202,57 @@ export default function Gallery() {
         </section>
       ))}
 
-      {/* Print-only QR contact sheet: clean labels for laying out the book. */}
-      <section className="print-only qr-sheet">
-        <h2>{t.qrSheetTitle}</h2>
-        <div className="qr-sheet-grid">
+      {/* Print-only output. "proof" = a composed page per person (photo +
+          note + QR), "qr" = just the QR contact sheet. */}
+      {printMode === "qr" ? (
+        <section className="print-only qr-sheet">
+          <h2>{t.qrSheetTitle}</h2>
+          <div className="qr-sheet-grid">
+            {items
+              .filter((i) => i.approved && qrMap[i.id])
+              .map((i) => (
+                <figure key={i.id}>
+                  <img src={qrMap[i.id]} alt="" />
+                  <figcaption dir="auto">
+                    {i.name}
+                    {i.relationship ? ` · ${i.relationship}` : ""}
+                  </figcaption>
+                </figure>
+              ))}
+          </div>
+        </section>
+      ) : (
+        <section className="print-only book-proof">
           {items
-            .filter((i) => i.approved && qrMap[i.id])
+            .filter((i) => i.approved)
             .map((i) => (
-              <figure key={i.id}>
-                <img src={qrMap[i.id]} alt="" />
-                <figcaption dir="auto">
-                  {i.name}
-                  {i.relationship ? ` · ${i.relationship}` : ""}
-                </figcaption>
-              </figure>
+              <article key={i.id} className="book-page">
+                <p className="bp-prompt" dir="auto">{i.prompt}</p>
+                {i.photoURLs?.length > 0 && (
+                  <img className="bp-photo" src={i.photoURLs[0]} alt="" />
+                )}
+                <blockquote className="bp-note" dir="auto">{i.text}</blockquote>
+                <p className="bp-signoff" dir="auto">
+                  — {i.name}
+                  {i.relationship ? `, ${i.relationship}` : ""}
+                </p>
+                {i.photoURLs?.length > 1 && (
+                  <div className="bp-extra">
+                    {i.photoURLs.slice(1).map((u, k) => (
+                      <img key={k} src={u} alt="" />
+                    ))}
+                  </div>
+                )}
+                {qrMap[i.id] && (
+                  <div className="bp-qr">
+                    <img src={qrMap[i.id]} alt="QR" />
+                    <span>{t.scanToHear}</span>
+                  </div>
+                )}
+              </article>
             ))}
-        </div>
-      </section>
+        </section>
+      )}
     </main>
   );
 }

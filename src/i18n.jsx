@@ -66,7 +66,9 @@ const STRINGS = {
     submissionsTitle: "ההגשות",
     galleryLede: (n, m) =>
       `${n} התקבלו · ${m} אושרו. אשרו את אלה שתרצו בספר, ואז הדפיסו את גיליון ה-QR כדי לשבץ את הקודים בעיצוב הספר.`,
-    printBtn: "הדפסת גיליון QR (מאושרים בלבד)",
+    printProofBtn: "הדפסת דפי הספר (תמונה + טקסט + QR)",
+    printBtn: "גיליון QR בלבד",
+    scanToHear: "סרקו עם מצלמת הטלפון כדי לשמוע אותנו",
     noVoice: "אין קול",
     downloadQR: "הורדת QR",
     approveBtn: "אישור לספר",
@@ -153,7 +155,9 @@ const STRINGS = {
     submissionsTitle: "The submissions",
     galleryLede: (n, m) =>
       `${n} received · ${m} approved. Approve the ones you want in the book, then print the QR sheet to drop codes into your photobook layout.`,
-    printBtn: "Print QR sheet (approved only)",
+    printProofBtn: "Print book pages (photo + note + QR)",
+    printBtn: "QR sheet only",
+    scanToHear: "Scan with your phone camera to hear us",
     noVoice: "no voice",
     downloadQR: "Download QR",
     approveBtn: "Approve for book",
