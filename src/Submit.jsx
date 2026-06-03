@@ -12,6 +12,7 @@ export default function Submit() {
   // Track the prompt by index so switching language keeps the same choice
   // (the stored value is the localized prompt text, resolved at submit time).
   const [promptIndex, setPromptIndex] = useState(0);
+  const [pullQuote, setPullQuote] = useState("");
   const [text, setText] = useState("");
   const [photos, setPhotos] = useState([]);
   const [clip, setClip] = useState(null); // {blob, ext, kind}
@@ -31,6 +32,7 @@ export default function Submit() {
         relationship: relationship.trim(),
         generation,
         prompt: t.prompts[promptIndex],
+        pullQuote: pullQuote.trim(),
         text: text.trim(),
         lang,
         photoURLs: [],
@@ -80,6 +82,7 @@ export default function Submit() {
             onClick={() => {
               setName("");
               setRelationship("");
+              setPullQuote("");
               setText("");
               setPhotos([]);
               setClip(null);
@@ -149,6 +152,16 @@ export default function Submit() {
               </option>
             ))}
           </select>
+        </label>
+
+        <label className="field">
+          <span>{t.pullQuoteLabel}</span>
+          <input
+            value={pullQuote}
+            dir="auto"
+            onChange={(e) => setPullQuote(e.target.value)}
+            placeholder={t.pullQuotePlaceholder}
+          />
         </label>
 
         <label className="field">

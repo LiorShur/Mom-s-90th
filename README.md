@@ -137,6 +137,7 @@ Your share link becomes e.g. `https://your-project.web.app/`.
 | `relationship` | string | e.g. "eldest granddaughter" (optional) |
 | `generation` | string | `child` / `grandchild` / `greatgrand` / `other` |
 | `prompt` | string | which prompt they answered |
+| `pullQuote` | string | optional short one-liner for the big page quote |
 | `text` | string | the written note for the page |
 | `lang` | string | UI language used to submit (`he` / `en`) |
 | `photoURLs` | string[] | download URLs |

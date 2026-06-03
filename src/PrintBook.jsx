@@ -1,17 +1,31 @@
+import { Fragment } from "react";
 import { useLang } from "./i18n.jsx";
 
-// A print-ready, designed keepsake book: a cover, one composed landscape page
-// per approved contributor (name + relationship + message + photos + QR), and
-// a closing page. The `style` prop ("luxury" | "modern" | "vintage") swaps the
-// palette/fonts. Everything is hidden on screen and only shows when printing.
+// A print-ready 30×30 cm keepsake book that mirrors the sample spreads:
+// each contributor gets a TWO-PAGE spread —
+//   LEFT page : script name, relationship, a big quote mark, a short pull-quote,
+//               a heart divider, the longer message, a script signature, and a
+//               full-bleed portrait on the inner side.
+//   RIGHT page: a photo collage with a framed "scan to …" QR box in the corner.
+// Plus a cover and a closing page. `style` swaps the palette/fonts.
 
 const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
+
+// Split the note into a short "pull-quote" + the longer body. If the
+// contributor supplied an explicit one-liner we use it; otherwise we take the
+// first sentence as the quote and the remainder as the body.
+function splitText(it) {
+  const text = (it.text || "").trim();
+  const pq = (it.pullQuote || "").trim();
+  if (pq) return { pull: pq, body: text };
+  const m = text.match(/^(.*?[.!?])\s+([\s\S]+)$/);
+  if (m) return { pull: m[1], body: m[2] };
+  return { pull: text, body: "" };
+}
 
 export default function PrintBook({ items, qrMap, style }) {
   const { t } = useLang();
 
-  // Approved only, ordered by generation (children → great-grandchildren),
-  // preserving submission order within each generation.
   const pages = items
     .filter((i) => i.approved)
     .map((i, idx) => ({ ...i, _idx: idx }))
@@ -37,34 +51,53 @@ export default function PrintBook({ items, qrMap, style }) {
         </div>
       </section>
 
-      {/* One page per person */}
-      {pages.map((it) => (
-        <section className="book-page" key={it.id}>
-          <div className="bp-text">
-            <p className="bp-rel" dir="auto">{relLabel(it)}</p>
-            <h2 className="bp-name" dir="auto">{it.name}</h2>
-            <span className="bp-quote" aria-hidden>“</span>
-            <blockquote className="bp-msg" dir="auto">{it.text}</blockquote>
-            <p className="bp-sign" dir="auto">{it.name} ♥</p>
-          </div>
+      {/* One two-page spread per person */}
+      {pages.map((it, idx) => {
+        const { pull, body } = splitText(it);
+        const photos = it.photoURLs || [];
+        const portrait = photos[0];
+        const collage = photos.slice(1, 4);
+        const scanLabel =
+          it.clipKind === "video" ? t.bookScanVideo : t.bookScanAudio;
+        const leftNum = idx * 2 + 1;
+        const rightNum = idx * 2 + 2;
 
-          <div className="bp-media">
-            {it.photoURLs?.length > 0 && (
-              <div className="bp-photos">
-                {it.photoURLs.slice(0, 4).map((u, i) => (
-                  <img key={i} src={u} className={i === 0 ? "main" : ""} alt="" />
+        return (
+          <Fragment key={it.id}>
+            {/* LEFT PAGE */}
+            <section className="book-page page-left">
+              <div className="pl-text">
+                <h2 className="pl-name" dir="auto">{it.name}</h2>
+                <p className="pl-rel" dir="auto">{relLabel(it)}</p>
+                <span className="pl-qmark" aria-hidden>“</span>
+                {pull && <p className="pl-quote" dir="auto">{pull}</p>}
+                <span className="pl-divider" aria-hidden>♡</span>
+                {body && <p className="pl-body" dir="auto">{body}</p>}
+                <p className="pl-sign" dir="auto">{it.name} ♥</p>
+              </div>
+              <div className="pl-portrait">
+                {portrait && <img src={portrait} alt="" />}
+              </div>
+              <span className="page-num">— {leftNum} —</span>
+            </section>
+
+            {/* RIGHT PAGE */}
+            <section className="book-page page-right">
+              <div className={`pr-photos count-${collage.length}`}>
+                {collage.map((u, i) => (
+                  <img key={i} src={u} alt="" />
                 ))}
               </div>
-            )}
-            {qrMap[it.id] && (
-              <div className="bp-qrbox">
-                <img src={qrMap[it.id]} alt="QR" />
-                <span>{t.bookScan}</span>
+              <div className={`pr-qr ${collage.length === 0 ? "feature" : ""}`}>
+                {qrMap[it.id] && <img src={qrMap[it.id]} alt="QR" />}
+                <span className="pr-scan">{scanLabel}</span>
               </div>
-            )}
-          </div>
-        </section>
-      ))}
+              <p className="pr-caption" dir="auto">{t.bookHeartCaption}</p>
+              <span className="page-num">— {rightNum} —</span>
+            </section>
+          </Fragment>
+        );
+      })}
 
       {/* Closing */}
       <section className="book-closing">
