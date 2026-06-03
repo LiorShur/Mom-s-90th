@@ -16,6 +16,9 @@ import {
 } from "firebase/firestore";
 import QRCode from "qrcode";
 import { useLang } from "./i18n.jsx";
+import PrintBook from "./PrintBook.jsx";
+
+const BOOK_STYLES = ["luxury", "modern", "vintage"];
 
 // The Google account allowed to review submissions. This MUST match the email
 // in your Firestore security rules — that rule is what actually enforces it;
@@ -32,6 +35,18 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
   const [printMode, setPrintMode] = useState("proof"); // proof | qr
+  const [bookStyle, setBookStyle] = useState(
+    () => localStorage.getItem("bookStyle") || "luxury"
+  );
+
+  function chooseStyle(s) {
+    setBookStyle(s);
+    try {
+      localStorage.setItem("bookStyle", s);
+    } catch {
+      /* ignore */
+    }
+  }
 
   // Switch the print layout, then open the print dialog once it has rendered.
   function printAs(mode) {
@@ -140,6 +155,18 @@ export default function Gallery() {
         <p className="kicker">{t.organizerKicker}</p>
         <h1>{t.submissionsTitle}</h1>
         <p className="lede">{t.galleryLede(items.length, approvedCount)}</p>
+        <div className="style-picker">
+          <span className="style-label">{t.styleLabel}</span>
+          {BOOK_STYLES.map((s) => (
+            <button
+              key={s}
+              className={`chip ${bookStyle === s ? "on" : ""}`}
+              onClick={() => chooseStyle(s)}
+            >
+              {t.styles[s]}
+            </button>
+          ))}
+        </div>
         <div className="gallery-actions">
           <button className="primary" onClick={() => printAs("proof")}>
             {t.printProofBtn}
@@ -222,36 +249,9 @@ export default function Gallery() {
           </div>
         </section>
       ) : (
-        <section className="print-only book-proof">
-          {items
-            .filter((i) => i.approved)
-            .map((i) => (
-              <article key={i.id} className="book-page">
-                <p className="bp-prompt" dir="auto">{i.prompt}</p>
-                {i.photoURLs?.length > 0 && (
-                  <img className="bp-photo" src={i.photoURLs[0]} alt="" />
-                )}
-                <blockquote className="bp-note" dir="auto">{i.text}</blockquote>
-                <p className="bp-signoff" dir="auto">
-                  — {i.name}
-                  {i.relationship ? `, ${i.relationship}` : ""}
-                </p>
-                {i.photoURLs?.length > 1 && (
-                  <div className="bp-extra">
-                    {i.photoURLs.slice(1).map((u, k) => (
-                      <img key={k} src={u} alt="" />
-                    ))}
-                  </div>
-                )}
-                {qrMap[i.id] && (
-                  <div className="bp-qr">
-                    <img src={qrMap[i.id]} alt="QR" />
-                    <span>{t.scanToHear}</span>
-                  </div>
-                )}
-              </article>
-            ))}
-        </section>
+        <div className="print-only">
+          <PrintBook items={items} qrMap={qrMap} style={bookStyle} />
+        </div>
       )}
     </main>
   );

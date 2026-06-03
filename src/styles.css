@@ -224,52 +224,116 @@ button { cursor: pointer; font-family: var(--display); }
 .qr-block { display: flex; align-items: center; gap: 12px; margin-top: auto; }
 .qr { width: 84px; height: 84px; }
 
-/* ---- Print layouts (book pages + QR contact sheet) ---- */
+/* ---- Style picker (screen) ---- */
+.style-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 14px; }
+.style-label { font-family: var(--display); color: var(--ink-soft); font-size: 0.9rem; }
+.chip {
+  border: 1px solid var(--line); background: var(--paper-2);
+  color: var(--ink-soft); border-radius: 999px; padding: 5px 14px;
+  font-family: var(--display); font-size: 0.85rem;
+}
+.chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ---- Print layouts (designed book + QR contact sheet) ---- */
 .print-only { display: none; }
+
+/* Designed-book theme variables (default = Luxury). */
+.book {
+  --bk-paper: #fbf6ec; --bk-ink: #2b2622; --bk-soft: #7a7065;
+  --bk-accent: #9c5b3b; --bk-gold: #b08746;
+  --bk-body: "Newsreader", "Frank Ruhl Libre", Georgia, serif;
+  --bk-name: "Fraunces", "Frank Ruhl Libre", Georgia, serif;
+}
+.book.style-modern {
+  --bk-paper: #ffffff; --bk-ink: #23262b; --bk-soft: #8a8f98;
+  --bk-accent: #3a4350; --bk-gold: #9aa3af;
+  --bk-body: "Assistant", system-ui, sans-serif;
+  --bk-name: "Assistant", system-ui, sans-serif;
+}
+.book.style-vintage {
+  --bk-paper: #ece0c8; --bk-ink: #4b3a26; --bk-soft: #8a755a;
+  --bk-accent: #7d5a3a; --bk-gold: #9c7b4a;
+  --bk-body: "Newsreader", "Frank Ruhl Libre", Georgia, serif;
+  --bk-name: "Newsreader", "Frank Ruhl Libre", Georgia, serif;
+}
+.book.style-vintage .bp-photos img,
+.book.style-vintage .bp-qrbox { filter: sepia(0.45) contrast(0.96); }
+
 @media print {
   body { background: #fff; }
   .screen-only, .masthead, .lang-toggle { display: none !important; }
   .print-only { display: block; }
 
-  /* QR-only contact sheet */
-  .qr-sheet-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
-  }
+  /* QR-only contact sheet (portrait) */
+  .qr-sheet-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .qr-sheet figure { margin: 0; text-align: center; break-inside: avoid; }
   .qr-sheet figure img { width: 150px; height: 150px; }
   .qr-sheet figcaption { font-family: var(--display); font-size: 0.85rem; margin-top: 6px; }
 
-  /* Composed "book page" per person — one printed page each */
-  .book-page {
+  /* The designed book prints landscape, one section per page. */
+  @page legacy { size: A4 landscape; margin: 12mm; }
+  .book-cover, .book-page, .book-closing {
+    page: legacy;
     break-after: page;
-    page-break-after: always;
     break-inside: avoid;
-    min-height: 92vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 24px 16px;
+    min-height: 16cm;
+    background: var(--bk-paper);
+    color: var(--bk-ink);
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  .book-page:last-child { break-after: auto; page-break-after: auto; }
-  .bp-prompt {
-    font-family: var(--body); font-style: italic;
-    color: var(--accent); margin: 0 0 16px; font-size: 1rem;
+  .book-closing { break-after: auto; }
+
+  /* Cover + closing */
+  .book-cover, .book-closing {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 32px;
   }
-  .bp-photo {
-    max-width: 100%; max-height: 46vh; object-fit: contain;
-    border-radius: 4px; margin: 0 0 20px;
+  .book-cover h1 {
+    font-family: var(--bk-name); font-weight: 500;
+    font-size: 3rem; line-height: 1.05; margin: 6px 0 12px; color: var(--bk-ink);
   }
-  .bp-note {
-    font-family: var(--display); font-size: 1.5rem; line-height: 1.45;
-    white-space: pre-wrap; margin: 0 0 16px; max-width: 34ch;
+  .bc-sub { font-family: var(--bk-body); color: var(--bk-soft); max-width: 40ch; margin: 0; }
+  .bc-orn { color: var(--bk-gold); font-size: 1.8rem; }
+  .book-closing p { font-family: var(--bk-name); font-size: 1.9rem; max-width: 24ch; margin: 12px 0 0; }
+
+  /* Per-person spread: message (start side) + media */
+  .book-page {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 26px; align-items: center; padding: 22px 26px;
   }
-  .bp-signoff { font-family: var(--body); font-style: italic; color: var(--ink-soft); margin: 0; }
-  .bp-extra { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
-  .bp-extra img { width: 110px; height: 110px; object-fit: cover; border-radius: 3px; }
-  .bp-qr { margin-top: auto; padding-top: 20px; }
-  .bp-qr img { width: 120px; height: 120px; }
-  .bp-qr span { display: block; font-size: 0.8rem; color: var(--ink-soft); margin-top: 6px; }
+  .bp-text { display: flex; flex-direction: column; }
+  .bp-rel {
+    font-family: var(--bk-body); text-transform: uppercase;
+    letter-spacing: 0.16em; font-size: 0.75rem;
+    color: var(--bk-accent); margin: 0 0 8px;
+  }
+  .bp-name {
+    font-family: var(--bk-name); font-weight: 500;
+    font-size: 2.4rem; line-height: 1.05; margin: 0; color: var(--bk-ink);
+  }
+  .bp-quote { font-family: var(--bk-name); font-size: 2.6rem; color: var(--bk-gold); line-height: 0.4; margin: 10px 0 0; }
+  .bp-msg {
+    font-family: var(--bk-body); font-size: 1.1rem; line-height: 1.5;
+    white-space: pre-wrap; border: none; margin: 6px 0 14px; padding: 0;
+  }
+  .bp-sign { font-family: var(--bk-body); font-style: italic; color: var(--bk-soft); font-size: 1.05rem; margin: 0; }
+
+  .bp-media { display: flex; flex-direction: column; gap: 14px; }
+  .bp-photos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .bp-photos img { width: 100%; height: 4.6cm; object-fit: cover; border-radius: 3px; }
+  .bp-photos img.main { grid-column: 1 / -1; height: 7cm; }
+  .bp-qrbox {
+    align-self: flex-end; text-align: center; width: 3.4cm;
+    border: 1px solid var(--bk-gold); border-radius: 6px; padding: 8px;
+  }
+  .bp-qrbox img { width: 2.6cm; height: 2.6cm; }
+  .bp-qrbox span {
+    display: block; font-family: var(--bk-body);
+    font-size: 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--bk-soft); margin-top: 5px;
+  }
 }
 
 @media (max-width: 520px) {
