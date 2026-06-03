@@ -78,8 +78,24 @@ export function LeftPage({ it, t, num }) {
       <div className="pl-portrait">
         {portrait && <img src={portrait} alt="" />}
       </div>
+      <Sprig />
       {num != null && <span className="page-num">— {num} —</span>}
     </section>
+  );
+}
+
+// A small botanical flourish (inherits the theme's gold via currentColor) —
+// a tasteful CSS-friendly nod to the reference florals.
+function Sprig() {
+  return (
+    <svg className="pl-sprig" viewBox="0 0 80 110" aria-hidden="true"
+      fill="none" stroke="currentColor" strokeWidth="1.3">
+      <path d="M41 106 C41 80 37 50 46 16" />
+      <path d="M45 30 C31 25 22 31 18 44 C33 47 41 41 45 30Z" fill="currentColor" stroke="none" opacity="0.65" />
+      <path d="M44 48 C58 43 67 49 71 62 C56 65 47 59 44 48Z" fill="currentColor" stroke="none" opacity="0.65" />
+      <path d="M42 66 C29 63 21 69 18 81 C32 84 39 77 42 66Z" fill="currentColor" stroke="none" opacity="0.65" />
+      <circle cx="46" cy="13" r="3.2" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 

@@ -38,6 +38,15 @@ export default function Gallery() {
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
   const [printMode, setPrintMode] = useState("proof"); // proof | qr
   const [view, setView] = useState("grid"); // grid | book
+  const [copied, setCopied] = useState(false);
+
+  function copyBookLink() {
+    const url = `${window.location.origin}/book`;
+    navigator.clipboard?.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  }
   const [bookStyle, setBookStyle] = useState(
     () => localStorage.getItem("bookStyle") || "luxury"
   );
@@ -182,6 +191,9 @@ export default function Gallery() {
           </button>
           <button className="ghost" onClick={() => printAs("qr")}>
             {t.printBtn}
+          </button>
+          <button className="ghost" onClick={copyBookLink}>
+            {copied ? t.linkCopied : t.shareBtn}
           </button>
           <button className="ghost" onClick={() => signOut(auth)}>
             {t.signOutBtn}

@@ -66,7 +66,13 @@ export default function PublicBook() {
 
   return (
     <main className="page">
+      <header className="public-intro">
+        <p className="kicker">{t.forGrandma}</p>
+        <h1 dir="auto">{t.bookCoverTitle}</h1>
+        <p className="lede" dir="auto">{t.bookWelcome}</p>
+      </header>
       <OnlineBook items={items} qrMap={qrMap} style={style} />
+      <footer className="public-credits" dir="auto">{t.bookCredits}</footer>
     </main>
   );
 }
