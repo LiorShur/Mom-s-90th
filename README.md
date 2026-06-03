@@ -47,8 +47,11 @@ service cloud.firestore {
     match /messages/{id} {
       // QR pages read one doc at a time by id.
       allow get: if true;
-      // Only the organizer can list every submission (the review gallery).
-      allow list: if isOrganizer();
+      // The organizer lists everything (review gallery); anyone signed in
+      // may list APPROVED entries only — that powers the public /book page
+      // while keeping drafts/unapproved submissions private.
+      allow list: if isOrganizer()
+        || (request.auth != null && resource.data.approved == true);
       // Signed-in (anonymous) contributors may create their doc...
       allow create: if request.auth != null;
       // ...and patch in their own uploaded URLs, but cannot self-approve.
@@ -67,6 +70,12 @@ service cloud.firestore {
 > and click **Sign in with Google**; the rule above lets only your email read
 > the list and approve. Set the same email as `ORGANIZER_EMAIL` near the top of
 > `src/Gallery.jsx`. No rule needs to be flipped on and off anymore.
+>
+> **Public online book.** `https://your-project.web.app/book` shows a scrollable
+> book of the **approved** entries to anyone with the link (drafts stay hidden by
+> the rule above). Add `?style=vintage` (or `modern`/`luxury`) to pick the look.
+> Because approved photos and voices become viewable by anyone with the URL,
+> only approve what you're happy to share, and treat the link as semi-public.
 
 ### Storage rules
 
