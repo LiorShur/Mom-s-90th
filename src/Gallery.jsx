@@ -17,6 +17,8 @@ import {
 import QRCode from "qrcode";
 import { useLang } from "./i18n.jsx";
 import PrintBook from "./PrintBook.jsx";
+import OnlineBook from "./OnlineBook.jsx";
+import { SpreadThumb, splitText } from "./book.jsx";
 
 const BOOK_STYLES = ["luxury", "modern", "vintage"];
 
@@ -35,6 +37,7 @@ export default function Gallery() {
   const [loading, setLoading] = useState(true);
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
   const [printMode, setPrintMode] = useState("proof"); // proof | qr
+  const [view, setView] = useState("grid"); // grid | book
   const [bookStyle, setBookStyle] = useState(
     () => localStorage.getItem("bookStyle") || "luxury"
   );
@@ -168,7 +171,13 @@ export default function Gallery() {
           ))}
         </div>
         <div className="gallery-actions">
-          <button className="primary" onClick={() => printAs("proof")}>
+          <button
+            className="primary"
+            onClick={() => setView(view === "book" ? "grid" : "book")}
+          >
+            {view === "book" ? t.backToList : t.viewBookBtn}
+          </button>
+          <button className="ghost" onClick={() => printAs("proof")}>
             {t.printProofBtn}
           </button>
           <button className="ghost" onClick={() => printAs("qr")}>
@@ -180,14 +189,21 @@ export default function Gallery() {
         </div>
       </header>
 
-      {GEN_ORDER.filter((g) => grouped[g]?.length).map((g) => (
+      {view === "book" && (
+        <OnlineBook items={items} qrMap={qrMap} style={bookStyle} />
+      )}
+
+      {view === "grid" && GEN_ORDER.filter((g) => grouped[g]?.length).map((g) => (
         <section key={g} className="screen-only">
           <h2 className="gen-head">{t.genHeads[g]}</h2>
           <div className="grid">
             {grouped[g].map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
                 <p className="kicker" dir="auto">{it.prompt}</p>
-                <blockquote className="note small" dir="auto">{it.text}</blockquote>
+                <div className="card-spread">
+                  <SpreadThumb it={it} qr={qrMap[it.id]} style={bookStyle} />
+                </div>
+                <p className="card-quote" dir="auto">“{splitText(it).pull}”</p>
                 <p className="signoff" dir="auto">
                   — {it.name}
                   {it.relationship ? `, ${it.relationship}` : ""}

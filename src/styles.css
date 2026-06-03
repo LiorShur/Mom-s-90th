@@ -209,7 +209,7 @@ button { cursor: pointer; font-family: var(--display); }
 .photo-strip img { width: 140px; height: 140px; object-fit: cover; border-radius: 3px; border: 1px solid var(--line); }
 
 /* ---- Gallery ---- */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
 .card.sub { display: flex; flex-direction: column; gap: 12px; opacity: 0.78; }
 .card.sub.on { opacity: 1; border-color: var(--accent); }
 .gallery-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
@@ -234,10 +234,14 @@ button { cursor: pointer; font-family: var(--display); }
 }
 .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-/* ---- Print layouts (designed book + QR contact sheet) ---- */
 .print-only { display: none; }
 
-/* Designed-book theme variables (default = Luxury). */
+/* ====================================================================
+   The keepsake book — shared by print, gallery thumbnails and the
+   online book. Pages are 30×30 cm; on screen they are scaled with .fitbox.
+   ==================================================================== */
+
+/* Theme variables (default = Luxury). */
 .book {
   --bk-paper: #fbf6ec; --bk-ink: #2b2622; --bk-soft: #7a7065;
   --bk-accent: #9c5b3b; --bk-gold: #b08746;
@@ -258,6 +262,86 @@ button { cursor: pointer; font-family: var(--display); }
 .book.style-vintage .pl-portrait img,
 .book.style-vintage .pr-photos img { filter: sepia(0.45) contrast(0.96); }
 
+.book-cover, .book-page, .book-closing {
+  width: 30cm; height: 30cm; position: relative; overflow: hidden;
+  background: var(--bk-paper); color: var(--bk-ink);
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+
+.book-cover, .book-closing {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; padding: 4cm;
+}
+.book-cover h1 {
+  font-family: var(--bk-name); font-weight: 500;
+  font-size: 4.6rem; line-height: 1.05; margin: 0.4cm 0; color: var(--bk-ink);
+}
+.bc-sub { font-family: var(--bk-body); color: var(--bk-soft); font-size: 1.5rem; max-width: 26ch; margin: 0; }
+.bc-orn { color: var(--bk-gold); font-size: 2.6rem; }
+.book-closing p { font-family: var(--bk-name); font-size: 2.6rem; max-width: 20ch; margin: 0.5cm 0 0; }
+
+.page-num {
+  position: absolute; bottom: 1cm; left: 0; right: 0; text-align: center;
+  font-family: var(--bk-body); font-size: 0.85rem; color: var(--bk-soft);
+}
+
+/* LEFT page: message column + full-bleed portrait */
+.page-left { display: grid; grid-template-columns: 1.05fr 1.15fr; }
+.pl-text {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 3.2cm 2.4cm; text-align: start;
+}
+.pl-name { font-family: var(--bk-script); font-weight: 400; font-size: 4.4rem; line-height: 1; margin: 0; color: var(--bk-ink); }
+.pl-rel { font-family: var(--bk-body); text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.95rem; color: var(--bk-soft); margin: 0.5cm 0 0; }
+.pl-qmark { font-family: var(--bk-name); font-size: 4rem; color: var(--bk-gold); line-height: 0; height: 0.5em; margin: 1.2cm 0 0; display: block; }
+.pl-quote { font-family: var(--bk-name); font-size: 2rem; line-height: 1.35; color: var(--bk-ink); text-align: center; margin: 0.4cm 0 0; }
+.pl-divider { display: block; text-align: center; color: var(--bk-gold); font-size: 1.2rem; margin: 0.5cm 0; }
+.pl-body { font-family: var(--bk-body); font-size: 1.2rem; line-height: 1.55; color: var(--bk-soft); white-space: pre-wrap; margin: 0; }
+.pl-sign { font-family: var(--bk-script); font-size: 2.4rem; color: var(--bk-ink); margin: 1cm 0 0; }
+.pl-portrait { height: 100%; }
+.pl-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* RIGHT page: collage + framed QR box */
+.pr-photos { position: absolute; inset: 0; display: grid; gap: 0.25cm; }
+.pr-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pr-photos.count-0 { display: none; }
+.pr-photos.count-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.pr-photos.count-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+.pr-photos.count-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.pr-qr {
+  position: absolute; bottom: 3.4cm; inset-inline-end: 2.4cm;
+  width: 6cm; text-align: center; padding: 0.6cm;
+  background: var(--bk-paper); border: 1.5px solid var(--bk-gold); border-radius: 8px;
+}
+.pr-qr img { width: 4.4cm; height: 4.4cm; display: block; margin: 0 auto; }
+.pr-qr.feature {
+  position: absolute; inset: 0; width: auto; border: none; background: transparent;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.pr-qr.feature img { width: 10cm; height: 10cm; }
+.pr-scan { display: block; font-family: var(--bk-body); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bk-accent); margin-top: 0.4cm; }
+.pr-caption { position: absolute; bottom: 1.5cm; inset-inline-end: 2.4cm; margin: 0; font-family: var(--bk-script); font-size: 1.6rem; color: var(--bk-soft); }
+
+/* Scale-to-fit wrapper for on-screen book rendering */
+.fitbox { position: relative; width: 100%; overflow: hidden; margin: 0 auto; }
+.fitbox-inner { position: absolute; top: 0; left: 0; transform-origin: top left; }
+
+/* Gallery card: scaled spread + the big sentence */
+.card-spread { border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.card-quote { font-family: var(--display); font-style: italic; color: var(--ink); margin: 2px 0; }
+
+/* Online scrollable book */
+.online-book { max-width: 820px; margin: 0 auto; }
+.online-page { margin: 14px auto; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; }
+.online-player {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  max-width: 760px; margin: 6px auto 24px; padding: 10px 16px;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px;
+}
+.online-player .op-name { font-family: var(--display); color: var(--ink); }
+.online-player audio { height: 38px; }
+.online-player video { max-width: 280px; border-radius: 6px; }
+
 @media print {
   body { background: #fff; }
   .screen-only, .masthead, .lang-toggle { display: none !important; }
@@ -269,95 +353,12 @@ button { cursor: pointer; font-family: var(--display); }
   .qr-sheet figure img { width: 150px; height: 150px; }
   .qr-sheet figcaption { font-family: var(--display); font-size: 0.85rem; margin-top: 6px; }
 
-  /* The keepsake book: square 30×30 cm pages, full bleed, one per sheet. */
+  /* Full-size square pages, one per sheet. */
   @page legacy { size: 30cm 30cm; margin: 0; }
   .book-cover, .book-page, .book-closing {
-    page: legacy;
-    width: 30cm; height: 30cm;
-    break-after: page; break-inside: avoid; overflow: hidden;
-    position: relative;
-    background: var(--bk-paper); color: var(--bk-ink);
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    page: legacy; break-after: page; break-inside: avoid;
   }
   .book-closing { break-after: auto; }
-
-  /* Cover + closing */
-  .book-cover, .book-closing {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; text-align: center;
-    padding: 4cm;
-  }
-  .book-cover h1 {
-    font-family: var(--bk-name); font-weight: 500;
-    font-size: 4.6rem; line-height: 1.05; margin: 0.4cm 0; color: var(--bk-ink);
-  }
-  .bc-sub { font-family: var(--bk-body); color: var(--bk-soft); font-size: 1.5rem; max-width: 26ch; margin: 0; }
-  .bc-orn { color: var(--bk-gold); font-size: 2.6rem; }
-  .book-closing p { font-family: var(--bk-name); font-size: 2.6rem; max-width: 20ch; margin: 0.5cm 0 0; }
-
-  /* Shared page number */
-  .page-num {
-    position: absolute; bottom: 1cm; left: 0; right: 0; text-align: center;
-    font-family: var(--bk-body); font-size: 0.85rem; color: var(--bk-soft);
-  }
-
-  /* LEFT PAGE: message column + full-bleed portrait */
-  .page-left { display: grid; grid-template-columns: 1.05fr 1.15fr; }
-  .pl-text {
-    display: flex; flex-direction: column; justify-content: center;
-    padding: 3.2cm 2.4cm; text-align: start;
-  }
-  .pl-name {
-    font-family: var(--bk-script); font-weight: 400;
-    font-size: 4.4rem; line-height: 1; margin: 0; color: var(--bk-ink);
-  }
-  .pl-rel {
-    font-family: var(--bk-body); text-transform: uppercase;
-    letter-spacing: 0.22em; font-size: 0.95rem;
-    color: var(--bk-soft); margin: 0.5cm 0 0;
-  }
-  .pl-qmark { font-family: var(--bk-name); font-size: 4rem; color: var(--bk-gold); line-height: 0; height: 0.5em; margin: 1.2cm 0 0; display: block; }
-  .pl-quote {
-    font-family: var(--bk-name); font-size: 2rem; line-height: 1.35;
-    color: var(--bk-ink); text-align: center; margin: 0.4cm 0 0;
-  }
-  .pl-divider { display: block; text-align: center; color: var(--bk-gold); font-size: 1.2rem; margin: 0.5cm 0; }
-  .pl-body {
-    font-family: var(--bk-body); font-size: 1.2rem; line-height: 1.55;
-    color: var(--bk-soft); white-space: pre-wrap; margin: 0;
-  }
-  .pl-sign { font-family: var(--bk-script); font-size: 2.4rem; color: var(--bk-ink); margin: 1cm 0 0; }
-  .pl-portrait { height: 100%; }
-  .pl-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-  /* RIGHT PAGE: collage + framed QR box in the corner */
-  .pr-photos { position: absolute; inset: 0; display: grid; gap: 0.25cm; }
-  .pr-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .pr-photos.count-0 { display: none; }
-  .pr-photos.count-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
-  .pr-photos.count-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
-  .pr-photos.count-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-
-  .pr-qr {
-    position: absolute; bottom: 3.4cm; inset-inline-end: 2.4cm;
-    width: 6cm; text-align: center; padding: 0.6cm;
-    background: var(--bk-paper); border: 1.5px solid var(--bk-gold); border-radius: 8px;
-  }
-  .pr-qr img { width: 4.4cm; height: 4.4cm; display: block; margin: 0 auto; }
-  .pr-qr.feature {
-    position: absolute; inset: 0; width: auto; border: none; background: transparent;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-  }
-  .pr-qr.feature img { width: 10cm; height: 10cm; }
-  .pr-scan {
-    display: block; font-family: var(--bk-body);
-    font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--bk-accent); margin-top: 0.4cm;
-  }
-  .pr-caption {
-    position: absolute; bottom: 1.5cm; inset-inline-end: 2.4cm; margin: 0;
-    font-family: var(--bk-script); font-size: 1.6rem; color: var(--bk-soft);
-  }
 }
 
 @media (max-width: 520px) {

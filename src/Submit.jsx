@@ -198,7 +198,7 @@ function PhotoPicker({ photos, setPhotos }) {
         type="file"
         accept="image/*"
         multiple
-        onChange={(e) => setPhotos(Array.from(e.target.files).slice(0, 3))}
+        onChange={(e) => setPhotos(Array.from(e.target.files).slice(0, 4))}
       />
       {photos.length > 0 && <small>{t.photosSelected(photos.length)}</small>}
     </label>
