@@ -59,32 +59,35 @@ their spelling exactly as-is.
 
 > **We're making Grandma a book for her 90th 🎉**
 >
-> It's from *all* of us — kids, grandkids and great-grandkids. Two parts to your
-> bit, and it takes five minutes:
+> It's from *all* of us. It takes about five minutes — do it right on your phone
+> at the link below. Four little parts:
 >
-> **1. A short written note.** Pick ONE of these to answer (whichever sparks
-> something):
+> **1. One line from the heart.** A short sentence that sums up what she means to
+> you — it appears *big* on your page. E.g. "You are my safe place." (Optional,
+> but lovely.)
+>
+> **2. A short note.** Pick ONE prompt to answer (whichever sparks something):
 > • A memory only you have of her
 > • Something she taught you without meaning to
 > • A saying of hers you still use
 > • The first thing you picture when you think of her
 > • What you want your own kids to know about her
 > • A time she made you laugh
+> Write it the way you'd actually say it to her — a few sentences is perfect.
 >
-> Keep it real — write it the way you'd actually say it to her. A few sentences
-> is perfect.
+> **3. Your photos.** Your **main photo** goes large on the page (ideally one of
+> you *with* her); you can add up to **3 more** for a little collage. The form
+> shows you exactly where each one lands.
 >
-> **2. Your voice (this is the bit she'll love most).** Record 20–40 seconds of
-> yourself saying something to her — even just reading your note aloud, or
-> "Happy 90th, Grandma, I love you." Kids saying it in their tiny voices are the
-> best part. A quick phone voice memo or video is ideal.
+> **4. Your voice (the part she'll love most).** Record 20–40 seconds right on the
+> page — say something to her, or just read your note aloud. You can **listen
+> back and re-record** until you're happy. Kids' tiny voices are the best part.
+> (You can also upload a clip or short video from your phone.)
 >
-> **3. A photo or two** — ideally one of you *with* her.
->
-> 👉 Put it all in here: **[your submission link]**
+> 👉 Do it all here: **[your submission link]**
 > (Or send it to me directly if that's easier: **[your contact]**)
 >
-> 🗓️ Please do it by **[deadline]** so we can get it printed in time.
+> 🗓️ Please by **[deadline]** so we can print in time.
 >
 > Don't overthink it — short and from the heart beats long and polished. Thank
 > you! ❤️
@@ -95,26 +98,31 @@ their spelling exactly as-is.
 
 > **אנחנו מכינים לסבתא ספר ליום ההולדת ה-90 שלה 🎉**
 >
-> זה מכולנו — ילדים, נכדים ונינים. שני חלקים קטנים, וזה לוקח חמש דקות:
+> זה מכולנו, וזה לוקח חמש דקות — עשו הכול ישירות מהטלפון בקישור למטה. ארבעה
+> חלקים קטנים:
 >
-> **1. כמה מילים כתובות.** בחרו אחת מהשאלות (מה שהכי מתחבר לכם):
+> **1. משפט אחד מהלב.** משפט קצר שמסכם מה היא בשבילכם — הוא יופיע *גדול* בעמוד
+> שלכם. למשל: "את המקום הבטוח שלי". (לא חובה, אבל יפהפה.)
+>
+> **2. כמה מילים.** בחרו שאלה אחת לענות עליה (מה שהכי מתחבר):
 > • זיכרון שרק לכם יש ממנה
 > • משהו שהיא לימדה אתכם בלי לכוון
 > • מטבע לשון שלה שאתם עדיין משתמשים בו
 > • הדבר הראשון שעולה לכם בראש כשחושבים עליה
 > • מה הייתם רוצים שהילדים שלכם ידעו עליה
 > • פעם שהיא גרמה לכם לצחוק
+> כתבו כמו שהייתם אומרים לה באמת — כמה משפטים זה מושלם.
 >
-> כתבו את זה כמו שהייתם אומרים לה באמת — כמה משפטים זה מושלם.
+> **3. התמונות שלכם.** התמונה הראשית תופיע גדולה בעמוד (עדיף אחת שלכם ביחד איתה),
+> ואפשר להוסיף עד **3 נוספות** לקולאז' קטן. הטופס מראה לכם בדיוק איפה כל תמונה
+> תופיע.
 >
-> **2. הקול שלכם (החלק שהיא הכי תאהב).** הקליטו 20–40 שניות שאתם אומרים לה
-> משהו — אפשר פשוט להקריא את מה שכתבתם, או "יום הולדת 90 שמח, סבתא, אני אוהב/ת
-> אותך". ילדים שאומרים את זה בקול הקטן שלהם — זה הכי מרגש. הקלטת קול או סרטון
-> קצר מהטלפון מושלמת.
+> **4. הקול שלכם (החלק שהיא הכי תאהב).** הקליטו 20–40 שניות ישירות בעמוד — אמרו
+> לה משהו, או פשוט הקריאו את מה שכתבתם. אפשר **להאזין ולהקליט שוב** עד שתהיו
+> מרוצים. ילדים בקול הקטן שלהם — זה הכי מרגש. (אפשר גם להעלות הקלטה או סרטון קצר
+> מהטלפון.)
 >
-> **3. תמונה או שתיים** — עדיף אחת שלכם ביחד איתה.
->
-> 👉 שימו הכול כאן: **[קישור ההגשה שלכם]**
+> 👉 עשו הכול כאן: **[קישור ההגשה שלכם]**
 > (או שלחו לי ישירות אם ככה יותר נוח: **[הקשר שלכם]**)
 >
 > 🗓️ בבקשה עד **[תאריך]** כדי שנספיק להדפיס בזמן.
