@@ -112,10 +112,13 @@ export default function Gallery() {
         )
       );
       await new Promise((r) => setTimeout(r, 200)); // let fonts settle
-      // Capture ONLY the direct page children of the export stage's book, so
-      // nothing outside it (gallery thumbnails, print-only) can leak in.
+      // Export only the contributor spread pages (skip the cover + closing).
       const book = stage.querySelector(".book");
-      const pages = book ? Array.from(book.children) : [];
+      const pages = book
+        ? Array.from(book.children).filter((el) =>
+            el.classList.contains("book-page")
+          )
+        : [];
       const { toJpeg } = await import("html-to-image");
       const ratio = 3543 / PAGE_PX; // 30 cm @ 300 DPI ≈ 3543 px
       for (let k = 0; k < pages.length; k++) {
