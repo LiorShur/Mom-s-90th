@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { auth, db } from "./firebase.js";
 import {
   GoogleAuthProvider,
@@ -28,8 +28,6 @@ const BOOK_STYLES = ["luxury", "modern", "vintage"];
 // in your Firestore security rules — that rule is what actually enforces it;
 // this line just gives a friendly message if the wrong account signs in.
 const ORGANIZER_EMAIL = "lior.shur@gmail.com";
-
-const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
 
 export default function Gallery() {
   const { t } = useLang();
@@ -195,12 +193,6 @@ export default function Gallery() {
       cancelled = true;
     };
   }, [isOrganizer]);
-
-  const grouped = useMemo(() => {
-    const g = {};
-    for (const it of items) (g[it.generation] ||= []).push(it);
-    return g;
-  }, [items]);
 
   async function handleSignIn() {
     setAuthError("");
@@ -393,11 +385,10 @@ export default function Gallery() {
         </section>
       )}
 
-      {view === "grid" && GEN_ORDER.filter((g) => grouped[g]?.length).map((g) => (
-        <section key={g} className="screen-only">
-          <h2 className="gen-head">{t.genHeads[g]}</h2>
+      {view === "grid" && (
+        <section className="screen-only">
           <div className="grid">
-            {grouped[g].map((it) => (
+            {orderedAll(items).map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
                 <p className="kicker" dir="auto">{it.prompt}</p>
                 {editingId === it.id ? (
@@ -412,10 +403,7 @@ export default function Gallery() {
                       <SpreadThumb it={it} qr={qrMap[it.id]} style={bookStyle} />
                     </div>
                     <p className="card-quote" dir="auto">“{splitText(it).pull}”</p>
-                    <p className="signoff" dir="auto">
-                      — {it.name}
-                      {it.relationship ? `, ${it.relationship}` : ""}
-                    </p>
+                    <p className="signoff" dir="auto">— {it.name}</p>
                     <div className="sub-meta">
                       {it.clipURL ? (
                         <span className="tag">🔊 {t.kinds[it.clipKind] || it.clipKind}</span>
@@ -451,7 +439,7 @@ export default function Gallery() {
             ))}
           </div>
         </section>
-      ))}
+      )}
 
       {/* Off-screen full-size book used only while exporting hi-res images. */}
       {exporting && (
@@ -471,10 +459,7 @@ export default function Gallery() {
               .map((i) => (
                 <figure key={i.id}>
                   <img src={qrMap[i.id]} alt="" />
-                  <figcaption dir="auto">
-                    {i.name}
-                    {i.relationship ? ` · ${i.relationship}` : ""}
-                  </figcaption>
+                  <figcaption dir="auto">{i.name}</figcaption>
                 </figure>
               ))}
           </div>

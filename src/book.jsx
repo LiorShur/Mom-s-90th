@@ -17,9 +17,7 @@ export const SPREAD_PX = PAGE_PX * 2;
 // back to generation order, then submission order — so the book reads sensibly
 // before anyone has manually arranged it.
 export function orderKey(it, idx = 0) {
-  return typeof it.order === "number"
-    ? it.order
-    : GEN_ORDER.indexOf(it.generation) * 1000 + idx;
+  return typeof it.order === "number" ? it.order : idx;
 }
 
 export function orderedApproved(items) {
@@ -93,7 +91,6 @@ export function LeftPage({ it, t, num }) {
     <section className="book-page page-left">
       <div className="pl-text">
         <h2 className="pl-name" dir="auto">{it.name}</h2>
-        <p className="pl-rel" dir="auto">{relLabel(t, it)}</p>
         <span className="pl-qmark" aria-hidden>“</span>
         {pull && <p className="pl-quote" dir="auto">{pull}</p>}
         <span className="pl-divider" aria-hidden>♡</span>

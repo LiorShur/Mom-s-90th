@@ -5,13 +5,11 @@ import { useLang } from "./i18n.jsx";
 import PhotoSlots from "./PhotoSlots.jsx";
 import { uploadAll } from "./storageUpload.js";
 
-// Organizer-only inline editor: fix a contributor's name, relationship,
-// generation, quote and note, and add/replace/remove their photos.
+// Organizer-only inline editor: fix a contributor's name, quote and note,
+// and add/replace/remove their photos.
 export default function GalleryEditor({ item, onSaved, onClose }) {
   const { t } = useLang();
   const [name, setName] = useState(item.name || "");
-  const [relationship, setRelationship] = useState(item.relationship || "");
-  const [generation, setGeneration] = useState(item.generation || "other");
   const [pullQuote, setPullQuote] = useState(item.pullQuote || "");
   const [text, setText] = useState(item.text || "");
   const [slots, setSlots] = useState(() => {
@@ -51,8 +49,6 @@ export default function GalleryEditor({ item, onSaved, onClose }) {
       }
       const fields = {
         name: name.trim(),
-        relationship: relationship.trim(),
-        generation,
         pullQuote: pullQuote.trim(),
         text: text.trim(),
         photoURLs,
@@ -74,27 +70,6 @@ export default function GalleryEditor({ item, onSaved, onClose }) {
         <span>{t.nameLabel}</span>
         <input value={name} dir="auto" onChange={(e) => setName(e.target.value)} />
       </label>
-      <div className="row">
-        <label className="field">
-          <span>{t.youAreHer}</span>
-          <select value={generation} onChange={(e) => setGeneration(e.target.value)}>
-            {t.generations.map((g) => (
-              <option key={g.value} value={g.value}>
-                {g.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="field">
-          <span>{t.relationshipLabel}</span>
-          <input
-            value={relationship}
-            dir="auto"
-            onChange={(e) => setRelationship(e.target.value)}
-            placeholder={t.relationshipPlaceholder}
-          />
-        </label>
-      </div>
       <label className="field">
         <span>{t.pullQuoteLabel}</span>
         <input value={pullQuote} dir="auto" onChange={(e) => setPullQuote(e.target.value)} />

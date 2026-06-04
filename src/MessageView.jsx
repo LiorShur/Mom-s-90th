@@ -59,10 +59,7 @@ export default function MessageView({ id }) {
 
       <blockquote className="note" dir="auto">{msg.text}</blockquote>
 
-      <p className="signoff" dir="auto">
-        — {msg.name}
-        {msg.relationship ? `, ${msg.relationship}` : ""}
-      </p>
+      <p className="signoff" dir="auto">— {msg.name}</p>
 
       {Array.isArray(msg.photoURLs) && msg.photoURLs.filter(Boolean).length > 0 && (
         <div className="photo-strip">
