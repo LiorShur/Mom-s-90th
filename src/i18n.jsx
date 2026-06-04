@@ -155,7 +155,7 @@ const STRINGS = {
       "We're making a keepsake from all of us — children, grandchildren and great-grandchildren. Leave a short note and, if you can, a few seconds of your actual voice. Hearing you will mean the world to her.",
 
     nameLabel: "Your name",
-    namePlaceholder: "e.g. Sarah",
+    namePlaceholder: "e.g. Shmulik",
     youAreHer: "You are her…",
     relationshipLabel: "Exactly (optional)",
     relationshipPlaceholder: "e.g. eldest granddaughter",
