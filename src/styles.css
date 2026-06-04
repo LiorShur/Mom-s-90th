@@ -476,12 +476,11 @@ small.warn { color: #a3690f; }
   .qr-sheet figure img { width: 150px; height: 150px; }
   .qr-sheet figcaption { font-family: var(--display); font-size: 0.85rem; margin-top: 6px; }
 
-  /* Full-size square pages, one per sheet. */
+  /* Full-size square pages, one per sheet. Use break-before so there is no
+     forced break after the last page (which would add a trailing blank page). */
   @page legacy { size: 30cm 30cm; margin: 0; }
-  .book-cover, .book-page, .book-closing {
-    page: legacy; break-after: page; break-inside: avoid;
-  }
-  .book-closing { break-after: auto; }
+  .book-cover, .book-page, .book-closing { page: legacy; break-inside: avoid; }
+  .book > * + * { break-before: page; }
 }
 
 @media (max-width: 520px) {
