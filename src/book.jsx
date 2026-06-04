@@ -33,6 +33,17 @@ export function splitText(it) {
   return { pull: text, body: "" };
 }
 
+// Per-photo design transform (rotate / zoom / pan) set by the organizer.
+export function fxStyle(f) {
+  if (!f) return undefined;
+  const { rot = 0, zoom = 1, ox = 50, oy = 50 } = f;
+  return {
+    transform: `scale(${zoom}) rotate(${rot}deg)`,
+    transformOrigin: "center center",
+    objectPosition: `${ox}% ${oy}%`,
+  };
+}
+
 export function relLabel(t, it) {
   return (
     it.relationship?.trim() ||
@@ -64,6 +75,7 @@ export function ClosingPage({ t }) {
 export function LeftPage({ it, t, num }) {
   const { pull, body } = splitText(it);
   const portrait = (it.photoURLs || [])[0] || null;
+  const portraitFx = (it.photoFx || [])[0];
   return (
     <section className="book-page page-left">
       <div className="pl-text">
@@ -76,7 +88,7 @@ export function LeftPage({ it, t, num }) {
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
       <div className="pl-portrait">
-        {portrait && <img src={portrait} alt="" />}
+        {portrait && <img src={portrait} alt="" style={fxStyle(portraitFx)} />}
       </div>
       <Sprig />
       {num != null && <span className="page-num">— {num} —</span>}
@@ -101,13 +113,15 @@ function Sprig() {
 
 // RIGHT page: collage of up to 3 photos (#2–#4) + framed QR box.
 export function RightPage({ it, qr, t, num }) {
-  const collage = (it.photoURLs || []).slice(1).filter(Boolean).slice(0, 3);
+  const collage = [1, 2, 3]
+    .map((i) => ({ url: (it.photoURLs || [])[i], fx: (it.photoFx || [])[i] }))
+    .filter((e) => e.url);
   const scanLabel = it.clipKind === "video" ? t.bookScanVideo : t.bookScanAudio;
   return (
     <section className="book-page page-right">
       <div className={`pr-photos count-${collage.length}`}>
-        {collage.map((u, i) => (
-          <img key={i} src={u} alt="" />
+        {collage.map((e, i) => (
+          <img key={i} src={e.url} alt="" style={fxStyle(e.fx)} />
         ))}
       </div>
       <div className={`pr-qr ${collage.length === 0 ? "feature" : ""}`}>

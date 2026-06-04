@@ -172,6 +172,35 @@ book cover title, etc.): open `src/i18n.jsx`, edit the matching line under `he`
 or `en`, then `npm run build && firebase deploy`. Everything visible to users is
 a string in that one file.
 
+## Exporting hi-res page images (for print apps)
+
+The gallery's **Download page images (hi-res)** button rasterizes every book
+page to a ~3543 px (300 DPI at 30 cm) JPEG and downloads them as a zip — handy
+for photobook tools that want one image per page.
+
+This reads your photos onto a canvas, so the Storage bucket **must allow CORS**
+or the export fails. One-time setup (easiest in the **Firebase Console → ⋮ →
+Cloud Shell**, or any machine with `gcloud`):
+
+1. Create `cors.json`:
+   ```json
+   [
+     {
+       "origin": ["https://YOUR-PROJECT.web.app", "http://localhost:5173"],
+       "method": ["GET"],
+       "responseHeader": ["Content-Type"],
+       "maxAgeSeconds": 3600
+     }
+   ]
+   ```
+2. Apply it (replace with your bucket name from `firebase.js` `storageBucket`):
+   ```bash
+   gsutil cors set cors.json gs://YOUR-PROJECT.appspot.com
+   ```
+
+Then reload the gallery and click the button. (Save-as-PDF needs no CORS — it's
+the simpler route if your printer accepts a 30×30 cm PDF.)
+
 ## Fixing submissions in the gallery
 
 Contributors only enter their **name, prompt, one-line quote, note, photos and

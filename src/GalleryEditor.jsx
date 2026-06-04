@@ -18,6 +18,17 @@ export default function GalleryEditor({ item, onSaved, onClose }) {
     const urls = item.photoURLs || [];
     return [0, 1, 2, 3].map((i) => ({ url: urls[i] || null, file: null }));
   });
+  const [fx, setFx] = useState(() =>
+    [0, 1, 2, 3].map((i) => {
+      const f = item.photoFx?.[i];
+      return {
+        rot: f?.rot ?? 0,
+        zoom: f?.zoom ?? 1,
+        ox: f?.ox ?? 50,
+        oy: f?.oy ?? 50,
+      };
+    })
+  );
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(null);
 
@@ -44,6 +55,7 @@ export default function GalleryEditor({ item, onSaved, onClose }) {
         pullQuote: pullQuote.trim(),
         text: text.trim(),
         photoURLs,
+        photoFx: fx,
       };
       await updateDoc(doc(db, "messages", item.id), fields);
       onSaved(fields);
@@ -91,7 +103,7 @@ export default function GalleryEditor({ item, onSaved, onClose }) {
         <textarea rows={5} value={text} dir="auto" onChange={(e) => setText(e.target.value)} />
       </label>
 
-      <PhotoSlots slots={slots} setSlots={setSlots} />
+      <PhotoSlots slots={slots} setSlots={setSlots} fx={fx} setFx={setFx} />
 
       {saving && progress != null && (
         <div className="progress">

@@ -1,12 +1,14 @@
 import { useLang } from "./i18n.jsx";
+import { fxStyle } from "./book.jsx";
 
 // Four photo "slots" mapped to where each photo lands in the book:
 //   slot 0 -> the big portrait on page one
 //   slots 1-3 -> the collage on page two
 // `slots` is an array of { url, file }: url is the preview/existing image,
 // file is a freshly picked File still to upload (null for existing images).
-export default function PhotoSlots({ slots, setSlots }) {
+export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
   const { t } = useLang();
+  const editable = !!fx; // organizer mode: show rotate/zoom/pan controls
 
   function setSlot(i, val) {
     setSlots(slots.map((s, idx) => (idx === i ? val : s)));
@@ -16,6 +18,9 @@ export default function PhotoSlots({ slots, setSlots }) {
     if (!f) return;
     setSlot(i, { url: URL.createObjectURL(f), file: f });
   }
+  function setFxField(i, key, val) {
+    setFx(fx.map((f, idx) => (idx === i ? { ...f, [key]: val } : f)));
+  }
   const label = (i) => (i === 0 ? t.slotPortrait : t.slotCollage(i));
 
   return (
@@ -23,10 +28,10 @@ export default function PhotoSlots({ slots, setSlots }) {
       <span>{t.photoSlotsLabel}</span>
       <div className="slots">
         {slots.map((s, i) => (
-          <div key={i} className={`slot ${i === 0 ? "portrait" : ""}`}>
+          <div key={i} className={`slot ${i === 0 ? "portrait" : ""} ${editable ? "editable" : ""}`}>
             <label className="slot-drop">
               {s.url ? (
-                <img src={s.url} alt="" />
+                <img src={s.url} alt="" style={editable ? fxStyle(fx[i]) : undefined} />
               ) : (
                 <span className="slot-plus">＋</span>
               )}
@@ -48,6 +53,26 @@ export default function PhotoSlots({ slots, setSlots }) {
               </button>
             )}
             <span className="slot-cap">{label(i)}</span>
+            {editable && s.url && (
+              <div className="slot-fx">
+                <label>{t.fxRotate}
+                  <input type="range" min="-20" max="20" step="1" value={fx[i].rot}
+                    onChange={(e) => setFxField(i, "rot", Number(e.target.value))} />
+                </label>
+                <label>{t.fxZoom}
+                  <input type="range" min="1" max="2.5" step="0.05" value={fx[i].zoom}
+                    onChange={(e) => setFxField(i, "zoom", Number(e.target.value))} />
+                </label>
+                <label>{t.fxPanX}
+                  <input type="range" min="0" max="100" value={fx[i].ox}
+                    onChange={(e) => setFxField(i, "ox", Number(e.target.value))} />
+                </label>
+                <label>{t.fxPanY}
+                  <input type="range" min="0" max="100" value={fx[i].oy}
+                    onChange={(e) => setFxField(i, "oy", Number(e.target.value))} />
+                </label>
+              </div>
+            )}
           </div>
         ))}
       </div>

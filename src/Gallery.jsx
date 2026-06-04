@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { auth, db } from "./firebase.js";
 import {
   GoogleAuthProvider,
@@ -19,7 +19,7 @@ import { useLang } from "./i18n.jsx";
 import PrintBook from "./PrintBook.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
-import { SpreadThumb, splitText } from "./book.jsx";
+import { SpreadThumb, splitText, PAGE_PX } from "./book.jsx";
 
 const BOOK_STYLES = ["luxury", "modern", "vintage"];
 
@@ -41,10 +41,66 @@ export default function Gallery() {
   const [view, setView] = useState("grid"); // grid | book
   const [editingId, setEditingId] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportProg, setExportProg] = useState(null); // {i, n}
+  const exportRef = useRef(null);
 
   function applyEdit(id, fields) {
     setItems((prev) => prev.map((p) => (p.id === id ? { ...p, ...fields } : p)));
     setEditingId(null);
+  }
+
+  // Render the full-size book off-screen, rasterize each page to a 300-DPI JPEG,
+  // and download them all as a zip (for photobook/print apps that want images).
+  async function exportImages() {
+    setExporting(true);
+    setExportProg({ i: 0, n: 0 });
+    await new Promise((r) => setTimeout(r, 80)); // let the export stage mount
+    try {
+      const stage = exportRef.current;
+      const imgs = [...stage.querySelectorAll("img")];
+      await Promise.all(
+        imgs.map((im) =>
+          im.complete && im.naturalWidth
+            ? null
+            : new Promise((res) => {
+                im.onload = im.onerror = res;
+              })
+        )
+      );
+      await new Promise((r) => setTimeout(r, 200)); // let fonts settle
+      const pages = [...stage.querySelectorAll(".book-cover, .book-page, .book-closing")];
+      const [{ toJpeg }, JSZipMod] = await Promise.all([
+        import("html-to-image"),
+        import("jszip"),
+      ]);
+      const zip = new JSZipMod.default();
+      const ratio = 3543 / PAGE_PX; // 30 cm @ 300 DPI ≈ 3543 px
+      for (let k = 0; k < pages.length; k++) {
+        setExportProg({ i: k + 1, n: pages.length });
+        const dataUrl = await toJpeg(pages[k], {
+          quality: 0.95,
+          pixelRatio: ratio,
+          cacheBust: true,
+          backgroundColor: "#ffffff",
+        });
+        zip.file(`page-${String(k + 1).padStart(2, "0")}.jpg`, dataUrl.split(",")[1], {
+          base64: true,
+        });
+      }
+      const blob = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "book-pages.zip";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e) {
+      console.error(e);
+      alert(t.exportError);
+    } finally {
+      setExporting(false);
+      setExportProg(null);
+    }
   }
 
   function copyBookLink() {
@@ -199,6 +255,11 @@ export default function Gallery() {
           <button className="ghost" onClick={() => printAs("qr")}>
             {t.printBtn}
           </button>
+          <button className="ghost" onClick={exportImages} disabled={exporting}>
+            {exporting && exportProg
+              ? t.exportingN(exportProg.i, exportProg.n)
+              : t.exportImagesBtn}
+          </button>
           <button className="ghost" onClick={copyBookLink}>
             {copied ? t.linkCopied : t.shareBtn}
           </button>
@@ -271,6 +332,13 @@ export default function Gallery() {
           </div>
         </section>
       ))}
+
+      {/* Off-screen full-size book used only while exporting hi-res images. */}
+      {exporting && (
+        <div className="export-stage" ref={exportRef} aria-hidden="true">
+          <PrintBook items={items} qrMap={qrMap} style={bookStyle} />
+        </div>
+      )}
 
       {/* Print-only output. "proof" = a composed page per person (photo +
           note + QR), "qr" = just the QR contact sheet. */}

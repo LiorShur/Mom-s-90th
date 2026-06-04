@@ -260,6 +260,11 @@ small.warn { color: #a3690f; }
   background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 0.7rem; line-height: 1; cursor: pointer;
 }
 .slot-cap { display: block; text-align: center; font-size: 0.68rem; color: var(--ink-soft); margin-top: 4px; }
+.slot.editable { width: 132px; }
+.slot.editable .slot-drop { height: 132px; }
+.slot-fx { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
+.slot-fx label { display: flex; align-items: center; gap: 5px; font-size: 0.6rem; color: var(--ink-soft); }
+.slot-fx input[type="range"] { flex: 1; height: 12px; min-width: 0; }
 
 /* ---- Upload progress ---- */
 .progress {
@@ -273,6 +278,9 @@ small.warn { color: #a3690f; }
 .clip-preview { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .clip-preview audio { width: 100%; }
 .clip-preview video { max-width: 100%; border-radius: 6px; }
+
+/* Off-screen stage for hi-res image export (must stay rendered, not display:none) */
+.export-stage { position: fixed; left: -100000px; top: 0; width: 31cm; z-index: -1; }
 
 /* ---- Gallery editor + actions ---- */
 .editor { margin-top: 4px; }
