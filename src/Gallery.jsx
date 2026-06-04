@@ -441,10 +441,15 @@ export default function Gallery() {
         </section>
       )}
 
-      {/* Off-screen full-size book used only while exporting hi-res images. */}
+      {/* Off-screen full-size book used only while exporting hi-res images.
+          Filtered to approved here too, so only approved pages can be captured. */}
       {exporting && (
         <div className="export-stage" ref={exportRef} aria-hidden="true">
-          <PrintBook items={items} qrMap={qrMap} style={bookStyle} />
+          <PrintBook
+            items={items.filter((i) => i.approved)}
+            qrMap={qrMap}
+            style={bookStyle}
+          />
         </div>
       )}
 
