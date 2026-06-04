@@ -88,7 +88,14 @@ export function LeftPage({ it, t, num }) {
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
       <div className="pl-portrait">
-        {portrait && <img src={portrait} alt="" style={fxStyle(portraitFx)} />}
+        {portrait && (
+          <img
+            src={portrait}
+            alt=""
+            className={portraitFx?.tilt ? "tilted" : undefined}
+            style={fxStyle(portraitFx)}
+          />
+        )}
       </div>
       <Sprig />
       {num != null && <span className="page-num">— {num} —</span>}
@@ -121,7 +128,13 @@ export function RightPage({ it, qr, t, num }) {
     <section className="book-page page-right">
       <div className={`pr-photos count-${collage.length}`}>
         {collage.map((e, i) => (
-          <img key={i} src={e.url} alt="" style={fxStyle(e.fx)} />
+          <img
+            key={i}
+            src={e.url}
+            alt=""
+            className={e.fx?.tilt ? "tilted" : undefined}
+            style={fxStyle(e.fx)}
+          />
         ))}
       </div>
       <div className={`pr-qr ${collage.length === 0 ? "feature" : ""}`}>

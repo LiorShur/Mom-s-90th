@@ -31,7 +31,12 @@ export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
           <div key={i} className={`slot ${i === 0 ? "portrait" : ""} ${editable ? "editable" : ""}`}>
             <label className="slot-drop">
               {s.url ? (
-                <img src={s.url} alt="" style={editable ? fxStyle(fx[i]) : undefined} />
+                <img
+                  src={s.url}
+                  alt=""
+                  className={editable && fx[i].tilt ? "tilted" : undefined}
+                  style={editable ? fxStyle(fx[i]) : undefined}
+                />
               ) : (
                 <span className="slot-plus">＋</span>
               )}
@@ -55,6 +60,14 @@ export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
             <span className="slot-cap">{label(i)}</span>
             {editable && s.url && (
               <div className="slot-fx">
+                <label className="fx-toggle">
+                  <input
+                    type="checkbox"
+                    checked={!!fx[i].tilt}
+                    onChange={(e) => setFxField(i, "tilt", e.target.checked)}
+                  />
+                  {t.fxTilt}
+                </label>
                 <label>{t.fxRotate}
                   <input type="range" min="-20" max="20" step="1" value={fx[i].rot}
                     onChange={(e) => setFxField(i, "rot", Number(e.target.value))} />

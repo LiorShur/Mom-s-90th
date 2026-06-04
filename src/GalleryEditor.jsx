@@ -26,6 +26,7 @@ export default function GalleryEditor({ item, onSaved, onClose }) {
         zoom: f?.zoom ?? 1,
         ox: f?.ox ?? 50,
         oy: f?.oy ?? 50,
+        tilt: f?.tilt ?? false,
       };
     })
   );
