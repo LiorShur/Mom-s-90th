@@ -10,8 +10,8 @@ const STRINGS = {
   he: {
     _dir: "rtl",
     _name: "עברית",
-    appTitle: "ספר הקולות",
-    forGrandma: "לכבוד יום ההולדת ה-90 של סבתא",
+    appTitle: "ספר שכולו אהבה",
+    forGrandma: "לכבוד יום ההולדת ה-90 של אמא / סבתא מרים",
 
     // Submit — masthead
     submitLede:
@@ -19,7 +19,7 @@ const STRINGS = {
 
     // Submit — form
     nameLabel: "השם שלך",
-    namePlaceholder: "למשל: שרה",
+    namePlaceholder: "למשל: שמוליק",
     youAreHer: "מה הקשר שלך אליה?",
     relationshipLabel: "במדויק (לא חובה)",
     relationshipPlaceholder: "למשל: הנכדה הבכורה",
@@ -27,9 +27,9 @@ const STRINGS = {
     noteLabel: "המילים שלך לעמוד",
     notePlaceholder: "כתבו את זה כמו שהייתם אומרים לה…",
     charsCount: (n) => `${n} תווים`,
-    pullQuoteLabel: "משפט אחד גדול לעמוד (לא חובה)",
+    pullQuoteLabel: "משפט אחד גדול לעמוד)",
     pullQuotePlaceholder: "למשל: את המקום הבטוח שלי",
-    photoLabel: "תמונות (עד 4) — הראשונה היא התמונה הגדולה איתה; עד 3 נוספות לעמוד הקולאז'",
+    photoLabel: "תמונות (4) — הראשונה היא התמונה הגדולה איתה; עד 3 נוספות לעמוד הקולאז'",
     photoSlotsLabel: "תמונות — לכל מיקום בעמוד שלכם",
     photoSlotsHint: "ככה ייראה העמוד שלכם: התמונה הראשית מופיעה גדולה ליד המילים שלכם, ועד 3 תמונות נוספות יוצרות קולאז'. לחצו על כל מסגרת כדי להוסיף תמונה.",
     slotPortrait: "תמונה ראשית (העמוד הגדול)",
@@ -148,8 +148,8 @@ const STRINGS = {
   en: {
     _dir: "ltr",
     _name: "English",
-    appTitle: "A Book of Voices",
-    forGrandma: "For Grandma's 90th",
+    appTitle: "A Book of Love",
+    forGrandma: "For Mom / Grandma Miriam's 90th",
 
     submitLede:
       "We're making a keepsake from all of us — children, grandchildren and great-grandchildren. Leave a short note and, if you can, a few seconds of your actual voice. Hearing you will mean the world to her.",
@@ -165,7 +165,7 @@ const STRINGS = {
     charsCount: (n) => `${n} characters`,
     pullQuoteLabel: "One big line for the page (optional)",
     pullQuotePlaceholder: "e.g. You are my safe place",
-    photoLabel: "Photos (up to 4) — the first is your big photo with her; up to 3 more for the collage page",
+    photoLabel: "Photos (4) — the first is your big photo with her; up to 3 more for the collage page",
     photoSlotsLabel: "Photos — one per spot on your page",
     photoSlotsHint: "Here's how your page will look: your main photo appears large beside your words, and up to 3 more form a collage. Tap any frame to add a photo.",
     slotPortrait: "Main photo (big page)",
