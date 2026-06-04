@@ -12,15 +12,27 @@ export const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
 export const PAGE_PX = (30 * 96) / 2.54; // ≈ 1133.86
 export const SPREAD_PX = PAGE_PX * 2;
 
+// Sort key: an explicit `order` (set by the organizer) wins; otherwise fall
+// back to generation order, then submission order — so the book reads sensibly
+// before anyone has manually arranged it.
+export function orderKey(it, idx = 0) {
+  return typeof it.order === "number"
+    ? it.order
+    : GEN_ORDER.indexOf(it.generation) * 1000 + idx;
+}
+
 export function orderedApproved(items) {
   return items
     .filter((i) => i.approved)
     .map((i, idx) => ({ ...i, _idx: idx }))
-    .sort((a, b) => {
-      const ga = GEN_ORDER.indexOf(a.generation);
-      const gb = GEN_ORDER.indexOf(b.generation);
-      return ga !== gb ? ga - gb : a._idx - b._idx;
-    });
+    .sort((a, b) => orderKey(a, a._idx) - orderKey(b, b._idx));
+}
+
+// All items (approved or not) in book order — used by the arrange screen.
+export function orderedAll(items) {
+  return items
+    .map((i, idx) => ({ ...i, _idx: idx }))
+    .sort((a, b) => orderKey(a, a._idx) - orderKey(b, b._idx));
 }
 
 // Split the note into a short "pull-quote" + the longer body.

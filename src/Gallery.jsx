@@ -19,7 +19,7 @@ import { useLang } from "./i18n.jsx";
 import PrintBook from "./PrintBook.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
-import { SpreadThumb, splitText, PAGE_PX } from "./book.jsx";
+import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderKey } from "./book.jsx";
 
 const BOOK_STYLES = ["luxury", "modern", "vintage"];
 
@@ -50,6 +50,42 @@ export default function Gallery() {
     setEditingId(null);
   }
 
+  // Give every item a concrete numeric `order` (book order), then show the
+  // arrange screen. Done once, so later swaps only touch two docs.
+  async function enterArrange() {
+    setView("arrange");
+    if (items.some((i) => typeof i.order !== "number")) {
+      const ord = orderedAll(items);
+      await Promise.all(
+        ord.map((it, i) => updateDoc(doc(db, "messages", it.id), { order: i }))
+      );
+      setItems((prev) =>
+        prev.map((p) => ({ ...p, order: ord.findIndex((o) => o.id === p.id) }))
+      );
+    }
+  }
+
+  // Move an item up (-1) or down (+1) by swapping its order with its neighbour.
+  async function move(it, dir) {
+    const ord = orderedAll(items);
+    const idx = ord.findIndex((x) => x.id === it.id);
+    const j = idx + dir;
+    if (j < 0 || j >= ord.length) return;
+    const a = ord[idx];
+    const b = ord[j];
+    const ao = a.order ?? idx;
+    const bo = b.order ?? j;
+    await Promise.all([
+      updateDoc(doc(db, "messages", a.id), { order: bo }),
+      updateDoc(doc(db, "messages", b.id), { order: ao }),
+    ]);
+    setItems((prev) =>
+      prev.map((p) =>
+        p.id === a.id ? { ...p, order: bo } : p.id === b.id ? { ...p, order: ao } : p
+      )
+    );
+  }
+
   // Render the full-size book off-screen, rasterize each page to a 300-DPI JPEG,
   // and download them all as a zip (for photobook/print apps that want images).
   async function exportImages() {
@@ -70,11 +106,7 @@ export default function Gallery() {
       );
       await new Promise((r) => setTimeout(r, 200)); // let fonts settle
       const pages = [...stage.querySelectorAll(".book-cover, .book-page, .book-closing")];
-      const [{ toJpeg }, JSZipMod] = await Promise.all([
-        import("html-to-image"),
-        import("jszip"),
-      ]);
-      const zip = new JSZipMod.default();
+      const { toJpeg } = await import("html-to-image");
       const ratio = 3543 / PAGE_PX; // 30 cm @ 300 DPI ≈ 3543 px
       for (let k = 0; k < pages.length; k++) {
         setExportProg({ i: k + 1, n: pages.length });
@@ -84,16 +116,12 @@ export default function Gallery() {
           cacheBust: true,
           backgroundColor: "#ffffff",
         });
-        zip.file(`page-${String(k + 1).padStart(2, "0")}.jpg`, dataUrl.split(",")[1], {
-          base64: true,
-        });
+        const a = document.createElement("a");
+        a.href = dataUrl;
+        a.download = `page-${String(k + 1).padStart(2, "0")}.jpg`;
+        a.click();
+        await new Promise((r) => setTimeout(r, 400)); // let each download register
       }
-      const blob = await zip.generateAsync({ type: "blob" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "book-pages.zip";
-      a.click();
-      URL.revokeObjectURL(a.href);
     } catch (e) {
       console.error(e);
       alert(t.exportError);
@@ -249,6 +277,12 @@ export default function Gallery() {
           >
             {view === "book" ? t.backToList : t.viewBookBtn}
           </button>
+          <button
+            className="ghost"
+            onClick={() => (view === "arrange" ? setView("grid") : enterArrange())}
+          >
+            {view === "arrange" ? t.backToList : t.arrangeBtn}
+          </button>
           <button className="ghost" onClick={() => printAs("proof")}>
             {t.printProofBtn}
           </button>
@@ -271,6 +305,25 @@ export default function Gallery() {
 
       {view === "book" && (
         <OnlineBook items={items} qrMap={qrMap} style={bookStyle} />
+      )}
+
+      {view === "arrange" && (
+        <section className="screen-only arrange">
+          <p className="lede">{t.arrangeHint}</p>
+          <ol className="arrange-list">
+            {orderedAll(items).map((it, i, arr) => (
+              <li key={it.id} className={it.approved ? "" : "muted"}>
+                <span className="ord-num">{i + 1}</span>
+                <span className="ord-name" dir="auto">{it.name}</span>
+                <span className="ord-quote" dir="auto">{splitText(it).pull}</span>
+                <span className="ord-btns">
+                  <button className="ghost" onClick={() => move(it, -1)} disabled={i === 0}>↑</button>
+                  <button className="ghost" onClick={() => move(it, 1)} disabled={i === arr.length - 1}>↓</button>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
       )}
 
       {view === "grid" && GEN_ORDER.filter((g) => grouped[g]?.length).map((g) => (
