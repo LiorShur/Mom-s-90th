@@ -301,6 +301,7 @@ small.warn { color: #a3690f; }
   --bk-body: "Newsreader", "Frank Ruhl Libre", Georgia, serif;
   --bk-name: "Fraunces", "Frank Ruhl Libre", Georgia, serif;
   --bk-script: "Parisienne", "Frank Ruhl Libre", cursive;
+  --bk-hand: "Caveat", "Gveret Levin", "Newsreader", cursive;
 }
 .book.style-modern {
   --bk-paper: #ffffff; --bk-ink: #23262b; --bk-soft: #8a8f98;
@@ -350,7 +351,7 @@ small.warn { color: #a3690f; }
 .pl-quote { font-family: var(--bk-name); font-size: 2rem; line-height: 1.35; color: var(--bk-ink); text-align: center; margin: 0.4cm 0 0; }
 .pl-divider { display: block; text-align: center; color: var(--bk-gold); font-size: 1.2rem; margin: 0.5cm 0; }
 .pl-body { font-family: var(--bk-body); font-size: 1.2rem; line-height: 1.55; color: var(--bk-soft); white-space: pre-wrap; margin: 0; }
-.pl-sign { font-family: var(--bk-script); font-size: 2.4rem; color: var(--bk-ink); margin: 1cm 0 0; }
+.pl-sign { font-family: var(--bk-hand); font-size: 2.8rem; color: var(--bk-ink); margin: 1cm 0 0; }
 .pl-portrait { height: 100%; position: relative; }
 .pl-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* Feather the portrait's inner edge so it melts into the page (LTR default). */
