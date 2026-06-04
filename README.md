@@ -193,9 +193,11 @@ Cloud Shell**, or any machine with `gcloud`):
      }
    ]
    ```
-2. Apply it (replace with your bucket name from `firebase.js` `storageBucket`):
+2. Apply it (use the **exact bucket** from `src/firebase.js` `storageBucket` —
+   newer projects look like `your-project.firebasestorage.app`, older ones
+   `your-project.appspot.com`):
    ```bash
-   gsutil cors set cors.json gs://YOUR-PROJECT.appspot.com
+   gsutil cors set cors.json gs://your-project.firebasestorage.app
    ```
 
 Then reload the gallery and click the button. (Save-as-PDF needs no CORS — it's
