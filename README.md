@@ -149,7 +149,7 @@ Your share link becomes e.g. `https://your-project.web.app/`.
 | `pullQuote` | string | optional short one-liner for the big page quote |
 | `text` | string | the written note for the page |
 | `lang` | string | UI language used to submit (`he` / `en`) |
-| `photoURLs` | string[] | download URLs |
+| `photoURLs` | (string\|null)[] | per-slot download URLs: [0]=portrait, [1–3]=collage (null = empty slot) |
 | `clipURL` | string \| null | audio/video download URL |
 | `clipKind` | string \| null | `audio` / `video` |
 | `approved` | bool | shown in the print sheet only when true |
@@ -166,6 +166,19 @@ gallery — lives in `src/i18n.jsx`; edit the `he` / `en` dictionaries there to
 reword anything (the prompts are in that file too). Contributors' own notes are
 shown with `dir="auto"`, so a Hebrew note reads RTL and an English note reads
 LTR regardless of which language the *viewer* has selected.
+
+**To change any on-screen wording** (instructions, labels, buttons, prompts, the
+book cover title, etc.): open `src/i18n.jsx`, edit the matching line under `he`
+or `en`, then `npm run build && firebase deploy`. Everything visible to users is
+a string in that one file.
+
+## Fixing submissions in the gallery
+
+Contributors only enter their **name, prompt, one-line quote, note, photos and
+voice** — the organizer assigns each person's **relationship** and **generation**
+(and can fix typos or swap photos) in the gallery. Sign in, click **Edit** on any
+card, change the name / relationship / generation / quote / note, add-replace-
+remove any of the 4 photo slots, and **Save**. Photos upload with a progress bar.
 
 ## Notes
 

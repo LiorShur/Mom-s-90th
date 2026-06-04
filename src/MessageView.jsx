@@ -64,9 +64,9 @@ export default function MessageView({ id }) {
         {msg.relationship ? `, ${msg.relationship}` : ""}
       </p>
 
-      {Array.isArray(msg.photoURLs) && msg.photoURLs.length > 0 && (
+      {Array.isArray(msg.photoURLs) && msg.photoURLs.filter(Boolean).length > 0 && (
         <div className="photo-strip">
-          {msg.photoURLs.map((u, i) => (
+          {msg.photoURLs.filter(Boolean).map((u, i) => (
             <img key={i} src={u} alt="" />
           ))}
         </div>

@@ -1,22 +1,25 @@
 import { useRef, useState } from "react";
-import { db, storage, ensureSignedIn } from "./firebase.js";
+import { db, ensureSignedIn } from "./firebase.js";
 import { collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
-import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useLang } from "./i18n.jsx";
+import PhotoSlots from "./PhotoSlots.jsx";
+import { uploadAll } from "./storageUpload.js";
+
+const MAX_BODY = 600; // recommended characters for the page to fit nicely
+const MAX_QUOTE = 80;
+
+const emptySlots = () => [0, 1, 2, 3].map(() => ({ url: null, file: null }));
 
 export default function Submit() {
   const { t, lang } = useLang();
   const [name, setName] = useState("");
-  const [relationship, setRelationship] = useState("");
-  const [generation, setGeneration] = useState("grandchild");
-  // Track the prompt by index so switching language keeps the same choice
-  // (the stored value is the localized prompt text, resolved at submit time).
   const [promptIndex, setPromptIndex] = useState(0);
   const [pullQuote, setPullQuote] = useState("");
   const [text, setText] = useState("");
-  const [photos, setPhotos] = useState([]);
-  const [clip, setClip] = useState(null); // {blob, ext, kind}
+  const [slots, setSlots] = useState(emptySlots);
+  const [clip, setClip] = useState(null); // {blob, ext, kind, url}
   const [status, setStatus] = useState("idle"); // idle | saving | done | error
+  const [progress, setProgress] = useState(null); // {pct, eta}
   const [error, setError] = useState("");
 
   const canSubmit = name.trim() && text.trim() && status !== "saving";
@@ -25,12 +28,14 @@ export default function Submit() {
     if (!canSubmit) return;
     setStatus("saving");
     setError("");
+    setProgress({ pct: 0, eta: null });
     try {
       await ensureSignedIn();
-      const docData = {
+      const docRef = await addDoc(collection(db, "messages"), {
         name: name.trim(),
-        relationship: relationship.trim(),
-        generation,
+        // Relationship + generation are assigned by the organizer in the gallery.
+        generation: "other",
+        relationship: "",
         prompt: t.prompts[promptIndex],
         pullQuote: pullQuote.trim(),
         text: text.trim(),
@@ -40,28 +45,27 @@ export default function Submit() {
         clipKind: clip?.kind || null,
         approved: false,
         createdAt: serverTimestamp(),
-      };
-      // Create the doc first so we have an id to namespace uploads under.
-      const docRef = await addDoc(collection(db, "messages"), docData);
+      });
 
-      const photoURLs = [];
-      for (let i = 0; i < photos.length; i++) {
-        const p = photos[i];
-        const r = storageRef(storage, `messages/${docRef.id}/photo_${i}_${p.name}`);
-        await uploadBytes(r, p);
-        photoURLs.push(await getDownloadURL(r));
-      }
+      const uploads = [];
+      slots.forEach((s, i) => {
+        if (s.file) uploads.push({ kind: "photo", index: i, file: s.file });
+      });
+      if (clip) uploads.push({ kind: "clip", ext: clip.ext, file: clip.blob });
 
+      const photoURLs = slots.map((s) => s.url && !s.file ? s.url : null);
       let clipURL = null;
-      if (clip) {
-        const r = storageRef(storage, `messages/${docRef.id}/clip.${clip.ext}`);
-        await uploadBytes(r, clip.blob);
-        clipURL = await getDownloadURL(r);
+      if (uploads.length) {
+        const results = await uploadAll(uploads, docRef.id, (pct, eta) =>
+          setProgress({ pct, eta })
+        );
+        results.forEach((r) => {
+          if (r.kind === "photo") photoURLs[r.index] = r.url;
+          else clipURL = r.url;
+        });
       }
 
-      // Patch in the URLs now that uploads are done.
       await updateDoc(docRef, { photoURLs, clipURL });
-
       setStatus("done");
     } catch (e) {
       console.error(e);
@@ -81,11 +85,11 @@ export default function Submit() {
             className="ghost"
             onClick={() => {
               setName("");
-              setRelationship("");
               setPullQuote("");
               setText("");
-              setPhotos([]);
+              setSlots(emptySlots());
               setClip(null);
+              setProgress(null);
               setStatus("idle");
             }}
           >
@@ -95,6 +99,8 @@ export default function Submit() {
       </main>
     );
   }
+
+  const overBody = text.trim().length > MAX_BODY;
 
   return (
     <main className="page narrow">
@@ -115,31 +121,6 @@ export default function Submit() {
           />
         </label>
 
-        <div className="row">
-          <label className="field">
-            <span>{t.youAreHer}</span>
-            <select
-              value={generation}
-              onChange={(e) => setGeneration(e.target.value)}
-            >
-              {t.generations.map((g) => (
-                <option key={g.value} value={g.value}>
-                  {g.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>{t.relationshipLabel}</span>
-            <input
-              value={relationship}
-              dir="auto"
-              onChange={(e) => setRelationship(e.target.value)}
-              placeholder={t.relationshipPlaceholder}
-            />
-          </label>
-        </div>
-
         <label className="field">
           <span>{t.promptLabel}</span>
           <select
@@ -157,8 +138,10 @@ export default function Submit() {
         <label className="field">
           <span>{t.pullQuoteLabel}</span>
           <input
+            className="handwritten"
             value={pullQuote}
             dir="auto"
+            maxLength={MAX_QUOTE + 20}
             onChange={(e) => setPullQuote(e.target.value)}
             placeholder={t.pullQuotePlaceholder}
           />
@@ -167,19 +150,33 @@ export default function Submit() {
         <label className="field">
           <span>{t.noteLabel}</span>
           <textarea
+            className="handwritten"
             rows={5}
             value={text}
             dir="auto"
             onChange={(e) => setText(e.target.value)}
             placeholder={t.notePlaceholder}
           />
-          <small>{t.charsCount(text.trim().length)}</small>
+          <small className={overBody ? "warn" : ""}>
+            {t.charsCount(text.trim().length)}
+            {overBody ? ` — ${t.textTooLong}` : ` / ~${MAX_BODY}`}
+          </small>
         </label>
 
-        <PhotoPicker photos={photos} setPhotos={setPhotos} />
+        <PhotoSlots slots={slots} setSlots={setSlots} />
         <ClipPicker clip={clip} setClip={setClip} />
 
         {error && <p className="error">{error}</p>}
+
+        {status === "saving" && progress && (
+          <div className="progress">
+            <div className="progress-bar" style={{ width: `${progress.pct}%` }} />
+            <span className="progress-label">
+              {t.uploading(progress.pct)}
+              {progress.eta ? ` · ${t.uploadingEta(progress.eta)}` : ""}
+            </span>
+          </div>
+        )}
 
         <button className="primary" disabled={!canSubmit} onClick={handleSubmit}>
           {status === "saving" ? t.savingBtn : t.submitBtn}
@@ -189,24 +186,7 @@ export default function Submit() {
   );
 }
 
-function PhotoPicker({ photos, setPhotos }) {
-  const { t } = useLang();
-  return (
-    <label className="field">
-      <span>{t.photoLabel}</span>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={(e) => setPhotos(Array.from(e.target.files).slice(0, 4))}
-      />
-      {photos.length > 0 && <small>{t.photosSelected(photos.length)}</small>}
-    </label>
-  );
-}
-
-// Lets people either upload a clip recorded on their phone, or record audio
-// right here in the browser (great for kids — one big button).
+// Record in-browser or upload a clip, then listen back before submitting.
 function ClipPicker({ clip, setClip }) {
   const { t } = useLang();
   const [recording, setRecording] = useState(false);
@@ -221,28 +201,26 @@ function ClipPicker({ clip, setClip }) {
       rec.ondataavailable = (e) => chunksRef.current.push(e.data);
       rec.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        setClip({ blob, ext: "webm", kind: "audio" });
-        stream.getTracks().forEach((t) => t.stop());
+        setClip({ blob, ext: "webm", kind: "audio", url: URL.createObjectURL(blob) });
+        stream.getTracks().forEach((tr) => tr.stop());
       };
       rec.start();
       recorderRef.current = rec;
       setRecording(true);
-    } catch (e) {
+    } catch {
       alert(t.micError);
     }
   }
-
   function stopRecording() {
     recorderRef.current?.stop();
     setRecording(false);
   }
-
   function onUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
     const ext = file.name.split(".").pop() || "dat";
     const kind = file.type.startsWith("video") ? "video" : "audio";
-    setClip({ blob: file, ext, kind });
+    setClip({ blob: file, ext, kind, url: URL.createObjectURL(file) });
   }
 
   return (
@@ -251,7 +229,7 @@ function ClipPicker({ clip, setClip }) {
       <div className="clip-controls">
         {!recording ? (
           <button type="button" className="record" onClick={startRecording}>
-            {t.recordBtn}
+            {clip ? t.recordAgain : t.recordBtn}
           </button>
         ) : (
           <button type="button" className="record stop" onClick={stopRecording}>
@@ -264,13 +242,19 @@ function ClipPicker({ clip, setClip }) {
           <input type="file" accept="audio/*,video/*" onChange={onUpload} hidden />
         </label>
       </div>
+
       {clip && (
-        <small className="clip-ok">
-          {t.clipReady(t.kinds[clip.kind] || clip.kind)}{" "}
+        <div className="clip-preview">
+          <small className="clip-ok">{t.clipPreviewHint}</small>
+          {clip.kind === "video" ? (
+            <video src={clip.url} controls playsInline />
+          ) : (
+            <audio src={clip.url} controls />
+          )}
           <button type="button" className="link" onClick={() => setClip(null)}>
             {t.remove}
           </button>
-        </small>
+        </div>
       )}
     </div>
   );

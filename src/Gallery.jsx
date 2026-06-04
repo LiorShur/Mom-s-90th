@@ -18,6 +18,7 @@ import QRCode from "qrcode";
 import { useLang } from "./i18n.jsx";
 import PrintBook from "./PrintBook.jsx";
 import OnlineBook from "./OnlineBook.jsx";
+import GalleryEditor from "./GalleryEditor.jsx";
 import { SpreadThumb, splitText } from "./book.jsx";
 
 const BOOK_STYLES = ["luxury", "modern", "vintage"];
@@ -38,7 +39,13 @@ export default function Gallery() {
   const [qrMap, setQrMap] = useState({}); // id -> dataURL
   const [printMode, setPrintMode] = useState("proof"); // proof | qr
   const [view, setView] = useState("grid"); // grid | book
+  const [editingId, setEditingId] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  function applyEdit(id, fields) {
+    setItems((prev) => prev.map((p) => (p.id === id ? { ...p, ...fields } : p)));
+    setEditingId(null);
+  }
 
   function copyBookLink() {
     const url = `${window.location.origin}/book`;
@@ -212,45 +219,53 @@ export default function Gallery() {
             {grouped[g].map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
                 <p className="kicker" dir="auto">{it.prompt}</p>
-                <div className="card-spread">
-                  <SpreadThumb it={it} qr={qrMap[it.id]} style={bookStyle} />
-                </div>
-                <p className="card-quote" dir="auto">“{splitText(it).pull}”</p>
-                <p className="signoff" dir="auto">
-                  — {it.name}
-                  {it.relationship ? `, ${it.relationship}` : ""}
-                </p>
-                <div className="sub-meta">
-                  {it.clipURL ? (
-                    <span className="tag">🔊 {t.kinds[it.clipKind] || it.clipKind}</span>
-                  ) : (
-                    <span className="tag muted">{t.noVoice}</span>
-                  )}
-                  {it.photoURLs?.length ? <span className="tag">🖼 {it.photoURLs.length}</span> : null}
-                </div>
-                {it.photoURLs?.length > 0 && (
-                  <div className="thumb-strip">
-                    {it.photoURLs.map((u, i) => (
-                      <a key={i} href={u} target="_blank" rel="noreferrer">
-                        <img src={u} alt="" />
-                      </a>
-                    ))}
-                  </div>
+                {editingId === it.id ? (
+                  <GalleryEditor
+                    item={it}
+                    onSaved={(fields) => applyEdit(it.id, fields)}
+                    onClose={() => setEditingId(null)}
+                  />
+                ) : (
+                  <>
+                    <div className="card-spread">
+                      <SpreadThumb it={it} qr={qrMap[it.id]} style={bookStyle} />
+                    </div>
+                    <p className="card-quote" dir="auto">“{splitText(it).pull}”</p>
+                    <p className="signoff" dir="auto">
+                      — {it.name}
+                      {it.relationship ? `, ${it.relationship}` : ""}
+                    </p>
+                    <div className="sub-meta">
+                      {it.clipURL ? (
+                        <span className="tag">🔊 {t.kinds[it.clipKind] || it.clipKind}</span>
+                      ) : (
+                        <span className="tag muted">{t.noVoice}</span>
+                      )}
+                      {it.photoURLs?.filter(Boolean).length ? (
+                        <span className="tag">🖼 {it.photoURLs.filter(Boolean).length}</span>
+                      ) : null}
+                    </div>
+                    {qrMap[it.id] && (
+                      <div className="qr-block">
+                        <img src={qrMap[it.id]} alt="QR" className="qr" />
+                        <a className="link" href={qrMap[it.id]} download={`qr-${it.name}.png`}>
+                          {t.downloadQR}
+                        </a>
+                      </div>
+                    )}
+                    <div className="card-actions">
+                      <button
+                        className={it.approved ? "ghost" : "primary small"}
+                        onClick={() => toggleApprove(it)}
+                      >
+                        {it.approved ? t.approvedBtn : t.approveBtn}
+                      </button>
+                      <button className="ghost" onClick={() => setEditingId(it.id)}>
+                        {t.editBtn}
+                      </button>
+                    </div>
+                  </>
                 )}
-                {qrMap[it.id] && (
-                  <div className="qr-block">
-                    <img src={qrMap[it.id]} alt="QR" className="qr" />
-                    <a className="link" href={qrMap[it.id]} download={`qr-${it.name}.png`}>
-                      {t.downloadQR}
-                    </a>
-                  </div>
-                )}
-                <button
-                  className={it.approved ? "ghost" : "primary small"}
-                  onClick={() => toggleApprove(it)}
-                >
-                  {it.approved ? t.approvedBtn : t.approveBtn}
-                </button>
               </article>
             ))}
           </div>

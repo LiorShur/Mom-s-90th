@@ -63,7 +63,7 @@ export function ClosingPage({ t }) {
 // LEFT page: message column + a single full-bleed portrait (photo #1).
 export function LeftPage({ it, t, num }) {
   const { pull, body } = splitText(it);
-  const portrait = (it.photoURLs || [])[0];
+  const portrait = (it.photoURLs || [])[0] || null;
   return (
     <section className="book-page page-left">
       <div className="pl-text">
@@ -101,7 +101,7 @@ function Sprig() {
 
 // RIGHT page: collage of up to 3 photos (#2–#4) + framed QR box.
 export function RightPage({ it, qr, t, num }) {
-  const collage = (it.photoURLs || []).slice(1, 4);
+  const collage = (it.photoURLs || []).slice(1).filter(Boolean).slice(0, 3);
   const scanLabel = it.clipKind === "video" ? t.bookScanVideo : t.bookScanAudio;
   return (
     <section className="book-page page-right">
