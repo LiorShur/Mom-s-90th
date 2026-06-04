@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLang } from "./i18n.jsx";
+import { useBookVars } from "./bookStyle.jsx";
 
 // Shared building blocks for the keepsake book, used three ways:
 //  - PrintBook (full-size 30×30 cm pages for PDF/print)
@@ -187,9 +188,10 @@ export function FitBox({ w, h, maxWidth, children }) {
 // A scaled, on-screen two-page spread (used for gallery thumbnails).
 export function SpreadThumb({ it, qr, style }) {
   const { t } = useLang();
+  const vars = useBookVars();
   return (
     <FitBox w={SPREAD_PX} h={PAGE_PX}>
-      <div className={`book style-${style}`} style={{ display: "flex" }}>
+      <div className={`book style-${style}`} style={{ display: "flex", ...vars }}>
         <LeftPage it={it} t={t} />
         <RightPage it={it} qr={qr} t={t} />
       </div>

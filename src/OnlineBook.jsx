@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { useLang } from "./i18n.jsx";
+import { useBookVars } from "./bookStyle.jsx";
 import {
   orderedApproved,
   CoverPage,
@@ -12,10 +13,11 @@ import {
 
 // One scaled, scrollable book page.
 function OnlinePage({ style, children }) {
+  const vars = useBookVars();
   return (
     <div className="online-page">
       <FitBox w={PAGE_PX} h={PAGE_PX} maxWidth={760}>
-        <div className={`book style-${style}`}>{children}</div>
+        <div className={`book style-${style}`} style={vars}>{children}</div>
       </FitBox>
     </div>
   );

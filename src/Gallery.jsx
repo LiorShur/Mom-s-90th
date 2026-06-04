@@ -20,6 +20,7 @@ import PrintBook from "./PrintBook.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderKey } from "./book.jsx";
+import { useBookStyle, FONTS, ROLES } from "./bookStyle.jsx";
 
 const BOOK_STYLES = ["luxury", "modern", "vintage"];
 
@@ -32,6 +33,14 @@ const GEN_ORDER = ["child", "grandchild", "greatgrand", "other"];
 
 export default function Gallery() {
   const { t } = useLang();
+  const { settings, setSettings, saveSettings } = useBookStyle();
+  const [showStyle, setShowStyle] = useState(false);
+
+  // Live-update one field of one text role (name/quote/body/sign).
+  function setRole(role, key, val) {
+    setSettings({ ...settings, [role]: { ...settings[role], [key]: val } });
+  }
+
   const [user, setUser] = useState(undefined); // undefined = still checking
   const [authError, setAuthError] = useState("");
   const [items, setItems] = useState([]);
@@ -269,7 +278,65 @@ export default function Gallery() {
               {t.styles[s]}
             </button>
           ))}
+          <button
+            className={`chip ${showStyle ? "on" : ""}`}
+            onClick={() => setShowStyle((v) => !v)}
+          >
+            {t.textStyleBtn}
+          </button>
         </div>
+
+        {showStyle && (
+          <div className="text-style-panel">
+            <table className="ts-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>{t.fontLabel}</th>
+                  <th>{t.boldLabel}</th>
+                  <th>{t.sizeLabel}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {ROLES.map((role) => (
+                  <tr key={role}>
+                    <td className="ts-role">{t.textRoles[role]}</td>
+                    <td>
+                      <select
+                        value={settings[role].font}
+                        onChange={(e) => setRole(role, "font", e.target.value)}
+                      >
+                        {Object.keys(FONTS).map((f) => (
+                          <option key={f} value={f}>{t.fontNames[f]}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={settings[role].bold}
+                        onChange={(e) => setRole(role, "bold", e.target.checked)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="range"
+                        min={role === "body" ? 0.9 : 1.5}
+                        max={role === "body" ? 2 : 6}
+                        step="0.1"
+                        value={settings[role].size}
+                        onChange={(e) => setRole(role, "size", Number(e.target.value))}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <button className="primary small" onClick={() => saveSettings(settings)}>
+              {t.saveBtn}
+            </button>
+          </div>
+        )}
         <div className="gallery-actions">
           <button
             className="primary"

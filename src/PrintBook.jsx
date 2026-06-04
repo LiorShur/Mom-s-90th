@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { useLang } from "./i18n.jsx";
+import { useBookVars } from "./bookStyle.jsx";
 import {
   orderedApproved,
   CoverPage,
@@ -12,10 +13,11 @@ import {
 // then a closing page. Rendered inside a .print-only wrapper by the gallery.
 export default function PrintBook({ items, qrMap, style }) {
   const { t } = useLang();
+  const vars = useBookVars();
   const pages = orderedApproved(items);
 
   return (
-    <div className={`book style-${style}`}>
+    <div className={`book style-${style}`} style={vars}>
       <CoverPage t={t} />
       {pages.map((it, idx) => (
         <Fragment key={it.id}>

@@ -62,6 +62,12 @@ service cloud.firestore {
       // Only the organizer can delete.
       allow delete: if isOrganizer();
     }
+    // Book-wide settings (typography). Anyone may read (so the public /book
+    // renders your chosen fonts); only the organizer may change them.
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isOrganizer();
+    }
   }
 }
 ```
