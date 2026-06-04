@@ -260,6 +260,39 @@ small.warn { color: #a3690f; }
   background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 0.7rem; line-height: 1; cursor: pointer;
 }
 .slot-cap { display: block; text-align: center; font-size: 0.68rem; color: var(--ink-soft); margin-top: 4px; }
+
+/* ---- Photo slots as a book-spread schematic (contributor form) ---- */
+.slots-hint { font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 8px; }
+.slots-spread {
+  display: flex; gap: 4px; max-width: 480px;
+  background: #e7ddcc; border-radius: 8px; padding: 4px;
+}
+.slots-spread .sp-page { flex: 1; background: var(--paper-2); border-radius: 4px; padding: 8px; min-height: 172px; }
+.slots-spread .sp-left { display: flex; gap: 8px; align-items: stretch; }
+.slots-spread .sp-text { flex: 0 0 34%; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.slots-spread .sp-text span { height: 6px; background: var(--line); border-radius: 3px; }
+.slots-spread .sp-text span:nth-child(1) { width: 60%; }
+.slots-spread .sp-text span:nth-child(3) { width: 88%; }
+.slots-spread .sp-text span:nth-child(4) { width: 68%; }
+.slots-spread .sp-portrait { flex: 1; }
+.slots-spread .sp-collage { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; }
+
+/* Slots fill their schematic cells; label shows inside empty frames only. */
+.slots-spread .slot { width: 100%; }
+.slots-spread .sp-portrait .slot-drop { height: 154px; }
+.slots-spread .sp-collage .slot-drop { height: 56px; }
+.slots-spread .slot-cap {
+  position: absolute; left: 3px; right: 3px; bottom: 3px; margin: 0;
+  font-size: 0.55rem; line-height: 1.15; padding: 1px 2px;
+  background: rgba(255, 250, 241, 0.85); border-radius: 3px;
+  color: var(--ink-soft); pointer-events: none;
+}
+.slots-spread .slot.filled .slot-cap { display: none; }
+.slots-spread .sp-qr {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px dashed var(--gold); border-radius: 4px; color: var(--ink-soft);
+  font-size: 0.6rem; line-height: 1.1; text-align: center;
+}
 .slot.editable { width: 132px; }
 .slot.editable .slot-drop { height: 132px; }
 .slot-fx { display: flex; flex-direction: column; gap: 1px; margin-top: 4px; }
