@@ -374,7 +374,7 @@ small.warn { color: #a3690f; }
   --bk-accent: #7d5a3a; --bk-gold: #9c7b4a;
 }
 .book.style-vintage .pl-portrait img,
-.book.style-vintage .pr-photos img { filter: sepia(0.45) contrast(0.96); }
+.book.style-vintage .pr-cell img { filter: sepia(0.45) contrast(0.96); }
 
 .book-cover, .book-page, .book-closing {
   width: 30cm; height: 30cm; position: relative; overflow: hidden;
@@ -431,8 +431,8 @@ small.warn { color: #a3690f; }
   box-shadow: 0 0.4cm 1.1cm rgba(40, 30, 20, 0.28);
 }
 .pl-portrait:has(img.tilted)::after { display: none; } /* no feather over a tilted card */
-.pr-photos img.tilted {
-  width: 82%; height: 82%; place-self: center;
+.pr-cell img.tilted {
+  width: 82%; height: 82%;
   border: 0.35cm solid #fff; border-radius: 2px;
   box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28);
 }
@@ -448,21 +448,25 @@ small.warn { color: #a3690f; }
   width: 2.6cm; height: auto; color: var(--bk-gold); opacity: 0.3;
 }
 
-/* RIGHT page: collage + framed QR box */
-.pr-photos { position: absolute; top: 0; left: 0; width: 30cm; height: 30cm; display: grid; gap: 0.25cm; }
-.pr-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pr-photos.count-0 { display: none; }
-.pr-photos.count-1 { grid-template-columns: 30cm; grid-template-rows: 30cm; }
-.pr-photos.count-2 { grid-template-columns: 30cm; grid-template-rows: 14.875cm 14.875cm; }
-.pr-photos.count-3 { grid-template-columns: 14.875cm 14.875cm; grid-template-rows: 14.875cm 14.875cm; }
-.pr-qr {
-  position: absolute; bottom: 3.4cm; inset-inline-end: 2.4cm;
-  width: 6cm; text-align: center; padding: 0.6cm;
+/* RIGHT page: fixed 2×2 frames (explicit cm so it never resizes or drops a
+   cell in print/raster). Each collage photo keeps its quarter; QR takes #4. */
+.pr-grid {
+  position: absolute; top: 0; left: 0; width: 30cm; height: 30cm;
+  display: grid;
+  grid-template-columns: 14.875cm 14.875cm;
+  grid-template-rows: 14.875cm 14.875cm;
+  gap: 0.25cm;
+}
+.pr-cell { position: relative; overflow: hidden; display: grid; place-items: center; }
+.pr-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pr-qrcell { background: var(--bk-paper); }
+.pr-qrcell .pr-qr {
+  text-align: center; padding: 0.6cm;
   background: var(--bk-paper); border: 1.5px solid var(--bk-gold); border-radius: 8px;
 }
 .pr-qr img { width: 4.4cm; height: 4.4cm; display: block; margin: 0 auto; }
 .pr-qr.feature {
-  position: absolute; inset: 0; width: auto; border: none; background: transparent;
+  position: absolute; inset: 0; border: none; background: transparent;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .pr-qr.feature img { width: 10cm; height: 10cm; }

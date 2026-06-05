@@ -128,29 +128,49 @@ function Sprig() {
   );
 }
 
-// RIGHT page: collage of up to 3 photos (#2–#4) + framed QR box.
+// RIGHT page: a fixed 2×2 layout — photos #2–4 each keep their own quarter
+// frame (top-left, top-right, bottom-left); the QR box always takes the fourth
+// (bottom, inner). Empty frames stay empty. If there are no collage photos at
+// all, the QR is shown large and centered instead.
 export function RightPage({ it, qr, t, num }) {
-  const collage = [1, 2, 3]
-    .map((i) => ({ url: (it.photoURLs || [])[i], fx: (it.photoFx || [])[i] }))
-    .filter((e) => e.url);
+  const collage = [1, 2, 3].map((i) => ({
+    url: (it.photoURLs || [])[i],
+    fx: (it.photoFx || [])[i],
+  }));
+  const hasPhotos = collage.some((c) => c.url);
   const scanLabel = it.clipKind === "video" ? t.bookScanVideo : t.bookScanAudio;
+
   return (
     <section className="book-page page-right">
-      <div className={`pr-photos count-${collage.length}`}>
-        {collage.map((e, i) => (
-          <img
-            key={i}
-            src={e.url}
-            alt=""
-            className={e.fx?.tilt ? "tilted" : undefined}
-            style={fxStyle(e.fx)}
-          />
-        ))}
-      </div>
-      <div className={`pr-qr ${collage.length === 0 ? "feature" : ""}`}>
-        {qr && <img src={qr} alt="QR" />}
-        <span className="pr-scan">{scanLabel}</span>
-      </div>
+      {hasPhotos ? (
+        <div className="pr-grid">
+          {collage.map((c, i) => (
+            <div className="pr-cell" key={i}>
+              {c.url && (
+                <img
+                  src={c.url}
+                  alt=""
+                  className={c.fx?.tilt ? "tilted" : undefined}
+                  style={fxStyle(c.fx)}
+                />
+              )}
+            </div>
+          ))}
+          <div className="pr-cell pr-qrcell">
+            {qr && (
+              <div className="pr-qr">
+                <img src={qr} alt="QR" />
+                <span className="pr-scan">{scanLabel}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="pr-qr feature">
+          {qr && <img src={qr} alt="QR" />}
+          <span className="pr-scan">{scanLabel}</span>
+        </div>
+      )}
       <p className="pr-caption" dir="auto">{t.bookHeartCaption}</p>
       {num != null && <span className="page-num">— {num} —</span>}
     </section>

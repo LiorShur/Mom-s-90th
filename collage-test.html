@@ -2,58 +2,52 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8" />
-<title>Collage layout test</title>
+<title>Collage layout test (fixed 2×2)</title>
 <style>
   body { margin: 0; background: #6b6258; font-family: sans-serif; color: #fff; }
-  .label { text-align: center; padding: 12px; }
-  .scaler { transform: scale(0.42); transform-origin: top center; height: 480px; }
+  .label { text-align: center; padding: 10px; }
+  .scaler { transform: scale(0.42); transform-origin: top center; height: 470px; }
   .wrap { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
 
-  /* --- exact rules from the app --- */
   .book-page { width: 30cm; height: 30cm; position: relative; overflow: hidden; background: #fbf6ec; }
-  .pr-photos { position: absolute; inset: 0; display: grid; gap: 0.25cm; }
-  .pr-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .pr-photos.count-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-  .pr-qr {
-    position: absolute; bottom: 3.4cm; inset-inline-end: 2.4cm;
-    width: 6cm; text-align: center; padding: 0.6cm;
-    background: #fbf6ec; border: 1.5px solid #b08746; border-radius: 8px;
+  .pr-grid {
+    position: absolute; top: 0; left: 0; width: 30cm; height: 30cm; display: grid;
+    grid-template-columns: 14.875cm 14.875cm; grid-template-rows: 14.875cm 14.875cm; gap: 0.25cm;
   }
+  .pr-cell { position: relative; overflow: hidden; display: grid; place-items: center; }
+  .pr-cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pr-qrcell { background: #fbf6ec; }
+  .pr-qrcell .pr-qr { text-align: center; padding: 0.6cm; background: #fbf6ec; border: 1.5px solid #b08746; border-radius: 8px; }
   .pr-qr img { width: 4.4cm; height: 4.4cm; display: block; margin: 0 auto; }
   .pr-scan { display: block; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: #9c5b3b; margin-top: 0.4cm; }
-  /* number overlays so the 3 collage photos are unmistakable */
-  .pr-photos { counter-reset: n; }
-  .cell { position: relative; }
-  .cell::after { content: counter(n); counter-increment: n; position: absolute; inset: 0; display: grid; place-items: center; font-size: 6rem; color: rgba(255,255,255,.85); font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,.5); }
-  .pr-photos img { } /* keep */
 </style>
 </head>
 <body>
-  <div class="label">Each book page below should show <b>3</b> collage photos (numbered 1, 2, 3) plus the QR box. How many numbered photos do you see in each?</div>
+  <div class="label">New fixed layout — photos keep their quarter frames; QR always takes the 4th. Both should look right (3 photos + QR; and 1 photo NOT full-page).</div>
   <div class="wrap">
     <div>
-      <div class="label">RTL (Hebrew)</div>
+      <div class="label">3 collage photos</div>
       <div class="scaler">
-        <section class="book-page page-right" dir="rtl">
-          <div class="pr-photos count-3">
-            <div class="cell"><img src="https://picsum.photos/seed/a/700/700" alt="" /></div>
-            <div class="cell"><img src="https://picsum.photos/seed/b/700/700" alt="" /></div>
-            <div class="cell"><img src="https://picsum.photos/seed/c/700/700" alt="" /></div>
+        <section class="book-page page-right">
+          <div class="pr-grid">
+            <div class="pr-cell"><img src="https://picsum.photos/seed/a/700/700" alt="" /></div>
+            <div class="pr-cell"><img src="https://picsum.photos/seed/b/700/700" alt="" /></div>
+            <div class="pr-cell"><img src="https://picsum.photos/seed/c/700/700" alt="" /></div>
+            <div class="pr-cell pr-qrcell"><div class="pr-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=test" alt="QR" /><span class="pr-scan">scan</span></div></div>
           </div>
-          <div class="pr-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=test" alt="QR" /><span class="pr-scan">scan</span></div>
         </section>
       </div>
     </div>
     <div>
-      <div class="label">LTR (English)</div>
+      <div class="label">1 collage photo (stays framed)</div>
       <div class="scaler">
-        <section class="book-page page-right" dir="ltr">
-          <div class="pr-photos count-3">
-            <div class="cell"><img src="https://picsum.photos/seed/a/700/700" alt="" /></div>
-            <div class="cell"><img src="https://picsum.photos/seed/b/700/700" alt="" /></div>
-            <div class="cell"><img src="https://picsum.photos/seed/c/700/700" alt="" /></div>
+        <section class="book-page page-right">
+          <div class="pr-grid">
+            <div class="pr-cell"><img src="https://picsum.photos/seed/a/700/700" alt="" /></div>
+            <div class="pr-cell"></div>
+            <div class="pr-cell"></div>
+            <div class="pr-cell pr-qrcell"><div class="pr-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=test" alt="QR" /><span class="pr-scan">scan</span></div></div>
           </div>
-          <div class="pr-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=test" alt="QR" /><span class="pr-scan">scan</span></div>
         </section>
       </div>
     </div>
