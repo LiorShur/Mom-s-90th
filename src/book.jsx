@@ -85,7 +85,11 @@ export function frameStyle(f) {
 
 // Style for the image inside the frame (crop: zoom + pan).
 export function cropStyle(f) {
-  return { transform: `scale(${f.zoom})`, objectPosition: `${f.ox}% ${f.oy}%` };
+  return {
+    transform: `scale(${f.zoom})`,
+    transformOrigin: `${f.ox}% ${f.oy}%`,
+    objectPosition: `${f.ox}% ${f.oy}%`,
+  };
 }
 
 
@@ -95,7 +99,7 @@ export function fxStyle(f) {
   const { rot = 0, zoom = 1, ox = 50, oy = 50 } = f;
   return {
     transform: `scale(${zoom}) rotate(${rot}deg)`,
-    transformOrigin: "center center",
+    transformOrigin: `${ox}% ${oy}%`,
     objectPosition: `${ox}% ${oy}%`,
   };
 }
