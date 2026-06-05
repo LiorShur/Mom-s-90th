@@ -163,7 +163,7 @@ export default function Submit() {
           </small>
         </label>
 
-        <PhotoSlots slots={slots} setSlots={setSlots} />
+        <PhotoSlots slots={slots} setSlots={setSlots} layout="schematic" />
         <ClipPicker clip={clip} setClip={setClip} />
 
         {error && <p className="error">{error}</p>}

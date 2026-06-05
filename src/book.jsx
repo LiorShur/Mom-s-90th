@@ -44,6 +44,50 @@ export function splitText(it) {
   return { pull: text, body: "" };
 }
 
+// --- Floating collage photos (right page) -----------------------------------
+// Each collage photo is a free element on the page (position/size/rotation/
+// shadow in % so it scales to any render size). Defaults arrange them in the
+// quarters; the organizer can drag/resize/rotate them to overlap.
+export const COLLAGE_DEFAULTS = [
+  { x: 5, y: 5, w: 42 },
+  { x: 53, y: 5, w: 42 },
+  { x: 5, y: 53, w: 42 },
+];
+
+export function floatFx(fx, idx) {
+  const d = COLLAGE_DEFAULTS[idx] || COLLAGE_DEFAULTS[0];
+  const f = fx || {};
+  return {
+    x: f.x ?? d.x, y: f.y ?? d.y, w: f.w ?? d.w,
+    rot: f.rot ?? 0, zoom: f.zoom ?? 1, ox: f.ox ?? 50, oy: f.oy ?? 50,
+    shadow: f.shadow ?? 0, tilt: f.tilt ?? false,
+  };
+}
+
+export function shadowCss(s) {
+  const v = Number(s) || 0;
+  if (!v) return "none";
+  const off = (v * 0.012).toFixed(2);
+  const blur = (v * 0.045).toFixed(2);
+  const op = Math.min(0.55, 0.12 + v * 0.007).toFixed(2);
+  return `${off}cm ${off}cm ${blur}cm rgba(40,30,20,${op})`;
+}
+
+// Style for the floating frame (position/size/rotation/shadow).
+export function frameStyle(f) {
+  return {
+    left: `${f.x}%`, top: `${f.y}%`, width: `${f.w}%`,
+    transform: `rotate(${f.rot}deg)`,
+    boxShadow: shadowCss(f.shadow),
+  };
+}
+
+// Style for the image inside the frame (crop: zoom + pan).
+export function cropStyle(f) {
+  return { transform: `scale(${f.zoom})`, objectPosition: `${f.ox}% ${f.oy}%` };
+}
+
+
 // Per-photo design transform (rotate / zoom / pan) set by the organizer.
 export function fxStyle(f) {
   if (!f) return undefined;
@@ -128,42 +172,34 @@ function Sprig() {
   );
 }
 
-// RIGHT page: a fixed 2×2 layout — photos #2–4 each keep their own quarter
-// frame (top-left, top-right, bottom-left); the QR box always takes the fourth
-// (bottom, inner). Empty frames stay empty. If there are no collage photos at
-// all, the QR is shown large and centered instead.
+// RIGHT page: free-floating collage photos (each a frame that can be moved,
+// resized, rotated and overlapped) + the QR box in the corner. With no collage
+// photos at all, the QR is shown large and centered.
 export function RightPage({ it, qr, t, num }) {
   const collage = [1, 2, 3].map((i) => ({
     url: (it.photoURLs || [])[i],
-    fx: (it.photoFx || [])[i],
+    fx: floatFx((it.photoFx || [])[i], i - 1),
   }));
   const hasPhotos = collage.some((c) => c.url);
   const scanLabel = it.clipKind === "video" ? t.bookScanVideo : t.bookScanAudio;
 
   return (
     <section className="book-page page-right">
-      {hasPhotos ? (
-        <div className="pr-grid">
-          {collage.map((c, i) => (
-            <div className="pr-cell" key={i}>
-              {c.url && (
-                <img
-                  src={c.url}
-                  alt=""
-                  className={c.fx?.tilt ? "tilted" : undefined}
-                  style={fxStyle(c.fx)}
-                />
-              )}
-            </div>
-          ))}
-          <div className="pr-cell pr-qrcell">
-            {qr && (
-              <div className="pr-qr">
-                <img src={qr} alt="QR" />
-                <span className="pr-scan">{scanLabel}</span>
-              </div>
-            )}
+      {collage.map((c, i) =>
+        c.url ? (
+          <div
+            key={i}
+            className={`pr-float ${c.fx.tilt ? "tilted" : ""}`}
+            style={frameStyle(c.fx)}
+          >
+            <img src={c.url} alt="" style={cropStyle(c.fx)} />
           </div>
+        ) : null
+      )}
+      {hasPhotos ? (
+        <div className="pr-qr">
+          {qr && <img src={qr} alt="QR" />}
+          <span className="pr-scan">{scanLabel}</span>
         </div>
       ) : (
         <div className="pr-qr feature">

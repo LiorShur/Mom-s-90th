@@ -400,6 +400,7 @@ export default function Gallery() {
                 {editingId === it.id ? (
                   <GalleryEditor
                     item={it}
+                    style={bookStyle}
                     onSaved={(fields) => applyEdit(it.id, fields)}
                     onClose={() => setEditingId(null)}
                   />

@@ -1,15 +1,11 @@
 import { useLang } from "./i18n.jsx";
-import { fxStyle } from "./book.jsx";
 
-// Four photo "slots" mapped to where each photo lands in the book:
-//   slot 0 -> the big portrait on page one (beside the words)
-//   slots 1-3 -> the collage on page two
-// On the contributor form (no fx) the slots are arranged as a little two-page
-// spread so people see where each photo goes. In the gallery editor (fx given)
-// they're a compact row with rotate/zoom/pan/tilt controls.
-export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
+// Upload widget for the 4 photo slots (slot 0 = main, 1-3 = collage).
+// layout="schematic" → the contributor form's two-page-spread diagram.
+// layout="compact"   → a simple row of frames for the gallery editor.
+// Positioning/rotation/shadow of the collage photos is handled by CollageEditor.
+export default function PhotoSlots({ slots, setSlots, layout = "schematic" }) {
   const { t } = useLang();
-  const editable = !!fx;
 
   function setSlot(i, val) {
     setSlots((prev) => prev.map((s, idx) => (idx === i ? val : s)));
@@ -19,29 +15,14 @@ export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
     if (!f) return;
     setSlot(i, { url: URL.createObjectURL(f), file: f });
   }
-  function setFxField(i, key, val) {
-    setFx((prev) => prev.map((f, idx) => (idx === i ? { ...f, [key]: val } : f)));
-  }
   const label = (i) => (i === 0 ? t.slotPortrait : t.slotCollage(i));
 
   function renderSlot(i) {
     const s = slots[i];
     return (
-      <div
-        key={i}
-        className={`slot ${i === 0 ? "portrait" : ""} ${editable ? "editable" : ""} ${s.url ? "filled" : ""}`}
-      >
+      <div key={i} className={`slot ${i === 0 ? "portrait" : ""} ${s.url ? "filled" : ""}`}>
         <label className="slot-drop">
-          {s.url ? (
-            <img
-              src={s.url}
-              alt=""
-              className={editable && fx[i].tilt ? "tilted" : undefined}
-              style={editable ? fxStyle(fx[i]) : undefined}
-            />
-          ) : (
-            <span className="slot-plus">＋</span>
-          )}
+          {s.url ? <img src={s.url} alt="" /> : <span className="slot-plus">＋</span>}
           <input type="file" accept="image/*" hidden onChange={(e) => onPick(i, e)} />
         </label>
         {s.url && (
@@ -55,39 +36,11 @@ export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
           </button>
         )}
         <span className="slot-cap">{label(i)}</span>
-        {editable && s.url && (
-          <div className="slot-fx">
-            <label className="fx-toggle">
-              <input
-                type="checkbox"
-                checked={!!fx[i].tilt}
-                onChange={(e) => setFxField(i, "tilt", e.target.checked)}
-              />
-              {t.fxTilt}
-            </label>
-            <label>{t.fxRotate}
-              <input type="range" min="-20" max="20" step="1" value={fx[i].rot}
-                onChange={(e) => setFxField(i, "rot", Number(e.target.value))} />
-            </label>
-            <label>{t.fxZoom}
-              <input type="range" min="1" max="2.5" step="0.05" value={fx[i].zoom}
-                onChange={(e) => setFxField(i, "zoom", Number(e.target.value))} />
-            </label>
-            <label>{t.fxPanX}
-              <input type="range" min="0" max="100" value={fx[i].ox}
-                onChange={(e) => setFxField(i, "ox", Number(e.target.value))} />
-            </label>
-            <label>{t.fxPanY}
-              <input type="range" min="0" max="100" value={fx[i].oy}
-                onChange={(e) => setFxField(i, "oy", Number(e.target.value))} />
-            </label>
-          </div>
-        )}
       </div>
     );
   }
 
-  if (editable) {
+  if (layout === "compact") {
     return (
       <div className="field">
         <span>{t.photoSlotsLabel}</span>
