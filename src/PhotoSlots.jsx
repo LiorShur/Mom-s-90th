@@ -12,7 +12,7 @@ export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
   const editable = !!fx;
 
   function setSlot(i, val) {
-    setSlots(slots.map((s, idx) => (idx === i ? val : s)));
+    setSlots((prev) => prev.map((s, idx) => (idx === i ? val : s)));
   }
   function onPick(i, e) {
     const f = e.target.files[0];
@@ -20,7 +20,7 @@ export default function PhotoSlots({ slots, setSlots, fx, setFx }) {
     setSlot(i, { url: URL.createObjectURL(f), file: f });
   }
   function setFxField(i, key, val) {
-    setFx(fx.map((f, idx) => (idx === i ? { ...f, [key]: val } : f)));
+    setFx((prev) => prev.map((f, idx) => (idx === i ? { ...f, [key]: val } : f)));
   }
   const label = (i) => (i === 0 ? t.slotPortrait : t.slotCollage(i));
 
