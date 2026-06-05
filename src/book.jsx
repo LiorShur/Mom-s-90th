@@ -60,7 +60,7 @@ export function floatFx(fx, idx) {
   return {
     x: f.x ?? d.x, y: f.y ?? d.y, w: f.w ?? d.w,
     rot: f.rot ?? 0, zoom: f.zoom ?? 1, ox: f.ox ?? 50, oy: f.oy ?? 50,
-    shadow: f.shadow ?? 0, tilt: f.tilt ?? false,
+    shadow: f.shadow ?? 0, tilt: f.tilt ?? false, z: f.z ?? 0,
   };
 }
 
@@ -79,6 +79,7 @@ export function frameStyle(f) {
     left: `${f.x}%`, top: `${f.y}%`, width: `${f.w}%`,
     transform: `rotate(${f.rot}deg)`,
     boxShadow: shadowCss(f.shadow),
+    zIndex: f.z,
   };
 }
 

@@ -5,6 +5,8 @@ import { useLang } from "./i18n.jsx";
 import PhotoSlots from "./PhotoSlots.jsx";
 import CollageEditor from "./CollageEditor.jsx";
 import { uploadAll } from "./storageUpload.js";
+import { LeftPage, FitBox, PAGE_PX } from "./book.jsx";
+import { useBookVars } from "./bookStyle.jsx";
 
 // Organizer-only inline editor: fix a contributor's name, quote and note;
 // add/replace/remove photos; adjust the main photo; and drag-arrange the
@@ -24,12 +26,22 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(null);
 
+  const vars = useBookVars();
   const p = fx[0] || {};
   const pv = {
     rot: p.rot ?? 0, zoom: p.zoom ?? 1, ox: p.ox ?? 50, oy: p.oy ?? 50, tilt: p.tilt ?? false,
   };
   const setPortrait = (patch) =>
     setFx(fx.map((f, i) => (i === 0 ? { ...f, ...patch } : f)));
+
+  // Live draft used for the left-page preview (updates as you edit).
+  const draft = {
+    name: name.trim() || item.name,
+    pullQuote,
+    text,
+    photoURLs: slots.map((s) => s.url),
+    photoFx: fx,
+  };
 
   async function save() {
     setSaving(true);
@@ -79,10 +91,17 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
 
       <PhotoSlots slots={slots} setSlots={setSlots} layout="compact" />
 
-      {/* Main photo (full-bleed on the left page) */}
+      {/* Main photo (full-bleed on the left page) with a live page preview */}
       {slots[0].url && (
         <div className="portrait-controls">
           <span className="field-title">{t.mainPhotoTitle}</span>
+          <div className="left-preview">
+            <FitBox w={PAGE_PX} h={PAGE_PX} maxWidth={300}>
+              <div className={`book style-${style}`} style={vars}>
+                <LeftPage it={draft} t={t} />
+              </div>
+            </FitBox>
+          </div>
           <div className="cc-controls">
             <label>{t.fxRotate}
               <input type="range" min="-30" max="30" value={pv.rot}

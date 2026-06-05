@@ -481,6 +481,16 @@ small.warn { color: #a3690f; }
 .cc-controls label { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--ink-soft); }
 .cc-controls input[type="range"] { flex: 1; min-width: 0; }
 .cc-controls .fx-toggle { grid-column: 1 / -1; color: var(--accent); }
+.cc-order { grid-column: 1 / -1; display: flex; gap: 8px; }
+.cc-order button { padding: 4px 12px; font-size: 0.8rem; }
+/* Resize handle on the selected floating photo */
+.cc-handle {
+  position: absolute; bottom: 0; inset-inline-end: 0;
+  width: 16px; height: 16px; background: var(--accent);
+  border: 2px solid #fff; border-radius: 3px; cursor: nwse-resize; touch-action: none;
+}
+/* Live left-page preview */
+.left-preview { max-width: 300px; margin: 4px 0 8px; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
 
 /* Scale-to-fit wrapper for on-screen book rendering */
 .fitbox { position: relative; width: 100%; overflow: hidden; margin: 0 auto; }

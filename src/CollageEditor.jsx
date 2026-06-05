@@ -41,6 +41,35 @@ export default function CollageEditor({ photoURLs, fx, setFx, style }) {
     window.addEventListener("pointerup", up);
   }
 
+  function startResize(e, slot) {
+    e.preventDefault();
+    e.stopPropagation();
+    setSel(slot);
+    const rect = canvasRef.current.getBoundingClientRect();
+    const f0 = get(slot);
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const move = (ev) => {
+      const d = (((ev.clientX - sx) + (ev.clientY - sy)) / 2 / rect.width) * 100;
+      update(slot, { w: clamp(f0.w + d, 12, 92) });
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
+
+  function bringFront(slot) {
+    const maxZ = Math.max(0, ...[1, 2, 3].map((s) => get(s).z));
+    update(slot, { z: maxZ + 1 });
+  }
+  function sendBack(slot) {
+    const minZ = Math.min(0, ...[1, 2, 3].map((s) => get(s).z));
+    update(slot, { z: minZ - 1 });
+  }
+
   if (items.length === 0) return null;
   const f = sel != null ? get(sel) : null;
 
@@ -56,6 +85,13 @@ export default function CollageEditor({ photoURLs, fx, setFx, style }) {
             onPointerDown={(e) => startDrag(e, slot)}
           >
             <img src={url} alt="" style={cropStyle(get(slot))} draggable="false" />
+            {sel === slot && (
+              <span
+                className="cc-handle"
+                onPointerDown={(e) => startResize(e, slot)}
+                aria-hidden="true"
+              />
+            )}
           </div>
         ))}
         <div className="cc-qr" aria-hidden="true">🔊<br />QR</div>
@@ -92,6 +128,14 @@ export default function CollageEditor({ photoURLs, fx, setFx, style }) {
               onChange={(e) => update(sel, { tilt: e.target.checked })} />
             {t.fxTilt}
           </label>
+          <div className="cc-order">
+            <button type="button" className="ghost" onClick={() => bringFront(sel)}>
+              {t.bringFront}
+            </button>
+            <button type="button" className="ghost" onClick={() => sendBack(sel)}>
+              {t.sendBack}
+            </button>
+          </div>
         </div>
       )}
     </div>
