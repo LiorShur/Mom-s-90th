@@ -449,12 +449,12 @@ small.warn { color: #a3690f; }
 }
 
 /* RIGHT page: collage + framed QR box */
-.pr-photos { position: absolute; inset: 0; display: grid; gap: 0.25cm; }
+.pr-photos { position: absolute; top: 0; left: 0; width: 30cm; height: 30cm; display: grid; gap: 0.25cm; }
 .pr-photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .pr-photos.count-0 { display: none; }
-.pr-photos.count-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
-.pr-photos.count-2 { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
-.pr-photos.count-3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.pr-photos.count-1 { grid-template-columns: 30cm; grid-template-rows: 30cm; }
+.pr-photos.count-2 { grid-template-columns: 30cm; grid-template-rows: 14.875cm 14.875cm; }
+.pr-photos.count-3 { grid-template-columns: 14.875cm 14.875cm; grid-template-rows: 14.875cm 14.875cm; }
 .pr-qr {
   position: absolute; bottom: 3.4cm; inset-inline-end: 2.4cm;
   width: 6cm; text-align: center; padding: 0.6cm;
