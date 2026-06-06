@@ -459,7 +459,7 @@ small.warn { color: #a3690f; }
 }
 .pr-qr.feature img { width: 10cm; height: 10cm; }
 .pr-scan { display: block; font-family: var(--bk-body); font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bk-accent); margin-top: 0.4cm; }
-.pr-caption { position: absolute; bottom: 1.4cm; inset-inline-start: 2.4cm; margin: 0; font-family: var(--bk-script); font-size: 1.6rem; color: var(--bk-soft); }
+.pr-caption { position: absolute; bottom: 1.4cm; inset-inline-end: 2.4cm; margin: 0; font-family: var(--bk-script); font-size: 1.6rem; color: var(--bk-soft); }
 
 /* Collage drag editor (gallery) */
 .field-title { display: block; font-family: var(--display); font-size: 0.95rem; margin: 14px 0 6px; color: var(--ink); }

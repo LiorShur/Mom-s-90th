@@ -55,7 +55,13 @@ export const COLLAGE_DEFAULTS = [
 ];
 
 export function floatFx(fx, idx) {
-  const d = COLLAGE_DEFAULTS[idx] || COLLAGE_DEFAULTS[0];
+  const base = COLLAGE_DEFAULTS[idx] || COLLAGE_DEFAULTS[0];
+  // Photo #3 defaults to the bottom corner OPPOSITE the QR (the QR sits on the
+  // inline-end side: bottom-left in RTL, bottom-right in LTR).
+  const rtl =
+    typeof document !== "undefined" &&
+    document.documentElement.getAttribute("dir") === "rtl";
+  const d = idx === 2 ? { ...base, x: rtl ? 53 : 5 } : base;
   const f = fx || {};
   return {
     x: f.x ?? d.x, y: f.y ?? d.y, w: f.w ?? d.w,
