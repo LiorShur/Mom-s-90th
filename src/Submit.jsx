@@ -4,6 +4,7 @@ import { collection, addDoc, serverTimestamp, updateDoc } from "firebase/firesto
 import { useLang } from "./i18n.jsx";
 import PhotoSlots from "./PhotoSlots.jsx";
 import { uploadAll } from "./storageUpload.js";
+import { blobToWav } from "./audio.js";
 
 const MAX_BODY = 600; // recommended characters for the page to fit nicely
 const MAX_QUOTE = 80;
@@ -199,10 +200,16 @@ function ClipPicker({ clip, setClip }) {
       const rec = new MediaRecorder(stream);
       chunksRef.current = [];
       rec.ondataavailable = (e) => chunksRef.current.push(e.data);
-      rec.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-        setClip({ blob, ext: "webm", kind: "audio", url: URL.createObjectURL(blob) });
+      rec.onstop = async () => {
+        const raw = new Blob(chunksRef.current, { type: rec.mimeType || "audio/webm" });
         stream.getTracks().forEach((tr) => tr.stop());
+        try {
+          // Convert to WAV so it plays on iOS Safari (WebM/Opus does not).
+          const wav = await blobToWav(raw);
+          setClip({ blob: wav, ext: "wav", kind: "audio", url: URL.createObjectURL(wav) });
+        } catch {
+          setClip({ blob: raw, ext: "webm", kind: "audio", url: URL.createObjectURL(raw) });
+        }
       };
       rec.start();
       recorderRef.current = rec;
