@@ -4,6 +4,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { useLang } from "./i18n.jsx";
 import PhotoSlots from "./PhotoSlots.jsx";
 import CollageEditor from "./CollageEditor.jsx";
+import ClipPicker from "./ClipPicker.jsx";
 import { uploadAll } from "./storageUpload.js";
 import { LeftPage, FitBox, PAGE_PX } from "./book.jsx";
 import { useBookVars } from "./bookStyle.jsx";
@@ -22,6 +23,9 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   });
   const [fx, setFx] = useState(() =>
     [0, 1, 2, 3].map((i) => ({ ...(item.photoFx?.[i] || {}) }))
+  );
+  const [clip, setClip] = useState(
+    item.clipURL ? { url: item.clipURL, kind: item.clipKind || "audio" } : null
   );
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(null);
@@ -50,11 +54,16 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       slots.forEach((s, i) => {
         if (s.file) uploads.push({ kind: "photo", index: i, file: s.file });
       });
+      if (clip?.blob) uploads.push({ kind: "clip", ext: clip.ext, file: clip.blob });
+
       const photoURLs = slots.map((s) => (s.url && !s.file ? s.url : null));
+      let clipURL = clip ? (clip.blob ? null : clip.url) : null;
+      const clipKind = clip ? clip.kind : null;
       if (uploads.length) {
         const results = await uploadAll(uploads, item.id, (pct) => setProgress(pct));
         results.forEach((r) => {
-          photoURLs[r.index] = r.url;
+          if (r.kind === "photo") photoURLs[r.index] = r.url;
+          else clipURL = r.url;
         });
       }
       const fields = {
@@ -63,6 +72,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         text: text.trim(),
         photoURLs,
         photoFx: fx,
+        clipURL,
+        clipKind,
       };
       await updateDoc(doc(db, "messages", item.id), fields);
       onSaved(fields);
@@ -131,6 +142,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         setFx={setFx}
         style={style}
       />
+
+      <ClipPicker clip={clip} setClip={setClip} />
 
       {saving && progress != null && (
         <div className="progress">
