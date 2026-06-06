@@ -396,7 +396,7 @@ export default function Gallery() {
           <div className="grid">
             {orderedAll(items).map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
-                <p className="kicker" dir="auto">{it.prompt}</p>
+                {it.prompt && <p className="kicker" dir="auto">{it.prompt}</p>}
                 {editingId === it.id ? (
                   <GalleryEditor
                     item={it}

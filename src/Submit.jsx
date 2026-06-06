@@ -14,7 +14,7 @@ const emptySlots = () => [0, 1, 2, 3].map(() => ({ url: null, file: null }));
 export default function Submit() {
   const { t, lang } = useLang();
   const [name, setName] = useState("");
-  const [promptIndex, setPromptIndex] = useState(0);
+  const [idea, setIdea] = useState(""); // inspiration dropdown only — not stored
   const [pullQuote, setPullQuote] = useState("");
   const [text, setText] = useState("");
   const [slots, setSlots] = useState(emptySlots);
@@ -37,7 +37,7 @@ export default function Submit() {
         // Relationship + generation are assigned by the organizer in the gallery.
         generation: "other",
         relationship: "",
-        prompt: t.prompts[promptIndex],
+        prompt: "",
         pullQuote: pullQuote.trim(),
         text: text.trim(),
         lang,
@@ -86,6 +86,7 @@ export default function Submit() {
             className="ghost"
             onClick={() => {
               setName("");
+              setIdea("");
               setPullQuote("");
               setText("");
               setSlots(emptySlots());
@@ -123,20 +124,6 @@ export default function Submit() {
         </label>
 
         <label className="field">
-          <span>{t.promptLabel}</span>
-          <select
-            value={promptIndex}
-            onChange={(e) => setPromptIndex(Number(e.target.value))}
-          >
-            {t.prompts.map((p, i) => (
-              <option key={i} value={i}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="field">
           <span>{t.pullQuoteLabel}</span>
           <input
             className="handwritten"
@@ -146,6 +133,19 @@ export default function Submit() {
             onChange={(e) => setPullQuote(e.target.value)}
             placeholder={t.pullQuotePlaceholder}
           />
+        </label>
+
+        {/* Inspiration only — a list of ideas, not a stored choice. */}
+        <label className="field">
+          <span>{t.promptLabel}</span>
+          <select value={idea} onChange={(e) => setIdea(e.target.value)}>
+            <option value="">{t.promptPlaceholder}</option>
+            {t.prompts.slice(0, -1).map((p, i) => (
+              <option key={i} value={i}>
+                {p}
+              </option>
+            ))}
+          </select>
         </label>
 
         <label className="field">

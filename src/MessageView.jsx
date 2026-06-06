@@ -44,7 +44,7 @@ export default function MessageView({ id }) {
     <main className="page narrow message-view">
       {/* The note and prompt are shown in whatever language the contributor
           wrote them, so let the browser auto-detect direction per item. */}
-      <p className="kicker" dir="auto">{msg.prompt}</p>
+      {msg.prompt && <p className="kicker" dir="auto">{msg.prompt}</p>}
 
       {msg.clipURL && (
         <div className="player">
