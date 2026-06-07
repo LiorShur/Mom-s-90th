@@ -119,7 +119,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
                 onChange={(e) => setPortrait({ rot: +e.target.value })} />
             </label>
             <label>{t.fxZoom}
-              <input type="range" min="1" max="3" step="0.05" value={pv.zoom}
+              <input type="range" min="0.4" max="2.5" step="0.05" value={pv.zoom}
                 onChange={(e) => setPortrait({ zoom: +e.target.value })} />
             </label>
             <label>{t.fxPanX}

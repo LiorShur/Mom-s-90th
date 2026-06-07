@@ -431,6 +431,7 @@ small.warn { color: #a3690f; }
   box-shadow: 0 0.4cm 1.1cm rgba(40, 30, 20, 0.28);
 }
 .pl-portrait:has(img.tilted)::after { display: none; } /* no feather over a tilted card */
+.pl-portrait.shrunk::after { display: none; } /* no feather when the photo is scaled down */
 
 /* Botanical flourish, bottom inner corner of the message column. */
 .pl-sprig {

@@ -152,7 +152,7 @@ export function LeftPage({ it, t, num }) {
         {body && <p className="pl-body" dir="auto">{body}</p>}
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
-      <div className="pl-portrait">
+      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""}`}>
         {portrait && (
           <img
             src={portrait}
