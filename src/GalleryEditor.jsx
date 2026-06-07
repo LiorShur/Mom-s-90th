@@ -33,7 +33,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   const vars = useBookVars();
   const p = fx[0] || {};
   const pv = {
-    rot: p.rot ?? 0, zoom: p.zoom ?? 1, ox: p.ox ?? 50, oy: p.oy ?? 50, tilt: p.tilt ?? false,
+    rot: p.rot ?? 0, zoom: p.zoom ?? 1, ox: p.ox ?? 50, oy: p.oy ?? 50,
+    tilt: p.tilt ?? false, fit: p.fit ?? false,
   };
   const setPortrait = (patch) =>
     setFx(fx.map((f, i) => (i === 0 ? { ...f, ...patch } : f)));
@@ -129,6 +130,11 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
             <label>{t.fxPanY}
               <input type="range" min="0" max="100" value={pv.oy}
                 onChange={(e) => setPortrait({ oy: +e.target.value })} />
+            </label>
+            <label className="fx-toggle">
+              <input type="checkbox" checked={pv.fit}
+                onChange={(e) => setPortrait({ fit: e.target.checked })} />
+              {t.fxFit}
             </label>
           </div>
         </div>

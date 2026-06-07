@@ -432,6 +432,8 @@ small.warn { color: #a3690f; }
 }
 .pl-portrait:has(img.tilted)::after { display: none; } /* no feather over a tilted card */
 .pl-portrait.shrunk::after { display: none; } /* no feather when the photo is scaled down */
+.pl-portrait.fit::after { display: none; } /* no feather when showing the whole photo */
+.pl-portrait.fit img { object-fit: contain; } /* show the entire photo, letterboxed */
 
 /* Botanical flourish, bottom inner corner of the message column. */
 .pl-sprig {
