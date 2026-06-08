@@ -8,9 +8,10 @@ import {
   LeftPage,
   RightPage,
 } from "./book.jsx";
+import { FamilyTreePage } from "./FamilyTree.jsx";
 
-// Full-size 30×30 cm print book: cover, a two-page spread per approved person,
-// then a closing page. Rendered inside a .print-only wrapper by the gallery.
+// Full-size 30×30 cm print book: cover, family tree, a two-page spread per
+// approved person, then a closing page. Rendered inside a .print-only wrapper.
 export default function PrintBook({ items, qrMap, style }) {
   const { t } = useLang();
   const vars = useBookVars();
@@ -19,6 +20,7 @@ export default function PrintBook({ items, qrMap, style }) {
   return (
     <div className={`book style-${style}`} style={vars}>
       <CoverPage t={t} />
+      <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       {pages.map((it, idx) => (
         <Fragment key={it.id}>
           <LeftPage it={it} t={t} num={idx * 2 + 1} />

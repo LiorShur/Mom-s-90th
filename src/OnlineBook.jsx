@@ -10,6 +10,7 @@ import {
   FitBox,
   PAGE_PX,
 } from "./book.jsx";
+import { FamilyTreePage } from "./FamilyTree.jsx";
 
 // One scaled, scrollable book page.
 function OnlinePage({ style, children }) {
@@ -33,6 +34,9 @@ export default function OnlineBook({ items, qrMap, style }) {
     <div className="online-book screen-only">
       <OnlinePage style={style}>
         <CoverPage t={t} />
+      </OnlinePage>
+      <OnlinePage style={style}>
+        <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       </OnlinePage>
 
       {pages.map((it, idx) => (
