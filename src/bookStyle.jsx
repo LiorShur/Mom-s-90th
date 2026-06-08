@@ -14,11 +14,10 @@ export const FONTS = {
   sans: '"Assistant", system-ui, sans-serif',
 };
 
-export const ROLES = ["name", "quote", "body", "sign"];
+export const ROLES = ["quote", "body", "sign"];
 
 // Defaults — note the long message (body) is handwriting now.
 export const DEFAULT_TEXT = {
-  name: { font: "script", bold: false, size: 4.4 },
   quote: { font: "handwriting", bold: false, size: 2.6 },
   body: { font: "handwriting", bold: false, size: 1.3 },
   sign: { font: "handwriting", bold: false, size: 2.8 },

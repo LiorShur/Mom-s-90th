@@ -145,7 +145,6 @@ export function LeftPage({ it, t, num }) {
   return (
     <section className="book-page page-left">
       <div className="pl-text">
-        <h2 className="pl-name" dir="auto">{it.name}</h2>
         <span className="pl-qmark" aria-hidden>“</span>
         {pull && <p className="pl-quote" dir="auto">{pull}</p>}
         <span className="pl-divider" aria-hidden>♡</span>
