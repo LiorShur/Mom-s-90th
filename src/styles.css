@@ -330,7 +330,18 @@ small.warn { color: #a3690f; }
 .family-tree .ft-honoree { font-family: var(--bk-script); font-size: 3.6rem; color: var(--bk-accent); line-height: 1; }
 
 /* Off-screen stage for hi-res image export (must stay rendered, not display:none) */
-.export-stage { position: fixed; left: -100000px; top: 0; width: 31cm; z-index: -1; }
+.export-stage { position: fixed; left: -100000px; top: 0; width: max-content; z-index: -1; }
+/* Layflat ("Dutch bind") spread: two pages joined side by side (58×29 cm) */
+.export-spread { display: flex; width: 60cm; height: 30cm; overflow: hidden; background: var(--bk-paper); }
+.export-spread .book-page { flex: 0 0 30cm; }
+.export-spread.framed .book-page::after {
+  content: ""; position: absolute; inset: 0.5cm;
+  border: 2px solid var(--bk-gold); pointer-events: none; z-index: 60;
+}
+
+/* Export format chooser */
+.export-group { display: inline-flex; gap: 6px; align-items: center; }
+.export-select { padding: 6px 8px; font-size: 0.85rem; max-width: 200px; }
 
 /* ---- Text styling panel ---- */
 .text-style-panel { background: var(--paper-2); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; margin: 6px 0 14px; max-width: 560px; }

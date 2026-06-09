@@ -17,6 +17,7 @@ import {
 import QRCode from "qrcode";
 import { useLang } from "./i18n.jsx";
 import PrintBook from "./PrintBook.jsx";
+import ExportSpreads from "./ExportSpreads.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderKey } from "./book.jsx";
@@ -50,6 +51,7 @@ export default function Gallery() {
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportProg, setExportProg] = useState(null); // {i, n}
+  const [exportFmt, setExportFmt] = useState("pages"); // pages | spread | spread-framed
   const exportRef = useRef(null);
 
   function applyEdit(id, fields) {
@@ -93,12 +95,13 @@ export default function Gallery() {
     );
   }
 
-  // Render the full-size book off-screen, rasterize each page to a 300-DPI JPEG,
-  // and download them all as a zip (for photobook/print apps that want images).
-  async function exportImages() {
+  // Render the book off-screen and rasterize to 300-DPI JPEGs.
+  // format: "pages" (30×30 single pages) | "spread" | "spread-framed" (58×29).
+  async function exportImages(format) {
+    setExportFmt(format);
     setExporting(true);
     setExportProg({ i: 0, n: 0 });
-    await new Promise((r) => setTimeout(r, 80)); // let the export stage mount
+    await new Promise((r) => setTimeout(r, 120)); // let the export stage mount
     try {
       const stage = exportRef.current;
       const imgs = [...stage.querySelectorAll("img")];
@@ -112,18 +115,25 @@ export default function Gallery() {
         )
       );
       await new Promise((r) => setTimeout(r, 200)); // let fonts settle
-      // Export only the contributor spread pages (skip the cover + closing).
-      const book = stage.querySelector(".book");
-      const pages = book
-        ? Array.from(book.children).filter((el) =>
-            el.classList.contains("book-page")
-          )
-        : [];
+
+      let nodes, ratio, prefix;
+      if (format === "pages") {
+        const book = stage.querySelector(".book");
+        nodes = book
+          ? Array.from(book.children).filter((el) => el.classList.contains("book-page"))
+          : [];
+        ratio = ((30 / 2.54) * 300) / PAGE_PX; // 30 cm @ 300 DPI
+        prefix = "page";
+      } else {
+        nodes = [...stage.querySelectorAll(".export-spread")];
+        ratio = ((58 / 2.54) * 300) / (2 * PAGE_PX); // 58 cm wide @ 300 DPI
+        prefix = "spread";
+      }
+
       const { toJpeg } = await import("html-to-image");
-      const ratio = 3543 / PAGE_PX; // 30 cm @ 300 DPI ≈ 3543 px
-      for (let k = 0; k < pages.length; k++) {
-        setExportProg({ i: k + 1, n: pages.length });
-        const dataUrl = await toJpeg(pages[k], {
+      for (let k = 0; k < nodes.length; k++) {
+        setExportProg({ i: k + 1, n: nodes.length });
+        const dataUrl = await toJpeg(nodes[k], {
           quality: 0.95,
           pixelRatio: ratio,
           cacheBust: true,
@@ -131,9 +141,9 @@ export default function Gallery() {
         });
         const a = document.createElement("a");
         a.href = dataUrl;
-        a.download = `page-${String(k + 1).padStart(2, "0")}.jpg`;
+        a.download = `${prefix}-${String(k + 1).padStart(2, "0")}.jpg`;
         a.click();
-        await new Promise((r) => setTimeout(r, 400)); // let each download register
+        await new Promise((r) => setTimeout(r, 450)); // let each download register
       }
     } catch (e) {
       console.error(e);
@@ -354,11 +364,27 @@ export default function Gallery() {
           <button className="ghost" onClick={() => printAs("qr")}>
             {t.printBtn}
           </button>
-          <button className="ghost" onClick={exportImages} disabled={exporting}>
-            {exporting && exportProg
-              ? t.exportingN(exportProg.i, exportProg.n)
-              : t.exportImagesBtn}
-          </button>
+          <span className="export-group">
+            <select
+              className="export-select"
+              value={exportFmt}
+              disabled={exporting}
+              onChange={(e) => setExportFmt(e.target.value)}
+            >
+              <option value="pages">{t.exportPages}</option>
+              <option value="spread">{t.exportSpread}</option>
+              <option value="spread-framed">{t.exportSpreadFramed}</option>
+            </select>
+            <button
+              className="ghost"
+              onClick={() => exportImages(exportFmt)}
+              disabled={exporting}
+            >
+              {exporting && exportProg
+                ? t.exportingN(exportProg.i, exportProg.n)
+                : t.exportImagesBtn}
+            </button>
+          </span>
           <button className="ghost" onClick={copyBookLink}>
             {copied ? t.linkCopied : t.shareBtn}
           </button>
@@ -452,11 +478,20 @@ export default function Gallery() {
           Filtered to approved here too, so only approved pages can be captured. */}
       {exporting && (
         <div className="export-stage" ref={exportRef} aria-hidden="true">
-          <PrintBook
-            items={items.filter((i) => i.approved)}
-            qrMap={qrMap}
-            style={bookStyle}
-          />
+          {exportFmt === "pages" ? (
+            <PrintBook
+              items={items.filter((i) => i.approved)}
+              qrMap={qrMap}
+              style={bookStyle}
+            />
+          ) : (
+            <ExportSpreads
+              items={items}
+              qrMap={qrMap}
+              style={bookStyle}
+              framed={exportFmt === "spread-framed"}
+            />
+          )}
         </div>
       )}
 
