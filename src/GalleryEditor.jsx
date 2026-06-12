@@ -15,6 +15,7 @@ import { useBookVars } from "./bookStyle.jsx";
 export default function GalleryEditor({ item, onSaved, onClose, style }) {
   const { t } = useLang();
   const [name, setName] = useState(item.name || "");
+  const [generation, setGeneration] = useState(item.generation || "other");
   const [pullQuote, setPullQuote] = useState(item.pullQuote || "");
   const [text, setText] = useState(item.text || "");
   const [slots, setSlots] = useState(() => {
@@ -69,6 +70,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       }
       const fields = {
         name: name.trim(),
+        generation,
         pullQuote: pullQuote.trim(),
         text: text.trim(),
         photoURLs,
@@ -91,6 +93,14 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       <label className="field">
         <span>{t.nameLabel}</span>
         <input value={name} dir="auto" onChange={(e) => setName(e.target.value)} />
+      </label>
+      <label className="field">
+        <span>{t.generationLabel}</span>
+        <select value={generation} onChange={(e) => setGeneration(e.target.value)}>
+          {t.generations.map((g) => (
+            <option key={g.value} value={g.value}>{g.label}</option>
+          ))}
+        </select>
       </label>
       <label className="field">
         <span>{t.pullQuoteLabel}</span>
