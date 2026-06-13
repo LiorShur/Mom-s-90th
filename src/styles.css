@@ -313,6 +313,32 @@ small.warn { color: #a3690f; }
 .clip-preview audio { width: 100%; }
 .clip-preview video { max-width: 100%; border-radius: 6px; }
 
+/* ---- Life-in-photos album page ---- */
+.life-page { display: flex; flex-direction: column; padding: 2cm; }
+.life-page .life-head { text-align: center; margin-bottom: 0.8cm; }
+.life-page .ft-kicker { font-family: var(--bk-body); font-style: italic; color: var(--bk-accent); margin: 0; font-size: 1.1rem; }
+.life-page .life-title { font-family: var(--bk-name); font-weight: 500; font-size: 2.8rem; margin: 0.2cm 0 0; color: var(--bk-ink); }
+.life-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1cm 1.2cm; align-content: center; }
+.life-card { display: flex; flex-direction: column; align-items: center; }
+.life-photo {
+  width: 100%; aspect-ratio: 4 / 5; background: #fff; padding: 0.3cm;
+  box-shadow: 0 0.12cm 0.5cm rgba(40, 30, 20, 0.22);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.life-photo img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.life-card figcaption { font-family: var(--bk-body); font-size: 1rem; color: var(--bk-soft); margin-top: 0.35cm; text-align: center; line-height: 1.3; }
+.life-card .life-year { font-family: var(--bk-name); color: var(--bk-accent); font-weight: 500; margin-inline-end: 0.25em; }
+
+/* ---- Life editor (organizer) ---- */
+.life-editor { max-width: 720px; margin: 0 auto; }
+.life-upload { display: inline-block; margin: 6px 0 14px; }
+.life-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.life-row { display: flex; align-items: center; gap: 10px; padding: 6px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-2); }
+.life-thumb { width: 54px; height: 54px; object-fit: cover; border-radius: 4px; border: 1px solid var(--line); flex: none; }
+.life-year-in { width: 70px; flex: none; }
+.life-cap-in { flex: 1; min-width: 0; }
+.life-row .ghost { padding: 4px 10px; }
+
 /* ---- Family tree page ---- */
 .family-tree { position: relative; overflow: hidden; }
 .family-tree .ft-bg { position: absolute; inset: 0; width: 100%; height: 100%; }

@@ -11,6 +11,8 @@ import {
   PAGE_PX,
 } from "./book.jsx";
 import { FamilyTreePage } from "./FamilyTree.jsx";
+import { LifePage } from "./LifeAlbum.jsx";
+import { useLife, lifePages } from "./life.jsx";
 
 // One scaled, scrollable book page.
 function OnlinePage({ style, children }) {
@@ -28,6 +30,7 @@ function OnlinePage({ style, children }) {
 // with a usable voice player under each spread, then the closing page.
 export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
+  const { photos } = useLife();
   const pages = orderedApproved(items);
 
   return (
@@ -38,6 +41,11 @@ export default function OnlineBook({ items, qrMap, style }) {
       <OnlinePage style={style}>
         <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       </OnlinePage>
+      {lifePages(photos).map((group, i) => (
+        <OnlinePage style={style} key={`life-${i}`}>
+          <LifePage group={group} first={i === 0} t={t} />
+        </OnlinePage>
+      ))}
 
       {pages.map((it, idx) => (
         <Fragment key={it.id}>

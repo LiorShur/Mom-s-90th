@@ -20,6 +20,7 @@ import PrintBook from "./PrintBook.jsx";
 import ExportSpreads from "./ExportSpreads.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
+import LifeEditor from "./LifeEditor.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderKey } from "./book.jsx";
 import { useBookStyle, FONTS, ROLES } from "./bookStyle.jsx";
 
@@ -358,6 +359,12 @@ export default function Gallery() {
           >
             {view === "arrange" ? t.backToList : t.arrangeBtn}
           </button>
+          <button
+            className="ghost"
+            onClick={() => setView(view === "life" ? "grid" : "life")}
+          >
+            {view === "life" ? t.backToList : t.lifeBtn}
+          </button>
           <button className="ghost" onClick={() => printAs("proof")}>
             {t.printProofBtn}
           </button>
@@ -397,6 +404,8 @@ export default function Gallery() {
       {view === "book" && (
         <OnlineBook items={items} qrMap={qrMap} style={bookStyle} />
       )}
+
+      {view === "life" && <LifeEditor />}
 
       {view === "arrange" && (
         <section className="screen-only arrange">
