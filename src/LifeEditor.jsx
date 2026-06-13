@@ -1,23 +1,28 @@
 import { useState } from "react";
 import { useLang } from "./i18n.jsx";
-import { useLife } from "./life.jsx";
+import { useLife, makePhoto, makeText } from "./life.jsx";
 import { uploadFileResumable } from "./storageUpload.js";
+import LifeCanvas from "./LifeCanvas.jsx";
 
 const sanitize = (n = "f") => n.replace(/[^A-Za-z0-9._-]/g, "_").slice(-32);
 
-// Organizer screen to build the "Her life in photos" album: multi-upload the
-// honoree's photos, add a year + caption to each, remove, and save. The album
-// sorts by year automatically.
-export default function LifeEditor() {
+// Organizer screen: build free-form 58×29 life spreads — photos + text, as many
+// per page and as many pages as wanted.
+export default function LifeEditor({ style }) {
   const { t } = useLang();
-  const { photos, savePhotos } = useLife();
-  const [list, setList] = useState(photos);
-  const [busy, setBusy] = useState(null); // { i, n }
+  const { spreads, saveSpreads } = useLife();
+  const [list, setList] = useState(spreads.length ? spreads : [{ items: [] }]);
+  const [busy, setBusy] = useState(null);
   const [saved, setSaved] = useState(false);
 
-  async function onFiles(e) {
+  const setSpreadItems = (idx, items) =>
+    setList(list.map((s, i) => (i === idx ? { ...s, items } : s)));
+
+  async function onAddPhotos(idx, e) {
     const files = [...e.target.files];
     if (!files.length) return;
+    e.target.value = "";
+    const start = list[idx].items.length;
     const added = [];
     for (let i = 0; i < files.length; i++) {
       setBusy({ i: i + 1, n: files.length });
@@ -26,22 +31,24 @@ export default function LifeEditor() {
           `messages/__life__/${Date.now()}_${i}_${sanitize(files[i].name)}`,
           files[i]
         );
-        added.push({ url, year: "", caption: "" });
+        added.push(makePhoto(url, start + i));
       } catch (err) {
         console.error(err);
       }
     }
     setBusy(null);
-    setList((prev) => [...prev, ...added]);
-    e.target.value = "";
+    setList((prev) =>
+      prev.map((s, i) => (i === idx ? { ...s, items: [...s.items, ...added] } : s))
+    );
   }
 
-  const update = (i, patch) =>
-    setList(list.map((p, idx) => (idx === i ? { ...p, ...patch } : p)));
-  const remove = (i) => setList(list.filter((_, idx) => idx !== i));
+  const addText = (idx) =>
+    setList(list.map((s, i) => (i === idx ? { ...s, items: [...s.items, makeText(s.items.length)] } : s)));
+  const addPage = () => setList([...list, { items: [] }]);
+  const removePage = (idx) => setList(list.filter((_, i) => i !== idx));
 
   async function save() {
-    await savePhotos(list);
+    await saveSpreads(list);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }
@@ -50,51 +57,39 @@ export default function LifeEditor() {
     <section className="screen-only life-editor">
       <p className="lede">{t.lifeHint}</p>
 
-      <label className="upload-btn life-upload">
-        {t.lifeAddPhotos}
-        <input type="file" accept="image/*" multiple hidden onChange={onFiles} />
-      </label>
+      {list.map((sp, idx) => (
+        <div className="life-spread-block" key={idx}>
+          <div className="life-spread-bar">
+            <span className="field-title">{t.lifePage} {idx + 1}</span>
+            <label className="upload-btn">
+              {t.lifeAddPhotos}
+              <input type="file" accept="image/*" multiple hidden
+                onChange={(e) => onAddPhotos(idx, e)} />
+            </label>
+            <button className="ghost" onClick={() => addText(idx)}>{t.lifeAddText}</button>
+            <button className="ghost" onClick={() => removePage(idx)}>{t.lifeRemovePage}</button>
+          </div>
+          <LifeCanvas
+            items={sp.items}
+            setItems={(items) => setSpreadItems(idx, items)}
+            style={style}
+          />
+        </div>
+      ))}
 
       {busy && (
         <div className="progress">
-          <div
-            className="progress-bar"
-            style={{ width: `${Math.round((busy.i / busy.n) * 100)}%` }}
-          />
+          <div className="progress-bar" style={{ width: `${Math.round((busy.i / busy.n) * 100)}%` }} />
           <span className="progress-label">
             {t.uploading(Math.round((busy.i / busy.n) * 100))} ({busy.i}/{busy.n})
           </span>
         </div>
       )}
 
-      <div className="life-list">
-        {list.map((p, i) => (
-          <div className="life-row" key={i}>
-            <img src={p.url} alt="" className="life-thumb" />
-            <input
-              className="life-year-in"
-              inputMode="numeric"
-              placeholder={t.lifeYear}
-              value={p.year}
-              onChange={(e) => update(i, { year: e.target.value })}
-            />
-            <input
-              className="life-cap-in"
-              dir="auto"
-              placeholder={t.lifeCaption}
-              value={p.caption}
-              onChange={(e) => update(i, { caption: e.target.value })}
-            />
-            <button className="ghost" onClick={() => remove(i)} aria-label="remove">
-              ✕
-            </button>
-          </div>
-        ))}
+      <div className="editor-actions">
+        <button className="ghost" onClick={addPage}>{t.lifeAddPage}</button>
+        <button className="primary small" onClick={save}>{saved ? t.savedOk : t.saveBtn}</button>
       </div>
-
-      <button className="primary small" onClick={save}>
-        {saved ? t.savedOk : t.saveBtn}
-      </button>
     </section>
   );
 }

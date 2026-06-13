@@ -9,24 +9,19 @@ import {
   RightPage,
 } from "./book.jsx";
 import { FamilyTreePage } from "./FamilyTree.jsx";
-import { LifePage } from "./LifeAlbum.jsx";
-import { useLife, lifePages } from "./life.jsx";
 
-// Full-size 30×30 cm print book: cover, family tree, life album, a two-page
-// spread per approved person, then a closing page.
+// Full-size 30×30 cm print book: cover, family tree, a two-page spread per
+// approved person, then a closing page. (The life album is layflat 58×29
+// spreads — see ExportSpreads / the online book.)
 export default function PrintBook({ items, qrMap, style }) {
   const { t } = useLang();
   const vars = useBookVars();
-  const { photos } = useLife();
   const pages = orderedApproved(items);
 
   return (
     <div className={`book style-${style}`} style={vars}>
       <CoverPage t={t} />
       <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
-      {lifePages(photos).map((group, i) => (
-        <LifePage key={`life-${i}`} group={group} first={i === 0} t={t} />
-      ))}
       {pages.map((it, idx) => (
         <Fragment key={it.id}>
           <LeftPage it={it} t={t} num={idx * 2 + 1} />

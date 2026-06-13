@@ -2,50 +2,58 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { db } from "./firebase.js";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-// "Her life in photos" — an organizer-curated set of the honoree's own photos
-// with a year + caption each. Stored in config/life (public read, organizer
-// write — same rule as the other config docs).
+// "Her life in photos" — free-form layflat spreads (58×29 cm) the organizer
+// composes: each spread holds photos AND text placed/sized/rotated freely (a
+// timeline, right-to-left). Stored in config/life (public read, organizer write).
+//   config/life = { spreads: [ { items: [ photo|text ] } ] }
+//   photo = { id, type:'photo', url, x, y, w, rot, shadow, z }
+//   text  = { id, type:'text', text, x, y, w, rot, font, size, color, bold, z }
 
 const Ctx = createContext(null);
 
+const uid = (i) => `${Date.now()}-${i}-${Math.random().toString(36).slice(2, 6)}`;
+
+export function makePhoto(url, i = 0) {
+  const col = i % 4;
+  const row = Math.floor(i / 4) % 2;
+  return {
+    id: uid(i), type: "photo", url,
+    x: 70 - col * 20, // start at the right, step left (RTL timeline)
+    y: 8 + row * 42, w: 18, rot: 0, shadow: 18, z: i,
+  };
+}
+
+export function makeText(i = 0) {
+  return {
+    id: uid(i), type: "text", text: "טקסט",
+    x: 40, y: 45, w: 24, rot: 0,
+    font: "script", size: 2, color: "#2b2622", bold: false, z: 100 + i,
+  };
+}
+
 export function LifeProvider({ children }) {
-  const [photos, setPhotos] = useState([]); // [{ url, year, caption }]
+  const [spreads, setSpreads] = useState([]); // [{ items: [...] }]
 
   useEffect(() => {
     (async () => {
       try {
         const snap = await getDoc(doc(db, "config", "life"));
-        if (snap.exists() && Array.isArray(snap.data().photos)) {
-          setPhotos(snap.data().photos);
-        }
+        const data = snap.exists() ? snap.data() : null;
+        if (data && Array.isArray(data.spreads)) setSpreads(data.spreads);
       } catch {
-        /* no doc yet / not signed in */
+        /* no doc / not signed in */
       }
     })();
   }, []);
 
-  async function savePhotos(next) {
-    setPhotos(next);
-    await setDoc(doc(db, "config", "life"), { photos: next }, { merge: true });
+  async function saveSpreads(next) {
+    setSpreads(next);
+    await setDoc(doc(db, "config", "life"), { spreads: next }, { merge: true });
   }
 
-  return <Ctx.Provider value={{ photos, savePhotos }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ spreads, saveSpreads }}>{children}</Ctx.Provider>;
 }
 
 export function useLife() {
-  return useContext(Ctx) || { photos: [], savePhotos: async () => {} };
-}
-
-// Chronological pages of up to `perPage` photos (sorted by year; blanks last).
-export function lifePages(photos, perPage = 6) {
-  const sorted = (photos || []).slice().sort((a, b) => {
-    const ya = parseInt(a.year, 10);
-    const yb = parseInt(b.year, 10);
-    return (isNaN(ya) ? 9999 : ya) - (isNaN(yb) ? 9999 : yb);
-  });
-  const pages = [];
-  for (let i = 0; i < sorted.length; i += perPage) {
-    pages.push(sorted.slice(i, i + perPage));
-  }
-  return pages;
+  return useContext(Ctx) || { spreads: [], saveSpreads: async () => {} };
 }

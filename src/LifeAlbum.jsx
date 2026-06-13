@@ -1,29 +1,44 @@
-// One page of the "Her life in photos" album: a tidy grid of photos, each with
-// an optional year + caption. The title appears on the first page only.
-export function LifePage({ group, first, t }) {
+import { shadowCss } from "./book.jsx";
+import { FONTS } from "./bookStyle.jsx";
+
+// Style for a free-placed life item (photo or text) — position/size/rotation
+// in %, plus per-type styling.
+export function itemStyle(it) {
+  const base = {
+    position: "absolute",
+    left: `${it.x}%`,
+    top: `${it.y}%`,
+    width: `${it.w}%`,
+    transform: `rotate(${it.rot || 0}deg)`,
+    zIndex: it.z || 0,
+  };
+  if (it.type === "text") {
+    return {
+      ...base,
+      fontFamily: FONTS[it.font] || FONTS.serif,
+      fontSize: `${it.size}cm`,
+      color: it.color || "#2b2622",
+      fontWeight: it.bold ? 700 : 400,
+    };
+  }
+  return { ...base, boxShadow: shadowCss(it.shadow) };
+}
+
+// One life spread (58×29 cm layflat) with its photos and text laid out freely.
+export function LifeSpread({ items }) {
   return (
-    <section className="book-page life-page">
-      {first && (
-        <div className="life-head">
-          <p className="ft-kicker">{t.forGrandma}</p>
-          <h2 className="life-title" dir="auto">{t.lifeTitle}</h2>
-        </div>
+    <section className="life-spread">
+      {(items || []).map((it) =>
+        it.type === "text" ? (
+          <div className="life-text" key={it.id} style={itemStyle(it)} dir="auto">
+            {it.text}
+          </div>
+        ) : (
+          <div className="life-float" key={it.id} style={itemStyle(it)}>
+            <img src={it.url} alt="" />
+          </div>
+        )
       )}
-      <div className={`life-grid ${first ? "with-head" : ""}`}>
-        {group.map((p, i) => (
-          <figure className="life-card" key={i}>
-            <div className="life-photo">
-              <img src={p.url} alt="" />
-            </div>
-            {(p.year || p.caption) && (
-              <figcaption dir="auto">
-                {p.year && <span className="life-year">{p.year}</span>}
-                {p.caption}
-              </figcaption>
-            )}
-          </figure>
-        ))}
-      </div>
     </section>
   );
 }

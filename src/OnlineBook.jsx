@@ -9,12 +9,13 @@ import {
   RightPage,
   FitBox,
   PAGE_PX,
+  SPREAD_PX,
 } from "./book.jsx";
 import { FamilyTreePage } from "./FamilyTree.jsx";
-import { LifePage } from "./LifeAlbum.jsx";
-import { useLife, lifePages } from "./life.jsx";
+import { LifeSpread } from "./LifeAlbum.jsx";
+import { useLife } from "./life.jsx";
 
-// One scaled, scrollable book page.
+// One scaled, scrollable book page (square).
 function OnlinePage({ style, children }) {
   const vars = useBookVars();
   return (
@@ -26,11 +27,23 @@ function OnlinePage({ style, children }) {
   );
 }
 
+// A wide (2:1) page for the life spreads.
+function WideOnlinePage({ style, children }) {
+  const vars = useBookVars();
+  return (
+    <div className="online-page wide">
+      <FitBox w={SPREAD_PX} h={PAGE_PX} maxWidth={900}>
+        <div className={`book style-${style}`} style={vars}>{children}</div>
+      </FitBox>
+    </div>
+  );
+}
+
 // The whole book, viewable on screen: cover, each person's two pages stacked,
 // with a usable voice player under each spread, then the closing page.
 export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
-  const { photos } = useLife();
+  const { spreads } = useLife();
   const pages = orderedApproved(items);
 
   return (
@@ -41,10 +54,10 @@ export default function OnlineBook({ items, qrMap, style }) {
       <OnlinePage style={style}>
         <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       </OnlinePage>
-      {lifePages(photos).map((group, i) => (
-        <OnlinePage style={style} key={`life-${i}`}>
-          <LifePage group={group} first={i === 0} t={t} />
-        </OnlinePage>
+      {spreads.map((sp, i) => (
+        <WideOnlinePage style={style} key={`life-${i}`}>
+          <LifeSpread items={sp.items} />
+        </WideOnlinePage>
       ))}
 
       {pages.map((it, idx) => (

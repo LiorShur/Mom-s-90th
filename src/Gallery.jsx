@@ -405,7 +405,7 @@ export default function Gallery() {
         <OnlineBook items={items} qrMap={qrMap} style={bookStyle} />
       )}
 
-      {view === "life" && <LifeEditor />}
+      {view === "life" && <LifeEditor style={bookStyle} />}
 
       {view === "arrange" && (
         <section className="screen-only arrange">
