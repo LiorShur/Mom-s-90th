@@ -314,7 +314,7 @@ small.warn { color: #a3690f; }
 .clip-preview video { max-width: 100%; border-radius: 6px; }
 
 /* ---- Life spread (free-form 58×29 layflat: photos + text) ---- */
-.life-spread { width: 60cm; height: 30cm; position: relative; overflow: hidden; background: var(--bk-paper); }
+.life-spread { width: 60cm; height: 30cm; position: relative; overflow: hidden; background: var(--bk-paper); isolation: isolate; }
 .life-float { position: absolute; background: #fff; padding: 0.35cm; }
 .life-float img { width: 100%; height: auto; display: block; }
 /* Background photo: cover the whole spread, no mat */

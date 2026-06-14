@@ -22,12 +22,10 @@ export default function LifeCanvas({ items, setItems, style }) {
     setItems(items.filter((i) => i.id !== id));
     setSel(null);
   };
-  const bringFront = (id) =>
-    update(id, { z: Math.max(0, ...items.map((i) => i.z || 0)) + 1 });
-  const sendBack = (id) =>
-    update(id, { z: Math.min(0, ...items.map((i) => i.z || 0)) - 1 });
-  const setBg = (id, on) =>
-    update(id, { bg: on, ...(on ? { z: Math.min(0, ...items.map((i) => i.z || 0)) - 1 } : {}) });
+  const fg = () => items.filter((i) => !i.bg).map((i) => i.z || 0); // non-bg z's
+  const bringFront = (id) => update(id, { z: Math.max(0, ...fg()) + 1 });
+  const sendBack = (id) => update(id, { z: Math.min(0, ...fg()) - 1 });
+  const setBg = (id, on) => update(id, { bg: on, z: on ? -1000 : 0 });
 
   function startDrag(e, id) {
     e.preventDefault();
