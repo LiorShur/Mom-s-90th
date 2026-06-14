@@ -145,7 +145,12 @@ export function LeftPage({ it, t, num }) {
   return (
     <section className="book-page page-left">
       {it.bgLeft && (
-        <div className="page-bg"><img src={it.bgLeft} alt="" /></div>
+        <>
+          <div className="page-bg" style={{ opacity: it.bgLeftOpacity ?? 1 }}>
+            <img src={it.bgLeft} alt="" />
+          </div>
+          {it.bgLeftPanel && <div className="text-panel" />}
+        </>
       )}
       <div className="pl-text">
         <span className="pl-qmark" aria-hidden>“</span>
@@ -154,7 +159,7 @@ export function LeftPage({ it, t, num }) {
         {body && <p className="pl-body" dir="auto">{body}</p>}
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
-      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""}`}>
+      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${it.bgLeft ? "no-feather" : ""}`}>
         {portrait && (
           <img
             src={portrait}
@@ -199,7 +204,9 @@ export function RightPage({ it, qr, t, num }) {
   return (
     <section className="book-page page-right">
       {it.bgRight && (
-        <div className="page-bg"><img src={it.bgRight} alt="" /></div>
+        <div className="page-bg" style={{ opacity: it.bgRightOpacity ?? 1 }}>
+          <img src={it.bgRight} alt="" />
+        </div>
       )}
       {collage.map((c, i) =>
         c.url ? (

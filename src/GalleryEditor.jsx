@@ -30,6 +30,9 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   );
   const [bgLeft, setBgLeft] = useState(item.bgLeft ? { url: item.bgLeft } : null);
   const [bgRight, setBgRight] = useState(item.bgRight ? { url: item.bgRight } : null);
+  const [bgLeftOpacity, setBgLeftOpacity] = useState(item.bgLeftOpacity ?? 1);
+  const [bgRightOpacity, setBgRightOpacity] = useState(item.bgRightOpacity ?? 1);
+  const [bgLeftPanel, setBgLeftPanel] = useState(item.bgLeftPanel ?? false);
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(null);
 
@@ -50,6 +53,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
     photoURLs: slots.map((s) => s.url),
     photoFx: fx,
     bgLeft: bgLeft?.url || null,
+    bgLeftOpacity,
+    bgLeftPanel,
   };
 
   function pickBg(setter, e) {
@@ -94,6 +99,9 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         clipKind,
         bgLeft: bgLeftURL,
         bgRight: bgRightURL,
+        bgLeftOpacity,
+        bgRightOpacity,
+        bgLeftPanel,
       };
       await updateDoc(doc(db, "messages", item.id), fields);
       onSaved(fields);
@@ -179,9 +187,16 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       <span className="field-title">{t.pageBgTitle}</span>
       <div className="bg-slots">
         {[
-          [t.pageBgLeft, bgLeft, setBgLeft],
-          [t.pageBgRight, bgRight, setBgRight],
-        ].map(([label, bg, setBg], i) => (
+          {
+            label: t.pageBgLeft, bg: bgLeft, setBg: setBgLeft,
+            opacity: bgLeftOpacity, setOpacity: setBgLeftOpacity,
+            panel: bgLeftPanel, setPanel: setBgLeftPanel,
+          },
+          {
+            label: t.pageBgRight, bg: bgRight, setBg: setBgRight,
+            opacity: bgRightOpacity, setOpacity: setBgRightOpacity,
+          },
+        ].map(({ label, bg, setBg, opacity, setOpacity, panel, setPanel }, i) => (
           <div className="bg-slot" key={i}>
             <label className="slot-drop">
               {bg?.url ? <img src={bg.url} alt="" /> : <span className="slot-plus">＋</span>}
@@ -189,9 +204,23 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
             </label>
             <span className="slot-cap">{label}</span>
             {bg?.url && (
-              <button type="button" className="link" onClick={() => setBg(null)}>
-                {t.remove}
-              </button>
+              <>
+                <label className="bg-opacity">
+                  {t.fxOpacity}
+                  <input type="range" min="0.1" max="1" step="0.05" value={opacity}
+                    onChange={(e) => setOpacity(+e.target.value)} />
+                </label>
+                {setPanel && (
+                  <label className="fx-toggle">
+                    <input type="checkbox" checked={panel}
+                      onChange={(e) => setPanel(e.target.checked)} />
+                    {t.bgKeepText}
+                  </label>
+                )}
+                <button type="button" className="link" onClick={() => setBg(null)}>
+                  {t.remove}
+                </button>
+              </>
             )}
           </div>
         ))}
