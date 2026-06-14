@@ -317,6 +317,9 @@ small.warn { color: #a3690f; }
 .life-spread { width: 60cm; height: 30cm; position: relative; overflow: hidden; background: var(--bk-paper); }
 .life-float { position: absolute; background: #fff; padding: 0.35cm; }
 .life-float img { width: 100%; height: auto; display: block; }
+/* Background photo: cover the whole spread, no mat */
+.life-float.bg { padding: 0; background: none; box-shadow: none !important; }
+.life-float.bg img { width: 100%; height: 100%; object-fit: cover; }
 .life-text { position: absolute; line-height: 1.15; white-space: pre-wrap; }
 .export-spread.life-export { display: block; }
 

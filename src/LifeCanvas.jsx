@@ -26,6 +26,8 @@ export default function LifeCanvas({ items, setItems, style }) {
     update(id, { z: Math.max(0, ...items.map((i) => i.z || 0)) + 1 });
   const sendBack = (id) =>
     update(id, { z: Math.min(0, ...items.map((i) => i.z || 0)) - 1 });
+  const setBg = (id, on) =>
+    update(id, { bg: on, ...(on ? { z: Math.min(0, ...items.map((i) => i.z || 0)) - 1 } : {}) });
 
   function startDrag(e, id) {
     e.preventDefault();
@@ -88,12 +90,12 @@ export default function LifeCanvas({ items, setItems, style }) {
             ) : (
               <div
                 key={it.id}
-                className={`life-float ${on ? "sel" : ""}`}
+                className={`life-float ${it.bg ? "bg" : ""} ${on ? "sel" : ""}`}
                 style={itemStyle(it)}
                 onPointerDown={(e) => startDrag(e, it.id)}
               >
                 <img src={it.url} alt="" draggable="false" />
-                {handle}
+                {!it.bg && handle}
               </div>
             );
           })}
@@ -127,27 +129,38 @@ export default function LifeCanvas({ items, setItems, style }) {
               </label>
             </>
           )}
-          <label>{t.fxSize}
-            <input type="range"
-              min={item.type === "text" ? 0.6 : 6}
-              max={item.type === "text" ? 6 : 70}
-              step={item.type === "text" ? 0.1 : 1}
-              value={item.type === "text" ? item.size : item.w}
-              onChange={(e) =>
-                update(item.id, item.type === "text"
-                  ? { size: +e.target.value }
-                  : { w: +e.target.value })
-              } />
-          </label>
-          <label>{t.fxRotate}
-            <input type="range" min="-30" max="30" value={item.rot || 0}
-              onChange={(e) => update(item.id, { rot: +e.target.value })} />
-          </label>
           {item.type === "photo" && (
-            <label>{t.fxShadow}
-              <input type="range" min="0" max="60" value={item.shadow || 0}
-                onChange={(e) => update(item.id, { shadow: +e.target.value })} />
+            <label className="fx-toggle">
+              <input type="checkbox" checked={!!item.bg}
+                onChange={(e) => setBg(item.id, e.target.checked)} />
+              {t.fxBg}
             </label>
+          )}
+          {!(item.type === "photo" && item.bg) && (
+            <>
+              <label>{t.fxSize}
+                <input type="range"
+                  min={item.type === "text" ? 0.6 : 6}
+                  max={item.type === "text" ? 6 : 130}
+                  step={item.type === "text" ? 0.1 : 1}
+                  value={item.type === "text" ? item.size : item.w}
+                  onChange={(e) =>
+                    update(item.id, item.type === "text"
+                      ? { size: +e.target.value }
+                      : { w: +e.target.value })
+                  } />
+              </label>
+              <label>{t.fxRotate}
+                <input type="range" min="-30" max="30" value={item.rot || 0}
+                  onChange={(e) => update(item.id, { rot: +e.target.value })} />
+              </label>
+              {item.type === "photo" && (
+                <label>{t.fxShadow}
+                  <input type="range" min="0" max="60" value={item.shadow || 0}
+                    onChange={(e) => update(item.id, { shadow: +e.target.value })} />
+                </label>
+              )}
+            </>
           )}
           <div className="cc-order">
             <button type="button" className="ghost" onClick={() => bringFront(item.id)}>{t.bringFront}</button>

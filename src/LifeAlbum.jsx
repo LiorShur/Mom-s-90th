@@ -4,6 +4,10 @@ import { FONTS } from "./bookStyle.jsx";
 // Style for a free-placed life item (photo or text) — position/size/rotation
 // in %, plus per-type styling.
 export function itemStyle(it) {
+  // A "background" photo fills the whole spread (cover) and sits behind the rest.
+  if (it.type === "photo" && it.bg) {
+    return { position: "absolute", left: 0, top: 0, width: "100%", height: "100%", zIndex: it.z ?? -1 };
+  }
   const base = {
     position: "absolute",
     left: `${it.x}%`,
@@ -34,7 +38,7 @@ export function LifeSpread({ items }) {
             {it.text}
           </div>
         ) : (
-          <div className="life-float" key={it.id} style={itemStyle(it)}>
+          <div className={`life-float ${it.bg ? "bg" : ""}`} key={it.id} style={itemStyle(it)}>
             <img src={it.url} alt="" />
           </div>
         )
