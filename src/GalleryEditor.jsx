@@ -33,6 +33,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   const [bgLeftOpacity, setBgLeftOpacity] = useState(item.bgLeftOpacity ?? 1);
   const [bgRightOpacity, setBgRightOpacity] = useState(item.bgRightOpacity ?? 1);
   const [bgLeftPanel, setBgLeftPanel] = useState(item.bgLeftPanel ?? false);
+  const [bgSpread, setBgSpread] = useState(item.bgSpread ? { url: item.bgSpread } : null);
+  const [bgSpreadOpacity, setBgSpreadOpacity] = useState(item.bgSpreadOpacity ?? 1);
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(null);
 
@@ -55,6 +57,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
     bgLeft: bgLeft?.url || null,
     bgLeftOpacity,
     bgLeftPanel,
+    bgSpread: bgSpread?.url || null,
+    bgSpreadOpacity,
   };
 
   function pickBg(setter, e) {
@@ -73,12 +77,14 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       if (clip?.blob) uploads.push({ kind: "clip", ext: clip.ext, file: clip.blob });
       if (bgLeft?.file) uploads.push({ kind: "bgLeft", file: bgLeft.file });
       if (bgRight?.file) uploads.push({ kind: "bgRight", file: bgRight.file });
+      if (bgSpread?.file) uploads.push({ kind: "bgSpread", file: bgSpread.file });
 
       const photoURLs = slots.map((s) => (s.url && !s.file ? s.url : null));
       let clipURL = clip ? (clip.blob ? null : clip.url) : null;
       const clipKind = clip ? clip.kind : null;
       let bgLeftURL = bgLeft ? (bgLeft.file ? null : bgLeft.url) : null;
       let bgRightURL = bgRight ? (bgRight.file ? null : bgRight.url) : null;
+      let bgSpreadURL = bgSpread ? (bgSpread.file ? null : bgSpread.url) : null;
       if (uploads.length) {
         const results = await uploadAll(uploads, item.id, (pct) => setProgress(pct));
         results.forEach((r) => {
@@ -86,6 +92,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
           else if (r.kind === "clip") clipURL = r.url;
           else if (r.kind === "bgLeft") bgLeftURL = r.url;
           else if (r.kind === "bgRight") bgRightURL = r.url;
+          else if (r.kind === "bgSpread") bgSpreadURL = r.url;
         });
       }
       const fields = {
@@ -102,6 +109,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         bgLeftOpacity,
         bgRightOpacity,
         bgLeftPanel,
+        bgSpread: bgSpreadURL,
+        bgSpreadOpacity,
       };
       await updateDoc(doc(db, "messages", item.id), fields);
       onSaved(fields);
@@ -185,6 +194,28 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       />
 
       <span className="field-title">{t.pageBgTitle}</span>
+      <div className="bg-slots">
+        <div className="bg-slot">
+          <label className="slot-drop">
+            {bgSpread?.url ? <img src={bgSpread.url} alt="" /> : <span className="slot-plus">＋</span>}
+            <input type="file" accept="image/*" hidden onChange={(e) => pickBg(setBgSpread, e)} />
+          </label>
+          <span className="slot-cap">{t.pageBgSpread}</span>
+          {bgSpread?.url && (
+            <>
+              <label className="bg-opacity">
+                {t.fxOpacity}
+                <input type="range" min="0.1" max="1" step="0.05" value={bgSpreadOpacity}
+                  onChange={(e) => setBgSpreadOpacity(+e.target.value)} />
+              </label>
+              <button type="button" className="link" onClick={() => setBgSpread(null)}>
+                {t.remove}
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+      {bgSpread?.url && <p className="bg-note">{t.pageBgSpreadNote}</p>}
       <div className="bg-slots">
         {[
           {

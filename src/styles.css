@@ -393,6 +393,7 @@ small.warn { color: #a3690f; }
 .bg-slot { width: 140px; display: flex; flex-direction: column; gap: 4px; }
 .bg-opacity { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--bk-soft, #6b5d4f); gap: 2px; }
 .bg-opacity input { width: 100%; }
+.bg-note { font-size: 0.8rem; color: var(--ink-soft, #6b5d4f); margin: 4px 0 10px; max-width: 420px; }
 
 /* ---- Gallery editor + actions ---- */
 .editor { margin-top: 4px; }
@@ -439,6 +440,16 @@ small.warn { color: #a3690f; }
 /* Optional full-page background image (behind all the page content) */
 .page-bg { position: absolute; inset: 0; z-index: -100; }
 .page-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* One image spanning the whole Dutch-bind spread: each page holds a double-
+   width copy and shows its half. Logical insets keep the halves continuous in
+   both LTR and RTL (the text page is always the inline-start page). */
+.spread-bg {
+  position: absolute; top: 0; bottom: 0; width: 200%; z-index: -100;
+  inset-inline-start: 0; pointer-events: none; overflow: hidden;
+}
+.page-right .spread-bg { inset-inline-start: -100%; }
+.spread-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* "Keep text on paper" — a paper panel over the text column with a feathered
    edge melting into the background image, so the note stays legible (LTR). */

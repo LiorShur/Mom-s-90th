@@ -144,7 +144,11 @@ export function LeftPage({ it, t, num }) {
   const portraitFx = (it.photoFx || [])[0];
   return (
     <section className="book-page page-left">
-      {it.bgLeft && (
+      {it.bgSpread ? (
+        <div className="spread-bg" style={{ opacity: it.bgSpreadOpacity ?? 1 }}>
+          <img src={it.bgSpread} alt="" />
+        </div>
+      ) : it.bgLeft && (
         <>
           <div className="page-bg" style={{ opacity: it.bgLeftOpacity ?? 1 }}>
             <img src={it.bgLeft} alt="" />
@@ -159,7 +163,7 @@ export function LeftPage({ it, t, num }) {
         {body && <p className="pl-body" dir="auto">{body}</p>}
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
-      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${it.bgLeft && !it.bgLeftPanel ? "no-feather" : ""}`}>
+      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${it.bgSpread || (it.bgLeft && !it.bgLeftPanel) ? "no-feather" : ""}`}>
         {portrait && (
           <img
             src={portrait}
@@ -203,7 +207,11 @@ export function RightPage({ it, qr, t, num }) {
 
   return (
     <section className="book-page page-right">
-      {it.bgRight && (
+      {it.bgSpread ? (
+        <div className="spread-bg" style={{ opacity: it.bgSpreadOpacity ?? 1 }}>
+          <img src={it.bgSpread} alt="" />
+        </div>
+      ) : it.bgRight && (
         <div className="page-bg" style={{ opacity: it.bgRightOpacity ?? 1 }}>
           <img src={it.bgRight} alt="" />
         </div>
