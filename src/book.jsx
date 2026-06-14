@@ -144,6 +144,9 @@ export function LeftPage({ it, t, num }) {
   const portraitFx = (it.photoFx || [])[0];
   return (
     <section className="book-page page-left">
+      {it.bgLeft && (
+        <div className="page-bg"><img src={it.bgLeft} alt="" /></div>
+      )}
       <div className="pl-text">
         <span className="pl-qmark" aria-hidden>“</span>
         {pull && <p className="pl-quote" dir="auto">{pull}</p>}
@@ -195,6 +198,9 @@ export function RightPage({ it, qr, t, num }) {
 
   return (
     <section className="book-page page-right">
+      {it.bgRight && (
+        <div className="page-bg"><img src={it.bgRight} alt="" /></div>
+      )}
       {collage.map((c, i) =>
         c.url ? (
           <div

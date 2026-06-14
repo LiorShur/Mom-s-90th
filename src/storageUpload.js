@@ -36,7 +36,7 @@ export async function uploadAll(items, docId, onProgress) {
     const path =
       it.kind === "clip"
         ? `messages/${docId}/clip_${Date.now()}.${it.ext}`
-        : `messages/${docId}/photo_${it.index}_${Date.now()}_${sanitize(it.file.name)}`;
+        : `messages/${docId}/${it.kind}_${it.index ?? "x"}_${Date.now()}_${sanitize(it.file.name)}`;
     const url = await uploadFileResumable(path, it.file, (bt) => {
       done[i] = bt;
       const sum = done.reduce((a, b) => a + b, 0);

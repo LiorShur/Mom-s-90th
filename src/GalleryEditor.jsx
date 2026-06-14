@@ -28,6 +28,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   const [clip, setClip] = useState(
     item.clipURL ? { url: item.clipURL, kind: item.clipKind || "audio" } : null
   );
+  const [bgLeft, setBgLeft] = useState(item.bgLeft ? { url: item.bgLeft } : null);
+  const [bgRight, setBgRight] = useState(item.bgRight ? { url: item.bgRight } : null);
   const [saving, setSaving] = useState(false);
   const [progress, setProgress] = useState(null);
 
@@ -47,7 +49,14 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
     text,
     photoURLs: slots.map((s) => s.url),
     photoFx: fx,
+    bgLeft: bgLeft?.url || null,
   };
+
+  function pickBg(setter, e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    setter({ url: URL.createObjectURL(f), file: f });
+  }
 
   async function save() {
     setSaving(true);
@@ -57,15 +66,21 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         if (s.file) uploads.push({ kind: "photo", index: i, file: s.file });
       });
       if (clip?.blob) uploads.push({ kind: "clip", ext: clip.ext, file: clip.blob });
+      if (bgLeft?.file) uploads.push({ kind: "bgLeft", file: bgLeft.file });
+      if (bgRight?.file) uploads.push({ kind: "bgRight", file: bgRight.file });
 
       const photoURLs = slots.map((s) => (s.url && !s.file ? s.url : null));
       let clipURL = clip ? (clip.blob ? null : clip.url) : null;
       const clipKind = clip ? clip.kind : null;
+      let bgLeftURL = bgLeft ? (bgLeft.file ? null : bgLeft.url) : null;
+      let bgRightURL = bgRight ? (bgRight.file ? null : bgRight.url) : null;
       if (uploads.length) {
         const results = await uploadAll(uploads, item.id, (pct) => setProgress(pct));
         results.forEach((r) => {
           if (r.kind === "photo") photoURLs[r.index] = r.url;
-          else clipURL = r.url;
+          else if (r.kind === "clip") clipURL = r.url;
+          else if (r.kind === "bgLeft") bgLeftURL = r.url;
+          else if (r.kind === "bgRight") bgRightURL = r.url;
         });
       }
       const fields = {
@@ -77,6 +92,8 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         photoFx: fx,
         clipURL,
         clipKind,
+        bgLeft: bgLeftURL,
+        bgRight: bgRightURL,
       };
       await updateDoc(doc(db, "messages", item.id), fields);
       onSaved(fields);
@@ -158,6 +175,27 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         setFx={setFx}
         style={style}
       />
+
+      <span className="field-title">{t.pageBgTitle}</span>
+      <div className="bg-slots">
+        {[
+          [t.pageBgLeft, bgLeft, setBgLeft],
+          [t.pageBgRight, bgRight, setBgRight],
+        ].map(([label, bg, setBg], i) => (
+          <div className="bg-slot" key={i}>
+            <label className="slot-drop">
+              {bg?.url ? <img src={bg.url} alt="" /> : <span className="slot-plus">＋</span>}
+              <input type="file" accept="image/*" hidden onChange={(e) => pickBg(setBg, e)} />
+            </label>
+            <span className="slot-cap">{label}</span>
+            {bg?.url && (
+              <button type="button" className="link" onClick={() => setBg(null)}>
+                {t.remove}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
 
       <ClipPicker clip={clip} setClip={setClip} />
 
