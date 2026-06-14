@@ -159,7 +159,7 @@ export function LeftPage({ it, t, num }) {
         {body && <p className="pl-body" dir="auto">{body}</p>}
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
-      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${it.bgLeft ? "no-feather" : ""}`}>
+      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${it.bgLeft && !it.bgLeftPanel ? "no-feather" : ""}`}>
         {portrait && (
           <img
             src={portrait}

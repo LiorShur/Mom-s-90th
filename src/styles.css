@@ -445,11 +445,11 @@ small.warn { color: #a3690f; }
 .text-panel {
   position: absolute; inset: 0; z-index: -50; pointer-events: none;
   background: linear-gradient(to right,
-    var(--bk-paper) 0%, var(--bk-paper) 40%, transparent 62%);
+    var(--bk-paper) 0%, var(--bk-paper) 48%, transparent 50%);
 }
 [dir="rtl"] .text-panel {
   background: linear-gradient(to left,
-    var(--bk-paper) 0%, var(--bk-paper) 40%, transparent 62%);
+    var(--bk-paper) 0%, var(--bk-paper) 48%, transparent 50%);
 }
 
 .book-cover, .book-closing {
