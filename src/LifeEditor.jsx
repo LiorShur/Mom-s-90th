@@ -47,6 +47,14 @@ export default function LifeEditor({ style }) {
   const addPage = () => setList([...list, { items: [] }]);
   const removePage = (idx) => setList(list.filter((_, i) => i !== idx));
 
+  // Only approved spreads are printed/shown in the book — keep work-in-progress
+  // pages out of test runs. Persists immediately, like the per-person approval.
+  async function toggleApprove(idx) {
+    const next = list.map((s, i) => (i === idx ? { ...s, approved: !s.approved } : s));
+    setList(next);
+    await saveSpreads(next);
+  }
+
   async function save() {
     await saveSpreads(list);
     setSaved(true);
@@ -58,7 +66,7 @@ export default function LifeEditor({ style }) {
       <p className="lede">{t.lifeHint}</p>
 
       {list.map((sp, idx) => (
-        <div className="life-spread-block" key={idx}>
+        <div className={`life-spread-block ${sp.approved ? "" : "muted"}`} key={idx}>
           <div className="life-spread-bar">
             <span className="field-title">{t.lifePage} {idx + 1}</span>
             <label className="upload-btn">
@@ -68,6 +76,12 @@ export default function LifeEditor({ style }) {
             </label>
             <button className="ghost" onClick={() => addText(idx)}>{t.lifeAddText}</button>
             <button className="ghost" onClick={() => removePage(idx)}>{t.lifeRemovePage}</button>
+            <button
+              className={sp.approved ? "ghost" : "primary small"}
+              onClick={() => toggleApprove(idx)}
+            >
+              {sp.approved ? t.approvedBtn : t.approveBtn}
+            </button>
           </div>
           <LifeCanvas
             items={sp.items}

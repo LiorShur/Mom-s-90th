@@ -551,7 +551,7 @@ small.warn { color: #a3690f; }
 .collage-canvas {
   position: relative; width: 100%; max-width: 360px; aspect-ratio: 1 / 1;
   margin: 6px 0; border: 1px solid var(--line); border-radius: 4px; overflow: hidden;
-  background: var(--bk-paper, var(--paper-2)); touch-action: none;
+  background: var(--bk-paper, var(--paper-2)); touch-action: none; isolation: isolate;
 }
 .collage-canvas .pr-float { cursor: grab; }
 .collage-canvas .pr-float.sel { outline: 2px solid var(--accent); outline-offset: 1px; }

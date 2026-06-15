@@ -12,9 +12,10 @@ export default function ExportSpreads({ items, qrMap, style, framed }) {
   const vars = useBookVars();
   const { spreads } = useLife();
   const pages = orderedApproved(items);
+  const lifeSpreads = spreads.filter((sp) => sp.approved);
   return (
     <div className={`book style-${style}`} style={vars}>
-      {spreads.map((sp, i) => (
+      {lifeSpreads.map((sp, i) => (
         <div className="export-spread life-export" key={`life-${i}`}>
           <LifeSpread items={sp.items} />
         </div>

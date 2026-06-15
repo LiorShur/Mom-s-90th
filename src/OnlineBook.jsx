@@ -45,6 +45,7 @@ export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
   const { spreads } = useLife();
   const pages = orderedApproved(items);
+  const lifeSpreads = spreads.filter((sp) => sp.approved);
 
   return (
     <div className="online-book screen-only">
@@ -54,7 +55,7 @@ export default function OnlineBook({ items, qrMap, style }) {
       <OnlinePage style={style}>
         <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       </OnlinePage>
-      {spreads.map((sp, i) => (
+      {lifeSpreads.map((sp, i) => (
         <WideOnlinePage style={style} key={`life-${i}`}>
           <LifeSpread items={sp.items} />
         </WideOnlinePage>
