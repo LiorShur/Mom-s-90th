@@ -145,9 +145,12 @@ export function LeftPage({ it, t, num }) {
   return (
     <section className="book-page page-left">
       {it.bgSpread ? (
-        <div className="spread-bg" style={{ opacity: it.bgSpreadOpacity ?? 1 }}>
-          <img src={it.bgSpread} alt="" />
-        </div>
+        <>
+          <div className="spread-bg" style={{ opacity: it.bgSpreadOpacity ?? 1 }}>
+            <img src={it.bgSpread} alt="" />
+          </div>
+          {it.bgLeftPanel && <div className="text-panel" />}
+        </>
       ) : it.bgLeft && (
         <>
           <div className="page-bg" style={{ opacity: it.bgLeftOpacity ?? 1 }}>
@@ -163,7 +166,7 @@ export function LeftPage({ it, t, num }) {
         {body && <p className="pl-body" dir="auto">{body}</p>}
         <p className="pl-sign" dir="auto">{it.name} ♥</p>
       </div>
-      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${it.bgSpread || (it.bgLeft && !it.bgLeftPanel) ? "no-feather" : ""}`}>
+      <div className={`pl-portrait ${(portraitFx?.zoom ?? 1) < 1 ? "shrunk" : ""} ${portraitFx?.fit ? "fit" : ""} ${(it.bgSpread || it.bgLeft) && !it.bgLeftPanel ? "no-feather" : ""}`}>
         {portrait && (
           <img
             src={portrait}

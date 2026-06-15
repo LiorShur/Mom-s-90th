@@ -208,6 +208,11 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
                 <input type="range" min="0.1" max="1" step="0.05" value={bgSpreadOpacity}
                   onChange={(e) => setBgSpreadOpacity(+e.target.value)} />
               </label>
+              <label className="fx-toggle">
+                <input type="checkbox" checked={bgLeftPanel}
+                  onChange={(e) => setBgLeftPanel(e.target.checked)} />
+                {t.bgKeepText}
+              </label>
               <button type="button" className="link" onClick={() => setBgSpread(null)}>
                 {t.remove}
               </button>
