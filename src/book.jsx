@@ -66,7 +66,7 @@ export function floatFx(fx, idx) {
   return {
     x: f.x ?? d.x, y: f.y ?? d.y, w: f.w ?? d.w,
     rot: f.rot ?? 0, zoom: f.zoom ?? 1, ox: f.ox ?? 50, oy: f.oy ?? 50,
-    shadow: f.shadow ?? 0, tilt: f.tilt ?? false, z: f.z ?? 0,
+    shadow: f.shadow ?? 0, tilt: f.tilt ?? false, fit: f.fit ?? false, z: f.z ?? 0,
   };
 }
 
@@ -235,10 +235,10 @@ export function RightPage({ it, qr, t, num }) {
         c.url ? (
           <div
             key={i}
-            className={`pr-float ${c.fx.tilt ? "tilted" : ""}`}
+            className={`pr-float ${c.fx.tilt ? "tilted" : ""} ${c.fx.fit ? "fit" : ""}`}
             style={frameStyle(c.fx)}
           >
-            <img src={c.url} alt="" style={cropStyle(c.fx)} />
+            <img src={c.url} alt="" style={c.fx.fit ? undefined : cropStyle(c.fx)} />
           </div>
         ) : null
       )}
