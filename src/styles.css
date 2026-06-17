@@ -515,10 +515,8 @@ small.warn { color: #a3690f; }
    The rotate slider sets the angle; the card no longer bleeds to the edges. */
 .pl-portrait img.tilted {
   width: 76%; height: 76%;
-  border: 0.45cm solid var(--bk-paper); border-radius: 2px;
-  box-shadow:
-    0 0.34cm 1cm rgba(74, 53, 32, 0.26),
-    0 0.04cm 0.12cm rgba(74, 53, 32, 0.18);
+  border: 0.5cm solid #fdf9f2; border-radius: 2px;
+  box-shadow: 0 0.4cm 1.1cm rgba(40, 30, 20, 0.28);
 }
 .pl-portrait:has(img.tilted)::after { display: none; } /* no feather over a tilted card */
 .pl-portrait.shrunk::after { display: none; } /* no feather when the photo is scaled down */
@@ -536,20 +534,12 @@ small.warn { color: #a3690f; }
 .pr-float {
   position: absolute; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 3px;
   transform-origin: center center;
-  /* Warm ivory matte behind a photo shown whole (zoomed out), not stark white. */
-  background: var(--bk-paper);
+  /* Soft cream matte behind a photo shown whole (zoomed out), not stark white. */
+  background: #fdf9f2;
 }
 .pr-float img { width: 100%; height: 100%; object-fit: contain; display: block; transform-origin: center center; }
-/* Authentic album print: a warm ivory mat (not clinical white) with a soft,
-   warm-toned drop shadow and a barely-there contact shadow for depth. */
-.pr-float.tilted {
-  border: 0.3cm solid var(--bk-paper);
-  border-radius: 2px;
-  background: var(--bk-paper);
-  box-shadow:
-    0 0.22cm 0.6cm rgba(74, 53, 32, 0.24),
-    0 0.03cm 0.1cm rgba(74, 53, 32, 0.18);
-}
+/* Same thin frame as before — only the colour is softened from white to cream. */
+.pr-float.tilted { border: 0.4cm solid #fdf9f2; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
 
 .pr-qr {
   position: absolute; bottom: 2.4cm; inset-inline-end: 2.4cm;
