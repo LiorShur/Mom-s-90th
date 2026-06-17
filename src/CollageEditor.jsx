@@ -80,11 +80,11 @@ export default function CollageEditor({ photoURLs, fx, setFx, style }) {
         {items.map(({ slot, url }) => (
           <div
             key={slot}
-            className={`pr-float ${get(slot).tilt ? "tilted" : ""} ${get(slot).fit ? "fit" : ""} ${sel === slot ? "sel" : ""}`}
+            className={`pr-float ${get(slot).tilt ? "tilted" : ""} ${sel === slot ? "sel" : ""}`}
             style={frameStyle(get(slot))}
             onPointerDown={(e) => startDrag(e, slot)}
           >
-            <img src={url} alt="" style={get(slot).fit ? undefined : cropStyle(get(slot))} draggable="false" />
+            <img src={url} alt="" style={cropStyle(get(slot))} draggable="false" />
             {sel === slot && (
               <span
                 className="cc-handle"
@@ -112,8 +112,7 @@ export default function CollageEditor({ photoURLs, fx, setFx, style }) {
               onChange={(e) => update(sel, { shadow: +e.target.value })} />
           </label>
           <label>{t.fxZoom}
-            <input type="range" min="0.4" max="3" step="0.05" value={f.zoom}
-              disabled={f.fit}
+            <input type="range" min="1" max="3" step="0.05" value={f.zoom}
               onChange={(e) => update(sel, { zoom: +e.target.value })} />
           </label>
           <label>{t.fxPanX}
@@ -128,11 +127,6 @@ export default function CollageEditor({ photoURLs, fx, setFx, style }) {
             <input type="checkbox" checked={f.tilt}
               onChange={(e) => update(sel, { tilt: e.target.checked })} />
             {t.fxTilt}
-          </label>
-          <label className="fx-toggle">
-            <input type="checkbox" checked={f.fit}
-              onChange={(e) => update(sel, { fit: e.target.checked })} />
-            {t.fxFit}
           </label>
           <div className="cc-order">
             <button type="button" className="ghost" onClick={() => bringFront(sel)}>

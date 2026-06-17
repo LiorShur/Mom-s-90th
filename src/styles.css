@@ -534,11 +534,9 @@ small.warn { color: #a3690f; }
 .pr-float {
   position: absolute; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 3px;
   transform-origin: center center;
+  background: #fff; /* matte behind a photo shown whole (zoomed out) */
 }
-.pr-float img { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: center center; }
-/* "Fit whole photo": frame follows the image's natural shape — nothing cropped. */
-.pr-float.fit { aspect-ratio: auto; }
-.pr-float.fit img { height: auto; object-fit: contain; }
+.pr-float img { width: 100%; height: 100%; object-fit: contain; display: block; transform-origin: center center; }
 .pr-float.tilted { border: 0.4cm solid #fff; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
 
 .pr-qr {
