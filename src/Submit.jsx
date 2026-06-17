@@ -3,6 +3,7 @@ import { db, storage, ensureSignedIn } from "./firebase.js";
 import { collection, addDoc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useLang } from "./i18n.jsx";
+import PhotoCropper from "./PhotoCropper.jsx";
 
 export default function Submit() {
   const { t, lang } = useLang();
@@ -45,8 +46,9 @@ export default function Submit() {
       const photoURLs = [];
       for (let i = 0; i < photos.length; i++) {
         const p = photos[i];
+        const data = p.blob || p.file; // framed JPEG, or the original as a fallback
         const r = storageRef(storage, `messages/${docRef.id}/photo_${i}_${p.name}`);
-        await uploadBytes(r, p);
+        await uploadBytes(r, data);
         photoURLs.push(await getDownloadURL(r));
       }
 
@@ -176,19 +178,79 @@ export default function Submit() {
   );
 }
 
+const MAX_PHOTOS = 3;
+
 function PhotoPicker({ photos, setPhotos }) {
   const { t } = useLang();
+
+  function addFiles(e) {
+    const files = Array.from(e.target.files);
+    e.target.value = ""; // allow re-picking the same file after a remove
+    setPhotos((prev) => {
+      const room = MAX_PHOTOS - prev.length;
+      const next = files.slice(0, Math.max(0, room)).map((f) => ({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        // Output is always a framed JPEG, so name it accordingly.
+        name: `${f.name.replace(/\.[^.]+$/, "") || "photo"}.jpg`,
+        file: f,
+        blob: null,
+        url: null,
+      }));
+      return [...prev, ...next];
+    });
+  }
+
+  function updatePhoto(id, blob) {
+    setPhotos((prev) =>
+      prev.map((p) => {
+        if (p.id !== id) return p;
+        if (p.url) URL.revokeObjectURL(p.url);
+        return { ...p, blob, url: URL.createObjectURL(blob) };
+      })
+    );
+  }
+
+  function removePhoto(id) {
+    setPhotos((prev) =>
+      prev.filter((p) => {
+        if (p.id === id && p.url) URL.revokeObjectURL(p.url);
+        return p.id !== id;
+      })
+    );
+  }
+
   return (
-    <label className="field">
+    <div className="field">
       <span>{t.photoLabel}</span>
-      <input
-        type="file"
-        accept="image/*"
-        multiple
-        onChange={(e) => setPhotos(Array.from(e.target.files).slice(0, 3))}
-      />
+
+      {photos.length > 0 && (
+        <div className="cropper-list">
+          {photos.map((p) => (
+            <PhotoCropper
+              key={p.id}
+              file={p.file}
+              onChange={(blob) => updatePhoto(p.id, blob)}
+              onRemove={() => removePhoto(p.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {photos.length < MAX_PHOTOS && (
+        <label className="upload-btn">
+          {photos.length ? t.addPhoto : t.choosePhotos}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={addFiles}
+            hidden
+          />
+        </label>
+      )}
+
       {photos.length > 0 && <small>{t.photosSelected(photos.length)}</small>}
-    </label>
+    </div>
   );
 }
 

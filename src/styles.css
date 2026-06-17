@@ -183,6 +183,36 @@ button { cursor: pointer; font-family: var(--display); }
 .clip-ok { display: block; margin-top: 10px; color: var(--accent-deep); }
 .error { color: #a33; font-size: 0.9rem; }
 
+/* ---- Photo cropper ---- */
+.cropper-list {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  margin: 6px 0 12px;
+}
+.cropper { width: 200px; }
+.cropper-frame {
+  position: relative;
+  width: 200px; height: 200px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  touch-action: none; /* let us own drag gestures on touch */
+  user-select: none;
+}
+.cropper-frame.grab { cursor: grab; }
+.cropper-frame.grab:active { cursor: grabbing; }
+.cropper-frame img { pointer-events: none; -webkit-user-drag: none; }
+.cropper-controls {
+  display: flex; align-items: center; gap: 12px; margin-top: 8px;
+}
+.cropper-controls input[type="range"] {
+  flex: 1; accent-color: var(--accent); cursor: pointer;
+}
+.cropper-hint {
+  display: block; margin-top: 2px;
+  color: var(--ink-soft); font-size: 0.78rem; line-height: 1.35;
+}
+
 /* ---- Thank-you ---- */
 .thanks { text-align: center; }
 .thanks .ghost { margin-top: 20px; }
