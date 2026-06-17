@@ -21,6 +21,7 @@ import ExportSpreads from "./ExportSpreads.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
 import LifeEditor from "./LifeEditor.jsx";
+import BookPagesEditor from "./BookPagesEditor.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderKey } from "./book.jsx";
 import { useBookStyle, FONTS, ROLES } from "./bookStyle.jsx";
 
@@ -121,7 +122,11 @@ export default function Gallery() {
       if (format === "pages") {
         const book = stage.querySelector(".book");
         nodes = book
-          ? Array.from(book.children).filter((el) => el.classList.contains("book-page"))
+          ? Array.from(book.children).filter((el) =>
+              ["book-page", "book-cover", "book-closing"].some((c) =>
+                el.classList.contains(c)
+              )
+            )
           : [];
         ratio = ((30 / 2.54) * 300) / PAGE_PX; // 30 cm @ 300 DPI
         prefix = "page";
@@ -429,6 +434,7 @@ export default function Gallery() {
       {view === "grid" && (
         <section className="screen-only">
           <div className="grid">
+            <BookPagesEditor style={bookStyle} />
             {orderedAll(items).map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
                 {it.prompt && <p className="kicker" dir="auto">{it.prompt}</p>}

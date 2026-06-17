@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { useLang } from "./i18n.jsx";
-import { useBookVars } from "./bookStyle.jsx";
+import { useBookVars, useBookContent } from "./bookStyle.jsx";
 import {
   orderedApproved,
   CoverPage,
@@ -16,11 +16,12 @@ import { FamilyTreePage } from "./FamilyTree.jsx";
 export default function PrintBook({ items, qrMap, style }) {
   const { t } = useLang();
   const vars = useBookVars();
+  const { cover, closing } = useBookContent();
   const pages = orderedApproved(items);
 
   return (
     <div className={`book style-${style}`} style={vars}>
-      <CoverPage t={t} />
+      <CoverPage t={t} cover={cover} />
       <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       {pages.map((it, idx) => (
         <Fragment key={it.id}>
@@ -28,7 +29,7 @@ export default function PrintBook({ items, qrMap, style }) {
           <RightPage it={it} qr={qrMap[it.id]} t={t} num={idx * 2 + 2} />
         </Fragment>
       ))}
-      <ClosingPage t={t} />
+      <ClosingPage t={t} closing={closing} />
     </div>
   );
 }

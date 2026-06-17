@@ -118,21 +118,33 @@ export function relLabel(t, it) {
   );
 }
 
-export function CoverPage({ t }) {
+export function CoverPage({ t, cover }) {
+  const c = cover || {};
   return (
     <section className="book-cover">
+      {c.bg && (
+        <div className="page-bg" style={{ opacity: c.bgOpacity ?? 1 }}>
+          <img src={c.bg} alt="" />
+        </div>
+      )}
       <span className="bc-orn">❧</span>
-      <h1 dir="auto">{t.bookCoverTitle}</h1>
-      <p className="bc-sub" dir="auto">{t.bookCoverSubtitle}</p>
+      <h1 dir="auto">{c.title?.trim() || t.bookCoverTitle}</h1>
+      <p className="bc-sub" dir="auto">{c.subtitle?.trim() || t.bookCoverSubtitle}</p>
     </section>
   );
 }
 
-export function ClosingPage({ t }) {
+export function ClosingPage({ t, closing }) {
+  const c = closing || {};
   return (
     <section className="book-closing">
+      {c.bg && (
+        <div className="page-bg" style={{ opacity: c.bgOpacity ?? 1 }}>
+          <img src={c.bg} alt="" />
+        </div>
+      )}
       <span className="bc-orn">❦</span>
-      <p dir="auto">{t.bookClosing}</p>
+      <p dir="auto">{c.text?.trim() || t.bookClosing}</p>
     </section>
   );
 }

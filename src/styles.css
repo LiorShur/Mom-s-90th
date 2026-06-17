@@ -394,6 +394,7 @@ small.warn { color: #a3690f; }
 .bg-opacity { display: flex; flex-direction: column; font-size: 0.8rem; color: var(--bk-soft, #6b5d4f); gap: 2px; }
 .bg-opacity input { width: 100%; }
 .bg-note { font-size: 0.8rem; color: var(--ink-soft, #6b5d4f); margin: 4px 0 10px; max-width: 420px; }
+.book-end-card { outline: 1px solid var(--gold, #b08746); outline-offset: -1px; }
 
 /* ---- Gallery editor + actions ---- */
 .editor { margin-top: 4px; }
@@ -466,6 +467,12 @@ small.warn { color: #a3690f; }
 .book-cover, .book-closing {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center; text-align: center; padding: 4cm;
+}
+/* Keep the cover/closing wording readable over a busy background image. */
+.book-cover:has(.page-bg) h1,
+.book-cover:has(.page-bg) .bc-sub,
+.book-closing:has(.page-bg) p {
+  text-shadow: 0 0 8px var(--bk-paper), 0 1px 3px var(--bk-paper);
 }
 .book-cover h1 {
   font-family: var(--bk-name); font-weight: 500;

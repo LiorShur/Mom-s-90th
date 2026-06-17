@@ -36,15 +36,22 @@ export function varStyle(settings) {
 
 const Ctx = createContext(null);
 
+// Editable cover/closing content (text + optional background image). Empty
+// fields fall back to the language defaults in CoverPage/ClosingPage.
+export const DEFAULT_BOOK = { cover: {}, closing: {} };
+
 export function BookStyleProvider({ children }) {
   const [settings, setSettings] = useState(DEFAULT_TEXT);
+  const [book, setBook] = useState(DEFAULT_BOOK);
 
   useEffect(() => {
     (async () => {
       try {
         const snap = await getDoc(doc(db, "config", "book"));
-        if (snap.exists() && snap.data().text) {
-          setSettings((s) => ({ ...s, ...snap.data().text }));
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.text) setSettings((s) => ({ ...s, ...data.text }));
+          setBook({ cover: data.cover || {}, closing: data.closing || {} });
         }
       } catch {
         /* not signed in / no doc yet — use defaults */
@@ -61,8 +68,23 @@ export function BookStyleProvider({ children }) {
     }
   }
 
+  async function saveBook(next) {
+    setBook(next);
+    try {
+      await setDoc(
+        doc(db, "config", "book"),
+        { cover: next.cover, closing: next.closing },
+        { merge: true }
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   return (
-    <Ctx.Provider value={{ settings, setSettings, saveSettings, vars: varStyle(settings) }}>
+    <Ctx.Provider
+      value={{ settings, setSettings, saveSettings, book, saveBook, vars: varStyle(settings) }}
+    >
       {children}
     </Ctx.Provider>
   );
@@ -75,4 +97,9 @@ export function useBookStyle() {
 export function useBookVars() {
   const ctx = useContext(Ctx);
   return ctx ? ctx.vars : varStyle(DEFAULT_TEXT);
+}
+
+export function useBookContent() {
+  const ctx = useContext(Ctx);
+  return ctx ? ctx.book : DEFAULT_BOOK;
 }

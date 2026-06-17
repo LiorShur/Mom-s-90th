@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { useLang } from "./i18n.jsx";
-import { useBookVars } from "./bookStyle.jsx";
+import { useBookVars, useBookContent } from "./bookStyle.jsx";
 import {
   orderedApproved,
   CoverPage,
@@ -44,13 +44,14 @@ function WideOnlinePage({ style, children }) {
 export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
   const { spreads } = useLife();
+  const { cover, closing } = useBookContent();
   const pages = orderedApproved(items);
   const lifeSpreads = spreads.filter((sp) => sp.approved);
 
   return (
     <div className="online-book screen-only">
       <OnlinePage style={style}>
-        <CoverPage t={t} />
+        <CoverPage t={t} cover={cover} />
       </OnlinePage>
       <OnlinePage style={style}>
         <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
@@ -85,7 +86,7 @@ export default function OnlineBook({ items, qrMap, style }) {
       ))}
 
       <OnlinePage style={style}>
-        <ClosingPage t={t} />
+        <ClosingPage t={t} closing={closing} />
       </OnlinePage>
     </div>
   );
