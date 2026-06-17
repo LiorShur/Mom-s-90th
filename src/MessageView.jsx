@@ -44,7 +44,7 @@ export default function MessageView({ id }) {
     <main className="page narrow message-view">
       {/* The note and prompt are shown in whatever language the contributor
           wrote them, so let the browser auto-detect direction per item. */}
-      <p className="kicker" dir="auto">{msg.prompt}</p>
+      {msg.prompt && <p className="kicker" dir="auto">{msg.prompt}</p>}
 
       {msg.clipURL && (
         <div className="player">
@@ -59,14 +59,11 @@ export default function MessageView({ id }) {
 
       <blockquote className="note" dir="auto">{msg.text}</blockquote>
 
-      <p className="signoff" dir="auto">
-        — {msg.name}
-        {msg.relationship ? `, ${msg.relationship}` : ""}
-      </p>
+      <p className="signoff" dir="auto">— {msg.name}</p>
 
-      {Array.isArray(msg.photoURLs) && msg.photoURLs.length > 0 && (
+      {Array.isArray(msg.photoURLs) && msg.photoURLs.filter(Boolean).length > 0 && (
         <div className="photo-strip">
-          {msg.photoURLs.map((u, i) => (
+          {msg.photoURLs.filter(Boolean).map((u, i) => (
             <img key={i} src={u} alt="" />
           ))}
         </div>

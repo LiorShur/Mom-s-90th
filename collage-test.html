@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>Floating collage test</title>
+<style>
+  body { margin: 0; background: #6b6258; font-family: sans-serif; color: #fff; }
+  .label { text-align: center; padding: 10px; max-width: 520px; margin: 0 auto; }
+  .scaler { transform: scale(0.46); transform-origin: top center; height: 520px; }
+
+  .book-page { width: 30cm; height: 30cm; position: relative; overflow: hidden; background: #fbf6ec; }
+  .pr-float { position: absolute; aspect-ratio: 1/1; overflow: hidden; border-radius: 3px; transform-origin: center; }
+  .pr-float img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pr-float.tilted { border: 0.4cm solid #fff; box-shadow: 0 0.3cm 0.9cm rgba(40,30,20,.28); }
+  .pr-qr { position: absolute; bottom: 2.4cm; inset-inline-end: 2.4cm; width: 6cm; text-align: center; padding: 0.6cm; background: #fbf6ec; border: 1.5px solid #b08746; border-radius: 8px; }
+  .pr-qr img { width: 4.4cm; height: 4.4cm; display: block; margin: 0 auto; }
+  .pr-scan { display: block; font-size: 0.85rem; letter-spacing: 0.1em; text-transform: uppercase; color: #9c5b3b; margin-top: 0.4cm; }
+</style>
+</head>
+<body>
+  <div class="label">New floating collage — photos are free elements: they can be dragged, resized, rotated, shadowed and <b>overlap</b> (no more clipping to a grid square). Below is one example arrangement.</div>
+  <div class="scaler">
+    <section class="book-page page-right">
+      <!-- default-ish quarters, but #2 is rotated/shadowed and overlaps #1 -->
+      <div class="pr-float" style="left:5%; top:5%; width:44%; box-shadow:0 .25cm .8cm rgba(40,30,20,.25);">
+        <img src="https://picsum.photos/seed/a/700/700" alt="" />
+      </div>
+      <div class="pr-float tilted" style="left:40%; top:18%; width:40%; transform:rotate(7deg);">
+        <img src="https://picsum.photos/seed/b/700/700" alt="" />
+      </div>
+      <div class="pr-float" style="left:8%; top:52%; width:42%; transform:rotate(-4deg); box-shadow:0 .3cm 1cm rgba(40,30,20,.3);">
+        <img src="https://picsum.photos/seed/c/700/700" alt="" />
+      </div>
+      <div class="pr-qr"><img src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=test" alt="QR" /><span class="pr-scan">scan</span></div>
+    </section>
+  </div>
+</body>
+</html>

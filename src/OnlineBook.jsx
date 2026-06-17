@@ -1,0 +1,93 @@
+import { Fragment } from "react";
+import { useLang } from "./i18n.jsx";
+import { useBookVars, useBookContent } from "./bookStyle.jsx";
+import {
+  orderedApproved,
+  CoverPage,
+  ClosingPage,
+  LeftPage,
+  RightPage,
+  FitBox,
+  PAGE_PX,
+  SPREAD_PX,
+} from "./book.jsx";
+import { FamilyTreePage } from "./FamilyTree.jsx";
+import { LifeSpread } from "./LifeAlbum.jsx";
+import { useLife } from "./life.jsx";
+
+// One scaled, scrollable book page (square).
+function OnlinePage({ style, children }) {
+  const vars = useBookVars();
+  return (
+    <div className="online-page">
+      <FitBox w={PAGE_PX} h={PAGE_PX} maxWidth={760}>
+        <div className={`book style-${style}`} style={vars}>{children}</div>
+      </FitBox>
+    </div>
+  );
+}
+
+// A wide (2:1) page for the life spreads.
+function WideOnlinePage({ style, children }) {
+  const vars = useBookVars();
+  return (
+    <div className="online-page wide">
+      <FitBox w={SPREAD_PX} h={PAGE_PX} maxWidth={900}>
+        <div className={`book style-${style}`} style={vars}>{children}</div>
+      </FitBox>
+    </div>
+  );
+}
+
+// The whole book, viewable on screen: cover, each person's two pages stacked,
+// with a usable voice player under each spread, then the closing page.
+export default function OnlineBook({ items, qrMap, style }) {
+  const { t } = useLang();
+  const { spreads } = useLife();
+  const { cover, closing } = useBookContent();
+  const pages = orderedApproved(items);
+  const lifeSpreads = spreads.filter((sp) => sp.approved);
+
+  return (
+    <div className="online-book screen-only">
+      <OnlinePage style={style}>
+        <CoverPage t={t} cover={cover} />
+      </OnlinePage>
+      <OnlinePage style={style}>
+        <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
+      </OnlinePage>
+      {lifeSpreads.map((sp, i) => (
+        <WideOnlinePage style={style} key={`life-${i}`}>
+          <LifeSpread items={sp.items} />
+        </WideOnlinePage>
+      ))}
+
+      {pages.map((it, idx) => (
+        <Fragment key={it.id}>
+          <OnlinePage style={style}>
+            <LeftPage it={it} t={t} num={idx * 2 + 1} />
+          </OnlinePage>
+          <OnlinePage style={style}>
+            <RightPage it={it} qr={qrMap[it.id]} t={t} num={idx * 2 + 2} />
+          </OnlinePage>
+          {it.clipURL && (
+            <div className="online-player">
+              <span className="op-name" dir="auto">
+                {it.clipKind === "video" ? "🎬" : "🔊"} {it.name}
+              </span>
+              {it.clipKind === "video" ? (
+                <video src={it.clipURL} controls playsInline />
+              ) : (
+                <audio src={it.clipURL} controls />
+              )}
+            </div>
+          )}
+        </Fragment>
+      ))}
+
+      <OnlinePage style={style}>
+        <ClosingPage t={t} closing={closing} />
+      </OnlinePage>
+    </div>
+  );
+}

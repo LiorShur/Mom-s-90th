@@ -21,40 +21,67 @@ Three views, one tiny app (no router dependency):
 1. Create a project at <https://console.firebase.google.com>.
 2. **Build → Firestore Database** → Create database (start in production mode).
 3. **Build → Storage** → Get started.
-4. **Build → Authentication → Sign-in method** → enable **Anonymous**.
+4. **Build → Authentication → Sign-in method** → enable **Anonymous** (for
+   contributors) and **Google** (so you, the organizer, can sign in to review).
 5. **Project settings → Your apps → Web app (`</>`)** → register, then copy the
    `firebaseConfig` object.
 6. Paste it into `src/firebase.js`, and set `GALLERY_SECRET` to something private.
 
 ### Firestore rules
 
-Paste into **Firestore → Rules**. Anyone may submit; nobody can read the full
-list or edit/delete except via the console — single messages are readable so the
-QR pages work.
+Paste into **Firestore → Rules**, then **replace the email** with your own.
+Anyone may submit; single messages are readable so the QR pages work; but only
+*you* — signed in with your Google account — can list every submission, approve,
+or delete. Nothing here ever needs toggling.
 
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // 👇 Change this to YOUR Google email (must match ORGANIZER_EMAIL in src/Gallery.jsx).
+    function isOrganizer() {
+      return request.auth != null
+        && request.auth.token.email == 'lior.shur@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
     match /messages/{id} {
-      // QR pages read one doc at a time by id; the list query is blocked.
+      // QR pages read one doc at a time by id.
       allow get: if true;
-      allow list: if false;
-      // Signed-in (anonymous) visitors may create and patch their own new doc.
+      // The organizer lists everything (review gallery); anyone signed in
+      // may list APPROVED entries only — that powers the public /book page
+      // while keeping drafts/unapproved submissions private.
+      allow list: if isOrganizer()
+        || (request.auth != null && resource.data.approved == true);
+      // Signed-in (anonymous) contributors may create their doc...
       allow create: if request.auth != null;
-      allow update: if request.auth != null
-        && request.resource.data.approved == resource.data.approved; // can't self-approve
-      allow delete: if false;
+      // ...and patch in their own uploaded URLs, but cannot self-approve.
+      // The organizer may update anything (e.g. flip `approved`).
+      allow update: if isOrganizer()
+        || (request.auth != null
+            && request.resource.data.approved == resource.data.approved);
+      // Only the organizer can delete.
+      allow delete: if isOrganizer();
+    }
+    // Book-wide settings (typography). Anyone may read (so the public /book
+    // renders your chosen fonts); only the organizer may change them.
+    match /config/{id} {
+      allow read: if true;
+      allow write: if isOrganizer();
     }
   }
 }
 ```
 
-> The organizer gallery uses a `list` query, so when you want to review
-> submissions, temporarily set `allow list: if true;` (or run the gallery while
-> signed in as yourself with a stricter rule). Flip it back to `false` before
-> sharing the link widely. Approving/deleting is safest done from the Firebase
-> console directly if you prefer not to loosen rules at all.
+> **The organizer gallery is now self-securing.** Visit `/?gallery=YOUR_SECRET`
+> and click **Sign in with Google**; the rule above lets only your email read
+> the list and approve. Set the same email as `ORGANIZER_EMAIL` near the top of
+> `src/Gallery.jsx`. No rule needs to be flipped on and off anymore.
+>
+> **Public online book.** `https://your-project.web.app/book` shows a scrollable
+> book of the **approved** entries to anyone with the link (drafts stay hidden by
+> the rule above). Add `?style=vintage` (or `modern`/`luxury`) to pick the look.
+> Because approved photos and voices become viewable by anyone with the URL,
+> only approve what you're happy to share, and treat the link as semi-public.
 
 ### Storage rules
 
@@ -125,9 +152,10 @@ Your share link becomes e.g. `https://your-project.web.app/`.
 | `relationship` | string | e.g. "eldest granddaughter" (optional) |
 | `generation` | string | `child` / `grandchild` / `greatgrand` / `other` |
 | `prompt` | string | which prompt they answered |
+| `pullQuote` | string | optional short one-liner for the big page quote |
 | `text` | string | the written note for the page |
 | `lang` | string | UI language used to submit (`he` / `en`) |
-| `photoURLs` | string[] | download URLs |
+| `photoURLs` | (string\|null)[] | per-slot download URLs: [0]=portrait, [1–3]=collage (null = empty slot) |
 | `clipURL` | string \| null | audio/video download URL |
 | `clipKind` | string \| null | `audio` / `video` |
 | `approved` | bool | shown in the print sheet only when true |
@@ -144,6 +172,50 @@ gallery — lives in `src/i18n.jsx`; edit the `he` / `en` dictionaries there to
 reword anything (the prompts are in that file too). Contributors' own notes are
 shown with `dir="auto"`, so a Hebrew note reads RTL and an English note reads
 LTR regardless of which language the *viewer* has selected.
+
+**To change any on-screen wording** (instructions, labels, buttons, prompts, the
+book cover title, etc.): open `src/i18n.jsx`, edit the matching line under `he`
+or `en`, then `npm run build && firebase deploy`. Everything visible to users is
+a string in that one file.
+
+## Exporting hi-res page images (for print apps)
+
+The gallery's **Download page images (hi-res)** button rasterizes every book
+page to a ~3543 px (300 DPI at 30 cm) JPEG and downloads them as a zip — handy
+for photobook tools that want one image per page.
+
+This reads your photos onto a canvas, so the Storage bucket **must allow CORS**
+or the export fails. One-time setup (easiest in the **Firebase Console → ⋮ →
+Cloud Shell**, or any machine with `gcloud`):
+
+1. Create `cors.json`:
+   ```json
+   [
+     {
+       "origin": ["https://YOUR-PROJECT.web.app", "http://localhost:5173"],
+       "method": ["GET"],
+       "responseHeader": ["Content-Type"],
+       "maxAgeSeconds": 3600
+     }
+   ]
+   ```
+2. Apply it (use the **exact bucket** from `src/firebase.js` `storageBucket` —
+   newer projects look like `your-project.firebasestorage.app`, older ones
+   `your-project.appspot.com`):
+   ```bash
+   gsutil cors set cors.json gs://your-project.firebasestorage.app
+   ```
+
+Then reload the gallery and click the button. (Save-as-PDF needs no CORS — it's
+the simpler route if your printer accepts a 30×30 cm PDF.)
+
+## Fixing submissions in the gallery
+
+Contributors only enter their **name, prompt, one-line quote, note, photos and
+voice** — the organizer assigns each person's **relationship** and **generation**
+(and can fix typos or swap photos) in the gallery. Sign in, click **Edit** on any
+card, change the name / relationship / generation / quote / note, add-replace-
+remove any of the 4 photo slots, and **Save**. Photos upload with a progress bar.
 
 ## Notes
 
