@@ -315,7 +315,7 @@ small.warn { color: #a3690f; }
 
 /* ---- Life spread (free-form 58×29 layflat: photos + text) ---- */
 .life-spread { width: 60cm; height: 30cm; position: relative; overflow: hidden; background: var(--bk-paper); isolation: isolate; }
-.life-float { position: absolute; background: #fdf9f2; padding: 0.35cm; }
+.life-float { position: absolute; background: #f3ead7; padding: 0.35cm; }
 .life-float img { width: 100%; height: auto; display: block; }
 /* Background photo: cover the whole spread, no mat */
 .life-float.bg { padding: 0; background: none; box-shadow: none !important; }
@@ -515,7 +515,7 @@ small.warn { color: #a3690f; }
    The rotate slider sets the angle; the card no longer bleeds to the edges. */
 .pl-portrait img.tilted {
   width: 76%; height: 76%;
-  border: 0.5cm solid #fdf9f2; border-radius: 2px;
+  border: 0.5cm solid #f3ead7; border-radius: 2px;
   box-shadow: 0 0.4cm 1.1cm rgba(40, 30, 20, 0.28);
 }
 .pl-portrait:has(img.tilted)::after { display: none; } /* no feather over a tilted card */
@@ -535,11 +535,11 @@ small.warn { color: #a3690f; }
   position: absolute; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 3px;
   transform-origin: center center;
   /* Soft cream matte behind a photo shown whole (zoomed out), not stark white. */
-  background: #fdf9f2;
+  background: #f3ead7;
 }
 .pr-float img { width: 100%; height: 100%; object-fit: contain; display: block; transform-origin: center center; }
 /* Same thin frame as before — only the colour is softened from white to cream. */
-.pr-float.tilted { border: 0.4cm solid #fdf9f2; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
+.pr-float.tilted { border: 0.4cm solid #f3ead7; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
 
 .pr-qr {
   position: absolute; bottom: 2.4cm; inset-inline-end: 2.4cm;
