@@ -508,7 +508,7 @@ small.warn { color: #a3690f; }
    the text page meets the collage page. */
 .pl-portrait::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  box-shadow: inset 0 0 1.9cm 0.7cm var(--bk-paper);
+  box-shadow: inset 0 0 1.4cm 0.5cm var(--bk-paper);
 }
 
 /* Scrapbook "tilt" — a white-bordered, soft-shadowed photo angled on the page.
@@ -532,16 +532,15 @@ small.warn { color: #a3690f; }
 /* RIGHT page: free-floating collage photos (each a square frame positioned in
    % so it can be moved, resized, rotated and overlapped). */
 .pr-float {
-  position: absolute; overflow: hidden; border-radius: 3px;
+  position: absolute; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 3px;
   transform-origin: center center;
 }
-/* The photo fills its frame at its NATURAL shape (height follows width), like
-   the life spread — so there are no variable letterbox bars and the photo keeps
-   its full real estate. Zoom (transform: scale) still crops in past 1. */
-.pr-float img { width: 100%; height: auto; display: block; transform-origin: center center; }
-/* One thin, uniform cream mat on every framed collage photo. With a
-   natural-shape frame it reads the same thickness on every edge of every photo. */
-.pr-float.tilted { border: 0.1cm solid #f3ead7; }
+.pr-float img { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: center center; }
+/* "Fit whole photo": frame follows the image's natural shape — nothing cropped. */
+.pr-float.fit { aspect-ratio: auto; }
+.pr-float.fit img { height: auto; object-fit: contain; }
+/* Original 0.4cm frame — only the colour is changed from white to cream. */
+.pr-float.tilted { border: 0.4cm solid #f3ead7; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
 
 .pr-qr {
   position: absolute; bottom: 2.4cm; inset-inline-end: 2.4cm;
