@@ -65,7 +65,9 @@ export function floatFx(fx, idx) {
   const f = fx || {};
   return {
     x: f.x ?? d.x, y: f.y ?? d.y, w: f.w ?? d.w,
-    rot: f.rot ?? 0, zoom: f.zoom ?? 1, ox: f.ox ?? 50, oy: f.oy ?? 50,
+    // zoom 1 = whole photo (object-fit: contain); you zoom IN to crop/fill.
+    // Clamp legacy values from the old cover-based slider that allowed < 1.
+    rot: f.rot ?? 0, zoom: Math.max(1, f.zoom ?? 1), ox: f.ox ?? 50, oy: f.oy ?? 50,
     shadow: f.shadow ?? 0, tilt: f.tilt ?? false, fit: f.fit ?? false, z: f.z ?? 0,
   };
 }
@@ -89,7 +91,9 @@ export function frameStyle(f) {
   };
 }
 
-// Style for the image inside the frame (crop: zoom + pan).
+// Style for the image inside the frame. The image is laid out `object-fit:
+// contain`, so zoom = 1 shows the WHOLE photo (nothing cropped on import);
+// zooming in past 1 scales up and the square frame crops, with ox/oy panning.
 export function cropStyle(f) {
   return {
     transform: `scale(${f.zoom})`,
@@ -235,10 +239,10 @@ export function RightPage({ it, qr, t, num }) {
         c.url ? (
           <div
             key={i}
-            className={`pr-float ${c.fx.tilt ? "tilted" : ""} ${c.fx.fit ? "fit" : ""}`}
+            className={`pr-float ${c.fx.tilt ? "tilted" : ""}`}
             style={frameStyle(c.fx)}
           >
-            <img src={c.url} alt="" style={c.fx.fit ? undefined : cropStyle(c.fx)} />
+            <img src={c.url} alt="" style={cropStyle(c.fx)} />
           </div>
         ) : null
       )}
