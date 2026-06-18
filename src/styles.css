@@ -539,7 +539,9 @@ small.warn { color: #a3690f; }
 }
 .pr-float img { width: 100%; height: 100%; object-fit: contain; display: block; transform-origin: center center; }
 /* Same thin frame as before — only the colour is softened from white to cream. */
-.pr-float.tilted { border: 0.4cm solid #f3ead7; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
+/* Cream mat; width is set inline (frameStyle) as a fraction of the photo so
+   every framed collage photo gets an equally thin, uniform-looking border. */
+.pr-float.tilted { border-style: solid; border-color: #f3ead7; }
 
 .pr-qr {
   position: absolute; bottom: 2.4cm; inset-inline-end: 2.4cm;

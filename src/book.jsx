@@ -86,6 +86,9 @@ export function frameStyle(f) {
   return {
     left: `${f.x}%`, top: `${f.y}%`, width: `${f.w}%`,
     transform: `rotate(${f.rot}deg)`,
+    // Mat thickness scales with the photo (~2% of its width) so every framed
+    // collage photo shows an equally thin border, regardless of its size.
+    borderWidth: `${(f.w * 0.006).toFixed(3)}cm`,
     boxShadow: shadowCss(f.shadow),
     zIndex: f.z,
   };
