@@ -91,9 +91,9 @@ export function frameStyle(f) {
   };
 }
 
-// Style for the image inside the frame. The image is laid out `object-fit:
-// contain`, so zoom = 1 shows the WHOLE photo (nothing cropped on import);
-// zooming in past 1 scales up and the square frame crops, with ox/oy panning.
+// Style for the image inside the frame. The image fills the frame at its
+// natural shape, so zoom = 1 shows the WHOLE photo (nothing cropped); zooming
+// in past 1 scales up and the frame (overflow: hidden) crops, ox/oy panning.
 export function cropStyle(f) {
   return {
     transform: `scale(${f.zoom})`,

@@ -532,16 +532,15 @@ small.warn { color: #a3690f; }
 /* RIGHT page: free-floating collage photos (each a square frame positioned in
    % so it can be moved, resized, rotated and overlapped). */
 .pr-float {
-  position: absolute; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 3px;
+  position: absolute; overflow: hidden; border-radius: 3px;
   transform-origin: center center;
-  /* Soft cream matte behind a photo shown whole (zoomed out), not stark white. */
-  background: #f3ead7;
 }
-.pr-float img { width: 100%; height: 100%; object-fit: contain; display: block; transform-origin: center center; }
-/* Same thin frame as before — only the colour is softened from white to cream. */
-/* A single thin, uniform cream mat on every framed collage photo, regardless
-   of size — keeps the border off the photo's real estate. (box-sizing is
-   border-box, so a thinner border = a larger photo inside the same footprint.) */
+/* The photo fills its frame at its NATURAL shape (height follows width), like
+   the life spread — so there are no variable letterbox bars and the photo keeps
+   its full real estate. Zoom (transform: scale) still crops in past 1. */
+.pr-float img { width: 100%; height: auto; display: block; transform-origin: center center; }
+/* One thin, uniform cream mat on every framed collage photo. With a
+   natural-shape frame it reads the same thickness on every edge of every photo. */
 .pr-float.tilted { border: 0.1cm solid #f3ead7; }
 
 .pr-qr {
