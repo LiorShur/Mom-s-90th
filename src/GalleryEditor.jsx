@@ -176,6 +176,11 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
                 onChange={(e) => setPortrait({ oy: +e.target.value })} />
             </label>
             <label className="fx-toggle">
+              <input type="checkbox" checked={pv.tilt}
+                onChange={(e) => setPortrait({ tilt: e.target.checked })} />
+              {t.fxTilt}
+            </label>
+            <label className="fx-toggle">
               <input type="checkbox" checked={pv.fit}
                 onChange={(e) => setPortrait({ fit: e.target.checked })} />
               {t.fxFit}
