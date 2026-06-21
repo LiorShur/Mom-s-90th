@@ -1,4 +1,5 @@
 import { ScaleToFit } from "./book.jsx";
+import { useBookVars } from "./bookStyle.jsx";
 
 // One person (and their married-in partner), with their children nested below.
 function TreeNode({ person, people }) {
@@ -22,16 +23,61 @@ function TreeNode({ person, people }) {
   );
 }
 
-// A family-tree opening page. When the organizer has built a tree (config/tree)
-// it renders a real generational tree — honoree at the root, couples paired,
-// children nested under their parents. With no tree data it falls back to the
-// stylised canopy of names auto-collected from the submissions.
+// The actual node-link graph: honoree at the root, then each top-level person
+// (a child of the honoree) and their descendants.
+function TreeGraph({ people, honoreeName, honoreeSpouse }) {
+  const roots = people.filter((p) => !p.parentId);
+  return (
+    <ul className="ft-tree">
+      <li>
+        <div className="ft-node ft-root">
+          <span className="ft-person" dir="auto">{honoreeName}</span>
+          {honoreeSpouse && <span className="ft-spouse" dir="auto">&amp; {honoreeSpouse}</span>}
+        </div>
+        {roots.length > 0 && (
+          <ul>
+            {roots.map((r) => (
+              <TreeNode key={r.id} person={r} people={people} />
+            ))}
+          </ul>
+        )}
+      </li>
+    </ul>
+  );
+}
+
+const honoreeNames = (tree, t) => ({
+  honoreeName: (tree?.honoreeName || "").trim() || t.treeHonoree,
+  honoreeSpouse: (tree?.honoreeSpouse || "").trim(),
+});
+
+// DIGITAL book: a legible, horizontally-scrollable tree. The tree keeps its
+// natural size (so names stay readable) and you scroll sideways for a wide
+// family — instead of being crushed to fit one page.
+export function OnlineFamilyTree({ tree, t, style }) {
+  const vars = useBookVars();
+  const people = tree?.people || [];
+  const { honoreeName, honoreeSpouse } = honoreeNames(tree, t);
+  return (
+    <section className="online-tree">
+      <div className="ot-head">
+        <p className="ft-kicker">{t.forGrandma}</p>
+        <h2 className="ft-title" dir="auto">{t.treeTitle}</h2>
+      </div>
+      <div className={`ot-scroll book style-${style}`} style={vars}>
+        <TreeGraph people={people} honoreeName={honoreeName} honoreeSpouse={honoreeSpouse} />
+      </div>
+    </section>
+  );
+}
+
+// PRINT/page version: a fixed family-tree book page. When the organizer has
+// built a tree it renders the structured graph (scaled to fit the page);
+// otherwise it falls back to the stylised canopy of names from the submissions.
 export function FamilyTreePage({ names, tree, t }) {
   const people = tree?.people || [];
   const hasTree = people.length > 0;
-  const roots = people.filter((p) => !p.parentId);
-  const honoreeName = (tree?.honoreeName || "").trim() || t.treeHonoree;
-  const honoreeSpouse = (tree?.honoreeSpouse || "").trim();
+  const { honoreeName, honoreeSpouse } = honoreeNames(tree, t);
 
   return (
     <section className="book-page family-tree">
@@ -66,23 +112,7 @@ export function FamilyTreePage({ names, tree, t }) {
 
         {hasTree ? (
           <ScaleToFit className="ft-tree-wrap">
-            <ul className="ft-tree">
-              <li>
-                <div className="ft-node ft-root">
-                  <span className="ft-person" dir="auto">{honoreeName}</span>
-                  {honoreeSpouse && (
-                    <span className="ft-spouse" dir="auto">&amp; {honoreeSpouse}</span>
-                  )}
-                </div>
-                {roots.length > 0 && (
-                  <ul>
-                    {roots.map((r) => (
-                      <TreeNode key={r.id} person={r} people={people} />
-                    ))}
-                  </ul>
-                )}
-              </li>
-            </ul>
+            <TreeGraph people={people} honoreeName={honoreeName} honoreeSpouse={honoreeSpouse} />
           </ScaleToFit>
         ) : (
           <>

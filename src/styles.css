@@ -389,6 +389,25 @@ small.warn { color: #a3690f; }
 .ft-node.ft-root .ft-person { font-family: var(--bk-script); font-size: 1.9rem; color: var(--bk-accent); }
 .ft-node.ft-root .ft-spouse { font-size: 1.1rem; }
 
+/* DIGITAL book: legible, horizontally-scrollable family tree (not crushed to
+   fit one page). */
+.online-tree {
+  width: 100%; max-width: 980px; margin: 0 auto 26px;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: var(--shadow); padding: 22px 0 24px; overflow: hidden;
+}
+.online-tree .ot-head { text-align: center; padding: 0 20px 4px; }
+.online-tree .ft-kicker { font-family: var(--body); font-style: italic; color: var(--accent); margin: 0; font-size: 0.95rem; }
+.online-tree .ft-title { font-family: var(--display); font-weight: 500; font-size: 2rem; margin: 4px 0 0; color: var(--ink); }
+.ot-scroll { overflow-x: auto; padding: 18px 22px 10px; }
+.ot-scroll > .ft-tree { width: max-content; margin: 0 auto; }
+/* Bigger, clearly readable nodes in the on-screen tree. */
+.online-tree .ft-node { padding: 0.18cm 0.5cm; }
+.online-tree .ft-node .ft-person { font-size: 1.25rem; }
+.online-tree .ft-node .ft-spouse { font-size: 1.05rem; }
+.online-tree .ft-node.ft-root .ft-person { font-size: 2.4rem; }
+.online-tree .ft-node.ft-root .ft-spouse { font-size: 1.3rem; }
+
 /* ---- Family tree editor (organizer) ---- */
 .tree-editor { max-width: 940px; margin: 0 auto; }
 .tree-root-card { margin: 6px 0 14px; }
@@ -399,15 +418,16 @@ small.warn { color: #a3690f; }
   padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px;
   background: var(--paper-2); margin-bottom: 8px;
 }
-.tree-person-row input, .tree-person-row select { width: auto; }
+.tree-person-row input, .tree-person-row select { width: 100%; }
 .tp-order { display: flex; flex-direction: column; gap: 1px; }
 .tp-order button { padding: 0 8px; font-size: 0.85rem; line-height: 1.3; }
+.tp-field { display: flex; flex-direction: column; gap: 2px; }
+.tp-field > span { font-size: 0.68rem; letter-spacing: 0.02em; color: var(--ink-soft); }
 .tp-name { flex: 1 1 150px; min-width: 110px; }
-.tp-parent { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--ink-soft); flex: 1 1 220px; }
-.tp-parent select { flex: 1; min-width: 110px; }
-.tp-spouse { flex: 1 1 170px; min-width: 110px; }
-.tp-linked { color: var(--accent); }
-.tp-remove { white-space: nowrap; }
+.tp-parent { flex: 1 1 200px; min-width: 130px; }
+.tp-spouse { flex: 1 1 180px; min-width: 130px; }
+.tp-linked { color: var(--accent); align-self: end; padding-bottom: 6px; }
+.tp-remove { white-space: nowrap; align-self: end; padding-bottom: 6px; }
 
 /* Off-screen stage for hi-res image export (must stay rendered, not display:none) */
 .export-stage { position: fixed; left: -100000px; top: 0; width: max-content; z-index: -1; }

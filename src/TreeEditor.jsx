@@ -111,14 +111,16 @@ export default function TreeEditor({ items = [] }) {
                   <button className="ghost" onClick={() => move(p.id, -1)} disabled={i === 0}>↑</button>
                   <button className="ghost" onClick={() => move(p.id, 1)} disabled={i === draft.people.length - 1}>↓</button>
                 </span>
-                <input
-                  className="tp-name"
-                  value={p.name}
-                  dir="auto"
-                  placeholder={t.treeNamePlaceholder}
-                  onChange={(e) => update(p.id, { name: e.target.value })}
-                />
-                <label className="tp-parent">
+                <label className="tp-field tp-name">
+                  <span>{t.treeNameLabel}</span>
+                  <input
+                    value={p.name}
+                    dir="auto"
+                    placeholder={t.treeNamePlaceholder}
+                    onChange={(e) => update(p.id, { name: e.target.value })}
+                  />
+                </label>
+                <label className="tp-field tp-parent">
                   <span>{t.treeParentLabel}</span>
                   <select
                     value={p.parentId || ""}
@@ -132,13 +134,15 @@ export default function TreeEditor({ items = [] }) {
                       ))}
                   </select>
                 </label>
-                <input
-                  className="tp-spouse"
-                  value={p.spouseName || ""}
-                  dir="auto"
-                  placeholder={t.treeSpousePlaceholder}
-                  onChange={(e) => update(p.id, { spouseName: e.target.value })}
-                />
+                <label className="tp-field tp-spouse">
+                  <span>{t.treeSpouseLabel}</span>
+                  <input
+                    value={p.spouseName || ""}
+                    dir="auto"
+                    placeholder={t.treeSpousePlaceholder}
+                    onChange={(e) => update(p.id, { spouseName: e.target.value })}
+                  />
+                </label>
                 {p.messageId && <span className="tp-linked" title={t.treeLinked}>🔗</span>}
                 <button className="link tp-remove" onClick={() => removePerson(p.id)}>
                   {t.remove}

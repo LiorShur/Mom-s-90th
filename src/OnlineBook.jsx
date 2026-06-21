@@ -12,7 +12,7 @@ import {
   PAGE_PX,
   SPREAD_PX,
 } from "./book.jsx";
-import { FamilyTreePage } from "./FamilyTree.jsx";
+import { FamilyTreePage, OnlineFamilyTree } from "./FamilyTree.jsx";
 import { LifeSpread } from "./LifeAlbum.jsx";
 import { useLife } from "./life.jsx";
 import { useTree } from "./tree.jsx";
@@ -58,9 +58,13 @@ export default function OnlineBook({ items, qrMap, style }) {
       <OnlinePage style={style}>
         <CoverPage t={t} cover={cover} />
       </OnlinePage>
-      <OnlinePage style={style}>
-        <FamilyTreePage names={treeNames} tree={tree} t={t} />
-      </OnlinePage>
+      {tree?.people?.length ? (
+        <OnlineFamilyTree tree={tree} t={t} style={style} />
+      ) : (
+        <OnlinePage style={style}>
+          <FamilyTreePage names={treeNames} t={t} />
+        </OnlinePage>
+      )}
 
       {seq.map((e) => {
         if (e.kind === "life") {
