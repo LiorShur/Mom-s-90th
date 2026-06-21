@@ -350,6 +350,65 @@ small.warn { color: #a3690f; }
 .family-tree .ft-leaf { font-family: var(--bk-body); font-size: 1.5rem; color: var(--bk-ink); white-space: nowrap; }
 .family-tree .ft-honoree { font-family: var(--bk-script); font-size: 3.6rem; color: var(--bk-accent); line-height: 1; }
 
+/* Structured family tree (built from config/tree). Top-down: honoree at the
+   root, couples paired, children nested under their parents. */
+.scale-to-fit { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.scale-to-fit-inner { transform-origin: center center; }
+.family-tree .ft-tree-wrap { flex: 1; width: 100%; min-height: 0; margin-top: 0.6cm; }
+
+.ft-tree, .ft-tree ul { list-style: none; margin: 0; padding: 0; }
+.ft-tree { display: flex; flex-direction: column; align-items: center; }
+.ft-tree ul { display: flex; justify-content: center; position: relative; padding-top: 1cm; }
+.ft-tree li {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  padding: 1cm 0.4cm 0; text-align: center;
+}
+.ft-tree > li { padding-top: 0; } /* the honoree root has no incoming line */
+/* sibling + parent connectors (everything below the root) */
+.ft-tree ul li::before, .ft-tree ul li::after {
+  content: ""; position: absolute; top: 0; right: 50%;
+  border-top: 0.05cm solid var(--bk-gold); width: 50%; height: 1cm;
+}
+.ft-tree ul li::after { right: auto; left: 50%; border-left: 0.05cm solid var(--bk-gold); }
+.ft-tree ul li:only-child { padding-top: 0; }
+.ft-tree ul li:only-child::before, .ft-tree ul li:only-child::after { display: none; }
+.ft-tree ul li:first-child::before, .ft-tree ul li:last-child::after { border: 0 none; }
+.ft-tree ul li:last-child::before { border-right: 0.05cm solid var(--bk-gold); }
+.ft-tree ul::before {
+  content: ""; position: absolute; top: 0; left: 50%;
+  width: 0; height: 1cm; border-left: 0.05cm solid var(--bk-gold);
+}
+.ft-node {
+  display: inline-flex; gap: 0.18cm; align-items: baseline; white-space: nowrap;
+  border: 0.05cm solid var(--bk-gold); border-radius: 0.14cm;
+  background: var(--bk-paper); padding: 0.16cm 0.4cm;
+}
+.ft-node .ft-person { font-family: var(--bk-name); font-size: 1.05rem; color: var(--bk-ink); }
+.ft-node .ft-spouse { font-family: var(--bk-body); font-size: 0.9rem; color: var(--bk-soft); }
+.ft-node.ft-root { border-color: var(--bk-accent); background: #fff; padding: 0.22cm 0.6cm; }
+.ft-node.ft-root .ft-person { font-family: var(--bk-script); font-size: 1.9rem; color: var(--bk-accent); }
+.ft-node.ft-root .ft-spouse { font-size: 1.1rem; }
+
+/* ---- Family tree editor (organizer) ---- */
+.tree-editor { max-width: 940px; margin: 0 auto; }
+.tree-root-card { margin: 6px 0 14px; }
+.tree-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.tree-people { list-style: none; margin: 0; padding: 0; }
+.tree-person-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--paper-2); margin-bottom: 8px;
+}
+.tree-person-row input, .tree-person-row select { width: auto; }
+.tp-order { display: flex; flex-direction: column; gap: 1px; }
+.tp-order button { padding: 0 8px; font-size: 0.85rem; line-height: 1.3; }
+.tp-name { flex: 1 1 150px; min-width: 110px; }
+.tp-parent { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--ink-soft); flex: 1 1 220px; }
+.tp-parent select { flex: 1; min-width: 110px; }
+.tp-spouse { flex: 1 1 170px; min-width: 110px; }
+.tp-linked { color: var(--accent); }
+.tp-remove { white-space: nowrap; }
+
 /* Off-screen stage for hi-res image export (must stay rendered, not display:none) */
 .export-stage { position: fixed; left: -100000px; top: 0; width: max-content; z-index: -1; }
 /* Layflat ("Dutch bind") spread: two pages joined side by side (58×29 cm) */

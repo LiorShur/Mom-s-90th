@@ -1,7 +1,38 @@
-// A family-tree opening page: a stylised tree whose canopy is filled with all
-// the family members' names, with the honoree at the root. Auto-populated from
-// the approved submissions; styled with the book's palette/fonts.
-export function FamilyTreePage({ names, t }) {
+import { ScaleToFit } from "./book.jsx";
+
+// One person (and their married-in partner), with their children nested below.
+function TreeNode({ person, people }) {
+  const kids = people.filter((p) => p.parentId === person.id);
+  return (
+    <li>
+      <div className="ft-node">
+        <span className="ft-person" dir="auto">{person.name}</span>
+        {person.spouseName?.trim() && (
+          <span className="ft-spouse" dir="auto">&amp; {person.spouseName}</span>
+        )}
+      </div>
+      {kids.length > 0 && (
+        <ul>
+          {kids.map((k) => (
+            <TreeNode key={k.id} person={k} people={people} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+// A family-tree opening page. When the organizer has built a tree (config/tree)
+// it renders a real generational tree — honoree at the root, couples paired,
+// children nested under their parents. With no tree data it falls back to the
+// stylised canopy of names auto-collected from the submissions.
+export function FamilyTreePage({ names, tree, t }) {
+  const people = tree?.people || [];
+  const hasTree = people.length > 0;
+  const roots = people.filter((p) => !p.parentId);
+  const honoreeName = (tree?.honoreeName || "").trim() || t.treeHonoree;
+  const honoreeSpouse = (tree?.honoreeSpouse || "").trim();
+
   return (
     <section className="book-page family-tree">
       <svg className="ft-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -32,12 +63,37 @@ export function FamilyTreePage({ names, t }) {
           <p className="ft-kicker">{t.forGrandma}</p>
           <h2 className="ft-title" dir="auto">{t.treeTitle}</h2>
         </div>
-        <div className="ft-names">
-          {names.map((n, i) => (
-            <span className="ft-leaf" key={i} dir="auto">{n}</span>
-          ))}
-        </div>
-        <div className="ft-honoree" dir="auto">{t.treeHonoree}</div>
+
+        {hasTree ? (
+          <ScaleToFit className="ft-tree-wrap">
+            <ul className="ft-tree">
+              <li>
+                <div className="ft-node ft-root">
+                  <span className="ft-person" dir="auto">{honoreeName}</span>
+                  {honoreeSpouse && (
+                    <span className="ft-spouse" dir="auto">&amp; {honoreeSpouse}</span>
+                  )}
+                </div>
+                {roots.length > 0 && (
+                  <ul>
+                    {roots.map((r) => (
+                      <TreeNode key={r.id} person={r} people={people} />
+                    ))}
+                  </ul>
+                )}
+              </li>
+            </ul>
+          </ScaleToFit>
+        ) : (
+          <>
+            <div className="ft-names">
+              {names.map((n, i) => (
+                <span className="ft-leaf" key={i} dir="auto">{n}</span>
+              ))}
+            </div>
+            <div className="ft-honoree" dir="auto">{honoreeName}</div>
+          </>
+        )}
       </div>
     </section>
   );

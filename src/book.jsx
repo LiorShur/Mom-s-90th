@@ -292,6 +292,39 @@ export function RightPage({ it, qr, t, num }) {
   );
 }
 
+// Scales variable-size content (e.g. the family tree) down so it fits inside
+// its box, centred. Never scales up past 1.
+export function ScaleToFit({ className = "", children }) {
+  const boxRef = useRef(null);
+  const innerRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const box = boxRef.current;
+    const inner = innerRef.current;
+    if (!box || !inner) return;
+    const fit = () => {
+      const bw = box.clientWidth;
+      const bh = box.clientHeight;
+      const iw = inner.scrollWidth;
+      const ih = inner.scrollHeight;
+      if (!iw || !ih) return;
+      setScale(Math.min(1, bw / iw, bh / ih));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={boxRef} className={`scale-to-fit ${className}`}>
+      <div ref={innerRef} className="scale-to-fit-inner" style={{ transform: `scale(${scale})` }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 // Scales fixed-size book content down to fit the available width.
 export function FitBox({ w, h, maxWidth, children }) {
   const ref = useRef(null);

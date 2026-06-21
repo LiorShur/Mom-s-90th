@@ -15,6 +15,7 @@ import {
 import { FamilyTreePage } from "./FamilyTree.jsx";
 import { LifeSpread } from "./LifeAlbum.jsx";
 import { useLife } from "./life.jsx";
+import { useTree } from "./tree.jsx";
 
 // One scaled, scrollable book page (square).
 function OnlinePage({ style, children }) {
@@ -45,6 +46,7 @@ function WideOnlinePage({ style, children }) {
 export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
   const { spreads } = useLife();
+  const { tree } = useTree();
   const { cover, closing } = useBookContent();
   const treeNames = orderedApproved(items).map((p) => p.name).filter(Boolean);
   // Contributor pages and life spreads in one arranged sequence.
@@ -57,7 +59,7 @@ export default function OnlineBook({ items, qrMap, style }) {
         <CoverPage t={t} cover={cover} />
       </OnlinePage>
       <OnlinePage style={style}>
-        <FamilyTreePage names={treeNames} t={t} />
+        <FamilyTreePage names={treeNames} tree={tree} t={t} />
       </OnlinePage>
 
       {seq.map((e) => {

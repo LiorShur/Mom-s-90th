@@ -21,6 +21,7 @@ import ExportSpreads from "./ExportSpreads.jsx";
 import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
 import LifeEditor from "./LifeEditor.jsx";
+import TreeEditor from "./TreeEditor.jsx";
 import BookPagesEditor from "./BookPagesEditor.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderedBook } from "./book.jsx";
 import { useLife } from "./life.jsx";
@@ -415,6 +416,12 @@ export default function Gallery() {
           >
             {view === "life" ? t.backToList : t.lifeBtn}
           </button>
+          <button
+            className="ghost"
+            onClick={() => setView(view === "tree" ? "grid" : "tree")}
+          >
+            {view === "tree" ? t.backToList : t.treeBtn}
+          </button>
           <button className="ghost" onClick={() => printAs("proof")}>
             {t.printProofBtn}
           </button>
@@ -456,6 +463,8 @@ export default function Gallery() {
       )}
 
       {view === "life" && <LifeEditor style={bookStyle} />}
+
+      {view === "tree" && <TreeEditor items={items} />}
 
       {view === "arrange" && (
         <section className="screen-only arrange">
