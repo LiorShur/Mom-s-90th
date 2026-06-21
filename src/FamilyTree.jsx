@@ -19,10 +19,13 @@ function TreeNode({ person, people, onJump }) {
         }
         title={clickable ? person.name : undefined}
       >
-        <span className="ft-person" dir="auto">{person.name}</span>
-        {person.spouseName?.trim() && (
-          <span className="ft-spouse" dir="auto">&amp; {person.spouseName}</span>
-        )}
+        {person.photo && <img className="ft-photo" src={person.photo} alt="" />}
+        <span className="ft-name-row">
+          <span className="ft-person" dir="auto">{person.name}</span>
+          {person.spouseName?.trim() && (
+            <span className="ft-spouse" dir="auto">&amp; {person.spouseName}</span>
+          )}
+        </span>
       </div>
       {kids.length > 0 && (
         <ul>
@@ -37,14 +40,17 @@ function TreeNode({ person, people, onJump }) {
 
 // The actual node-link graph: honoree at the root, then each top-level person
 // (a child of the honoree) and their descendants.
-function TreeGraph({ people, honoreeName, honoreeSpouse, onJump }) {
+function TreeGraph({ people, honoreeName, honoreeSpouse, honoreePhoto, onJump }) {
   const roots = people.filter((p) => !p.parentId);
   return (
     <ul className="ft-tree">
       <li>
         <div className="ft-node ft-root">
-          <span className="ft-person" dir="auto">{honoreeName}</span>
-          {honoreeSpouse && <span className="ft-spouse" dir="auto">&amp; {honoreeSpouse}</span>}
+          {honoreePhoto && <img className="ft-photo" src={honoreePhoto} alt="" />}
+          <span className="ft-name-row">
+            <span className="ft-person" dir="auto">{honoreeName}</span>
+            {honoreeSpouse && <span className="ft-spouse" dir="auto">&amp; {honoreeSpouse}</span>}
+          </span>
         </div>
         {roots.length > 0 && (
           <ul>
@@ -61,6 +67,7 @@ function TreeGraph({ people, honoreeName, honoreeSpouse, onJump }) {
 const honoreeNames = (tree, t) => ({
   honoreeName: (tree?.honoreeName || "").trim() || t.treeHonoree,
   honoreeSpouse: (tree?.honoreeSpouse || "").trim(),
+  honoreePhoto: tree?.honoreePhoto || "",
 });
 
 // DIGITAL book: the family tree as a wide 58×29-style spread, with the
@@ -68,7 +75,7 @@ const honoreeNames = (tree, t) => ({
 export function OnlineFamilyTree({ tree, t, style, onJump }) {
   const vars = useBookVars();
   const people = tree?.people || [];
-  const { honoreeName, honoreeSpouse } = honoreeNames(tree, t);
+  const { honoreeName, honoreeSpouse, honoreePhoto } = honoreeNames(tree, t);
   return (
     <section className={`tree-spread book style-${style}`} style={vars}>
       {tree?.backdrop && (
@@ -86,6 +93,7 @@ export function OnlineFamilyTree({ tree, t, style, onJump }) {
           people={people}
           honoreeName={honoreeName}
           honoreeSpouse={honoreeSpouse}
+          honoreePhoto={honoreePhoto}
           onJump={onJump}
         />
       </ScaleToFit>
@@ -99,7 +107,7 @@ export function OnlineFamilyTree({ tree, t, style, onJump }) {
 export function FamilyTreePage({ names, tree, t }) {
   const people = tree?.people || [];
   const hasTree = people.length > 0;
-  const { honoreeName, honoreeSpouse } = honoreeNames(tree, t);
+  const { honoreeName, honoreeSpouse, honoreePhoto } = honoreeNames(tree, t);
 
   return (
     <section className="book-page family-tree">
@@ -134,7 +142,7 @@ export function FamilyTreePage({ names, tree, t }) {
 
         {hasTree ? (
           <ScaleToFit className="ft-tree-wrap">
-            <TreeGraph people={people} honoreeName={honoreeName} honoreeSpouse={honoreeSpouse} />
+            <TreeGraph people={people} honoreeName={honoreeName} honoreeSpouse={honoreeSpouse} honoreePhoto={honoreePhoto} />
           </ScaleToFit>
         ) : (
           <>

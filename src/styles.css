@@ -381,13 +381,19 @@ small.warn { color: #a3690f; }
   width: 0; height: 1cm; border-left: 0.05cm solid var(--bk-gold);
 }
 .ft-node {
-  display: inline-flex; gap: 0.18cm; align-items: baseline; white-space: nowrap;
-  border: 0.05cm solid var(--bk-gold); border-radius: 0.14cm;
+  display: inline-flex; flex-direction: column; align-items: center; gap: 0.1cm;
+  white-space: nowrap; border: 0.05cm solid var(--bk-gold); border-radius: 0.14cm;
   background: var(--bk-paper); padding: 0.16cm 0.4cm;
+}
+.ft-name-row { display: inline-flex; gap: 0.18cm; align-items: baseline; }
+.ft-photo {
+  display: block; width: 1.5cm; height: 1.5cm; object-fit: cover;
+  border-radius: 50%; border: 0.05cm solid var(--bk-gold);
 }
 .ft-node .ft-person { font-family: var(--bk-name); font-size: 1.05rem; color: var(--bk-ink); }
 .ft-node .ft-spouse { font-family: var(--bk-body); font-size: 0.9rem; color: var(--bk-soft); }
 .ft-node.ft-root { border-color: var(--bk-accent); background: #fff; padding: 0.22cm 0.6cm; }
+.ft-node.ft-root .ft-photo { width: 2.4cm; height: 2.4cm; border-color: var(--bk-accent); }
 .ft-node.ft-root .ft-person { font-family: var(--bk-script); font-size: 1.9rem; color: var(--bk-accent); }
 .ft-node.ft-root .ft-spouse { font-size: 1.1rem; }
 
@@ -425,6 +431,8 @@ small.warn { color: #a3690f; }
 .tree-person-row input, .tree-person-row select { width: 100%; }
 .tp-order { display: flex; flex-direction: column; gap: 1px; }
 .tp-order button { padding: 0 8px; font-size: 0.85rem; line-height: 1.3; }
+.tp-photo.slot-drop { width: 48px; height: 48px; min-width: 48px; border-radius: 50%; flex: 0 0 auto; }
+.tp-photo.slot-drop img { width: 100%; height: 100%; object-fit: cover; }
 .tp-field { display: flex; flex-direction: column; gap: 2px; }
 .tp-field > span { font-size: 0.68rem; letter-spacing: 0.02em; color: var(--ink-soft); }
 .tp-name { flex: 1 1 150px; min-width: 110px; }

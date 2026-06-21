@@ -15,6 +15,7 @@ export default function TreeEditor({ items = [] }) {
   const [draft, setDraft] = useState(tree);
   const [saved, setSaved] = useState(false);
   const [bgBusy, setBgBusy] = useState(false);
+  const [busyId, setBusyId] = useState(null); // person id being uploaded ("__honoree__" for the root)
 
   // Adopt data once it loads, as long as we haven't started editing.
   useEffect(() => {
@@ -78,6 +79,40 @@ export default function TreeEditor({ items = [] }) {
     }
   }
 
+  async function uploadPhoto(file, key) {
+    return uploadFileResumable(
+      `messages/__tree__/${key}_${Date.now()}_${sanitize(file.name)}`,
+      file
+    );
+  }
+  async function pickPhoto(id, e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    e.target.value = "";
+    setBusyId(id);
+    try {
+      update(id, { photo: await uploadPhoto(f, `p_${id}`) });
+    } catch (err) {
+      alert(err.message || "Error");
+    } finally {
+      setBusyId(null);
+    }
+  }
+  async function pickHonoreePhoto(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    e.target.value = "";
+    setBusyId("__honoree__");
+    try {
+      const url = await uploadPhoto(f, "honoree");
+      setDraft((d) => ({ ...d, honoreePhoto: url }));
+    } catch (err) {
+      alert(err.message || "Error");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   async function save() {
     await saveTree(draft);
     setSaved(true);
@@ -110,8 +145,19 @@ export default function TreeEditor({ items = [] }) {
             />
           </label>
         </div>
-        <span className="field-title">{t.treeBackdropLabel}</span>
         <div className="bg-slots">
+          <div className="bg-slot">
+            <label className="slot-drop">
+              {draft.honoreePhoto ? <img src={draft.honoreePhoto} alt="" /> : <span className="slot-plus">＋</span>}
+              <input type="file" accept="image/*" hidden onChange={pickHonoreePhoto} />
+            </label>
+            <span className="slot-cap">{busyId === "__honoree__" ? t.savingBtn : `${t.treePhotoLabel} — ${honoreeLabel}`}</span>
+            {draft.honoreePhoto && (
+              <button type="button" className="link" onClick={() => setHonoree({ honoreePhoto: "" })}>
+                {t.remove}
+              </button>
+            )}
+          </div>
           <div className="bg-slot">
             <label className="slot-drop">
               {draft.backdrop ? <img src={draft.backdrop} alt="" /> : <span className="slot-plus">＋</span>}
@@ -149,6 +195,16 @@ export default function TreeEditor({ items = [] }) {
                   <button className="ghost" onClick={() => move(p.id, -1)} disabled={i === 0}>↑</button>
                   <button className="ghost" onClick={() => move(p.id, 1)} disabled={i === draft.people.length - 1}>↓</button>
                 </span>
+                <label className="tp-photo slot-drop" title={t.treePhotoLabel}>
+                  {busyId === p.id ? (
+                    <span className="slot-plus">…</span>
+                  ) : p.photo ? (
+                    <img src={p.photo} alt="" />
+                  ) : (
+                    <span className="slot-plus">＋</span>
+                  )}
+                  <input type="file" accept="image/*" hidden onChange={(e) => pickPhoto(p.id, e)} />
+                </label>
                 <label className="tp-field tp-name">
                   <span>{t.treeNameLabel}</span>
                   <input
