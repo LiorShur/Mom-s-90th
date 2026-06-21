@@ -382,6 +382,8 @@ small.warn { color: #a3690f; }
   background: var(--paper-2); margin-bottom: 8px;
 }
 .arrange-list li.muted { opacity: 0.5; }
+.arrange-list li.life-row { border-color: var(--gold); background: #fbf4e6; }
+.arrange-list li.life-row .ord-name { color: var(--accent-deep); }
 .arrange-list .ord-num { width: 26px; text-align: center; color: var(--ink-soft); font-family: var(--display); }
 .arrange-list .ord-name { font-family: var(--display); white-space: nowrap; }
 .arrange-list .ord-quote { flex: 1; color: var(--ink-soft); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

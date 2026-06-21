@@ -3,6 +3,7 @@ import { useLang } from "./i18n.jsx";
 import { useBookVars, useBookContent } from "./bookStyle.jsx";
 import {
   orderedApproved,
+  orderedBook,
   CoverPage,
   ClosingPage,
   LeftPage,
@@ -45,8 +46,10 @@ export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
   const { spreads } = useLife();
   const { cover, closing } = useBookContent();
-  const pages = orderedApproved(items);
-  const lifeSpreads = spreads.filter((sp) => sp.approved);
+  const treeNames = orderedApproved(items).map((p) => p.name).filter(Boolean);
+  // Contributor pages and life spreads in one arranged sequence.
+  const seq = orderedBook(items, spreads, { approvedOnly: true });
+  let pageNo = 0; // running page number for the contributor spreads
 
   return (
     <div className="online-book screen-only">
@@ -54,36 +57,43 @@ export default function OnlineBook({ items, qrMap, style }) {
         <CoverPage t={t} cover={cover} />
       </OnlinePage>
       <OnlinePage style={style}>
-        <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
+        <FamilyTreePage names={treeNames} t={t} />
       </OnlinePage>
-      {lifeSpreads.map((sp, i) => (
-        <WideOnlinePage style={style} key={`life-${i}`}>
-          <LifeSpread items={sp.items} />
-        </WideOnlinePage>
-      ))}
 
-      {pages.map((it, idx) => (
-        <Fragment key={it.id}>
-          <OnlinePage style={style}>
-            <LeftPage it={it} t={t} num={idx * 2 + 1} />
-          </OnlinePage>
-          <OnlinePage style={style}>
-            <RightPage it={it} qr={qrMap[it.id]} t={t} num={idx * 2 + 2} />
-          </OnlinePage>
-          {it.clipURL && (
-            <div className="online-player">
-              <span className="op-name" dir="auto">
-                {it.clipKind === "video" ? "🎬" : "🔊"} {it.name}
-              </span>
-              {it.clipKind === "video" ? (
-                <video src={it.clipURL} controls playsInline />
-              ) : (
-                <audio src={it.clipURL} controls />
-              )}
-            </div>
-          )}
-        </Fragment>
-      ))}
+      {seq.map((e) => {
+        if (e.kind === "life") {
+          return (
+            <WideOnlinePage style={style} key={e.id}>
+              <LifeSpread items={e.life.items} />
+            </WideOnlinePage>
+          );
+        }
+        const it = e.msg;
+        const base = pageNo;
+        pageNo += 2;
+        return (
+          <Fragment key={e.id}>
+            <OnlinePage style={style}>
+              <LeftPage it={it} t={t} num={base + 1} />
+            </OnlinePage>
+            <OnlinePage style={style}>
+              <RightPage it={it} qr={qrMap[it.id]} t={t} num={base + 2} />
+            </OnlinePage>
+            {it.clipURL && (
+              <div className="online-player">
+                <span className="op-name" dir="auto">
+                  {it.clipKind === "video" ? "🎬" : "🔊"} {it.name}
+                </span>
+                {it.clipKind === "video" ? (
+                  <video src={it.clipURL} controls playsInline />
+                ) : (
+                  <audio src={it.clipURL} controls />
+                )}
+              </div>
+            )}
+          </Fragment>
+        );
+      })}
 
       <OnlinePage style={style}>
         <ClosingPage t={t} closing={closing} />

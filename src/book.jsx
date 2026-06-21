@@ -34,6 +34,39 @@ export function orderedAll(items) {
     .sort((a, b) => orderKey(a, a._idx) - orderKey(b, b._idx));
 }
 
+// One unified book sequence that merges contributor pages and life-in-photos
+// spreads by a shared `order`, so spreads can be positioned anywhere among the
+// pages (and reordered on the arrange screen). Each entry is:
+//   { kind: "msg"|"life", id, order, msg?, life?, lifeIndex? }
+// Life spreads default to the front of the sequence (where they render today)
+// until the organizer arranges them.
+export function orderedBook(items = [], spreads = [], { approvedOnly = false } = {}) {
+  const entries = [];
+  items.forEach((it, idx) => {
+    if (approvedOnly && !it.approved) return;
+    entries.push({
+      kind: "msg",
+      id: it.id,
+      order: typeof it.order === "number" ? it.order : idx,
+      msg: it,
+    });
+  });
+  spreads.forEach((sp, idx) => {
+    if (approvedOnly && !sp.approved) return;
+    entries.push({
+      kind: "life",
+      id: sp.id || `life-${idx}`,
+      order: typeof sp.order === "number" ? sp.order : -1000 + idx,
+      life: sp,
+      lifeIndex: idx,
+    });
+  });
+  return entries
+    .map((e, i) => ({ ...e, _i: i }))
+    .sort((a, b) => a.order - b.order || a._i - b._i)
+    .map(({ _i, ...e }) => e);
+}
+
 // Split the note into a short "pull-quote" + the longer body.
 export function splitText(it) {
   const text = (it.text || "").trim();

@@ -22,7 +22,8 @@ import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
 import LifeEditor from "./LifeEditor.jsx";
 import BookPagesEditor from "./BookPagesEditor.jsx";
-import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderKey } from "./book.jsx";
+import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderedBook } from "./book.jsx";
+import { useLife } from "./life.jsx";
 import { useBookStyle, FONTS, ROLES } from "./bookStyle.jsx";
 
 const BOOK_STYLES = ["luxury", "modern", "vintage"];
@@ -35,6 +36,7 @@ const ORGANIZER_EMAIL = "lior.shur@gmail.com";
 export default function Gallery() {
   const { t } = useLang();
   const { settings, setSettings, saveSettings } = useBookStyle();
+  const { spreads, saveSpreads } = useLife();
   const [showStyle, setShowStyle] = useState(false);
 
   // Live-update one field of one text role (name/quote/body/sign).
@@ -61,40 +63,83 @@ export default function Gallery() {
     setEditingId(null);
   }
 
-  // Give every item a concrete numeric `order` (book order), then show the
-  // arrange screen. Done once, so later swaps only touch two docs.
+  const lifeId = () => `life-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+  // Give every book entry (contributor page OR life spread) a concrete numeric
+  // `order`, so later swaps only touch the moved pair. Also assigns each life
+  // spread a stable id. Done once when arranging is first needed.
   async function enterArrange() {
     setView("arrange");
-    if (items.some((i) => typeof i.order !== "number")) {
-      const ord = orderedAll(items);
-      await Promise.all(
-        ord.map((it, i) => updateDoc(doc(db, "messages", it.id), { order: i }))
-      );
-      setItems((prev) =>
-        prev.map((p) => ({ ...p, order: ord.findIndex((o) => o.id === p.id) }))
-      );
-    }
-  }
-
-  // Move an item up (-1) or down (+1) by swapping its order with its neighbour.
-  async function move(it, dir) {
-    const ord = orderedAll(items);
-    const idx = ord.findIndex((x) => x.id === it.id);
-    const j = idx + dir;
-    if (j < 0 || j >= ord.length) return;
-    const a = ord[idx];
-    const b = ord[j];
-    const ao = a.order ?? idx;
-    const bo = b.order ?? j;
-    await Promise.all([
-      updateDoc(doc(db, "messages", a.id), { order: bo }),
-      updateDoc(doc(db, "messages", b.id), { order: ao }),
-    ]);
-    setItems((prev) =>
-      prev.map((p) =>
-        p.id === a.id ? { ...p, order: bo } : p.id === b.id ? { ...p, order: ao } : p
+    const entries = orderedBook(items, spreads);
+    const needsInit = entries.some((e) =>
+      e.kind === "msg"
+        ? typeof e.msg.order !== "number"
+        : typeof e.life.order !== "number" || !e.life.id
+    );
+    if (!needsInit) return;
+    const msgOrder = {}; // message id -> order
+    const nextSpreads = spreads.map((sp) => ({ ...sp }));
+    entries.forEach((e, i) => {
+      if (e.kind === "msg") msgOrder[e.id] = i;
+      else
+        nextSpreads[e.lifeIndex] = {
+          ...nextSpreads[e.lifeIndex],
+          order: i,
+          id: nextSpreads[e.lifeIndex].id || lifeId(),
+        };
+    });
+    await Promise.all(
+      Object.entries(msgOrder).map(([id, o]) =>
+        updateDoc(doc(db, "messages", id), { order: o })
       )
     );
+    if (spreads.length) await saveSpreads(nextSpreads);
+    setItems((prev) =>
+      prev.map((p) => (p.id in msgOrder ? { ...p, order: msgOrder[p.id] } : p))
+    );
+  }
+
+  // Move a book entry up (-1) or down (+1) by swapping its order with its
+  // neighbour — works whether each is a contributor page or a life spread.
+  async function move(entry, dir) {
+    const entries = orderedBook(items, spreads);
+    const idx = entries.findIndex(
+      (x) => x.kind === entry.kind && x.id === entry.id
+    );
+    const j = idx + dir;
+    if (j < 0 || j >= entries.length) return;
+    const a = entries[idx];
+    const b = entries[j];
+
+    const msgWrites = []; // [id, order]
+    let nextSpreads = null;
+    const apply = (e, ord) => {
+      if (e.kind === "msg") {
+        msgWrites.push([e.id, ord]);
+      } else {
+        nextSpreads = nextSpreads || spreads.map((sp) => ({ ...sp }));
+        nextSpreads[e.lifeIndex] = {
+          ...nextSpreads[e.lifeIndex],
+          order: ord,
+          id: nextSpreads[e.lifeIndex].id || lifeId(),
+        };
+      }
+    };
+    apply(a, b.order);
+    apply(b, a.order);
+
+    await Promise.all(
+      msgWrites.map(([id, o]) => updateDoc(doc(db, "messages", id), { order: o }))
+    );
+    if (nextSpreads) await saveSpreads(nextSpreads);
+    if (msgWrites.length) {
+      setItems((prev) =>
+        prev.map((p) => {
+          const w = msgWrites.find(([id]) => id === p.id);
+          return w ? { ...p, order: w[1] } : p;
+        })
+      );
+    }
   }
 
   // Render the book off-screen and rasterize to 300-DPI JPEGs.
@@ -416,14 +461,32 @@ export default function Gallery() {
         <section className="screen-only arrange">
           <p className="lede">{t.arrangeHint}</p>
           <ol className="arrange-list">
-            {orderedAll(items).map((it, i, arr) => (
-              <li key={it.id} className={it.approved ? "" : "muted"}>
+            {orderedBook(items, spreads).map((e, i, arr) => (
+              <li
+                key={`${e.kind}-${e.id}`}
+                className={
+                  (e.kind === "msg" ? e.msg.approved : e.life.approved)
+                    ? e.kind === "life" ? "life-row" : ""
+                    : "muted"
+                }
+              >
                 <span className="ord-num">{i + 1}</span>
-                <span className="ord-name" dir="auto">{it.name}</span>
-                <span className="ord-quote" dir="auto">{splitText(it).pull}</span>
+                {e.kind === "life" ? (
+                  <>
+                    <span className="ord-name">🖼 {t.lifeSpreadLabel}</span>
+                    <span className="ord-quote">
+                      {t.lifeSpreadCount((e.life.items || []).filter((x) => x.type === "photo").length)}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="ord-name" dir="auto">{e.msg.name}</span>
+                    <span className="ord-quote" dir="auto">{splitText(e.msg).pull}</span>
+                  </>
+                )}
                 <span className="ord-btns">
-                  <button className="ghost" onClick={() => move(it, -1)} disabled={i === 0}>↑</button>
-                  <button className="ghost" onClick={() => move(it, 1)} disabled={i === arr.length - 1}>↓</button>
+                  <button className="ghost" onClick={() => move(e, -1)} disabled={i === 0}>↑</button>
+                  <button className="ghost" onClick={() => move(e, 1)} disabled={i === arr.length - 1}>↓</button>
                 </span>
               </li>
             ))}
