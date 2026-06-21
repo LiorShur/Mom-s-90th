@@ -152,6 +152,21 @@ export function relLabel(t, it) {
   );
 }
 
+// An optional full-page opening photo, shown BEFORE the titled cover. Renders
+// nothing until a photo is set. Shown whole (contain) so a decorative border
+// isn't cropped.
+export function PreCoverPage({ precover }) {
+  const c = precover || {};
+  if (!c.bg) return null;
+  return (
+    <section className="book-cover cover-photo-only">
+      <div className="page-bg" style={{ opacity: c.bgOpacity ?? 1 }}>
+        <img src={c.bg} alt="" />
+      </div>
+    </section>
+  );
+}
+
 export function CoverPage({ t, cover }) {
   const c = cover || {};
   // "Photo only": a self-contained cover image stands alone, no overlaid text.

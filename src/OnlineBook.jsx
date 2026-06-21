@@ -4,6 +4,7 @@ import { useBookVars, useBookContent } from "./bookStyle.jsx";
 import {
   orderedApproved,
   orderedBook,
+  PreCoverPage,
   CoverPage,
   ClosingPage,
   LeftPage,
@@ -81,7 +82,7 @@ export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
   const { spreads } = useLife();
   const { tree } = useTree();
-  const { cover, closing } = useBookContent();
+  const { precover, cover, closing } = useBookContent();
   const rootRef = useRef(null);
   const [box, setBox] = useState(null); // { srcs, index } | null
 
@@ -108,6 +109,11 @@ export default function OnlineBook({ items, qrMap, style }) {
 
   return (
     <div className="online-book screen-only" ref={rootRef} onClick={onBookClick}>
+      {precover?.bg && (
+        <OnlinePage style={style}>
+          <PreCoverPage precover={precover} />
+        </OnlinePage>
+      )}
       <OnlinePage style={style}>
         <CoverPage t={t} cover={cover} />
       </OnlinePage>
