@@ -2,11 +2,23 @@ import { ScaleToFit } from "./book.jsx";
 import { useBookVars } from "./bookStyle.jsx";
 
 // One person (and their married-in partner), with their children nested below.
-function TreeNode({ person, people }) {
+function TreeNode({ person, people, onJump }) {
   const kids = people.filter((p) => p.parentId === person.id);
+  const clickable = onJump && person.messageId;
   return (
     <li>
-      <div className="ft-node">
+      <div
+        className={`ft-node ${clickable ? "ft-clickable" : ""}`}
+        onClick={clickable ? () => onJump(person.messageId) : undefined}
+        role={clickable ? "button" : undefined}
+        tabIndex={clickable ? 0 : undefined}
+        onKeyDown={
+          clickable
+            ? (e) => (e.key === "Enter" || e.key === " ") && onJump(person.messageId)
+            : undefined
+        }
+        title={clickable ? person.name : undefined}
+      >
         <span className="ft-person" dir="auto">{person.name}</span>
         {person.spouseName?.trim() && (
           <span className="ft-spouse" dir="auto">&amp; {person.spouseName}</span>
@@ -15,7 +27,7 @@ function TreeNode({ person, people }) {
       {kids.length > 0 && (
         <ul>
           {kids.map((k) => (
-            <TreeNode key={k.id} person={k} people={people} />
+            <TreeNode key={k.id} person={k} people={people} onJump={onJump} />
           ))}
         </ul>
       )}
@@ -25,7 +37,7 @@ function TreeNode({ person, people }) {
 
 // The actual node-link graph: honoree at the root, then each top-level person
 // (a child of the honoree) and their descendants.
-function TreeGraph({ people, honoreeName, honoreeSpouse }) {
+function TreeGraph({ people, honoreeName, honoreeSpouse, onJump }) {
   const roots = people.filter((p) => !p.parentId);
   return (
     <ul className="ft-tree">
@@ -37,7 +49,7 @@ function TreeGraph({ people, honoreeName, honoreeSpouse }) {
         {roots.length > 0 && (
           <ul>
             {roots.map((r) => (
-              <TreeNode key={r.id} person={r} people={people} />
+              <TreeNode key={r.id} person={r} people={people} onJump={onJump} />
             ))}
           </ul>
         )}
@@ -54,7 +66,7 @@ const honoreeNames = (tree, t) => ({
 // DIGITAL book: a legible, horizontally-scrollable tree. The tree keeps its
 // natural size (so names stay readable) and you scroll sideways for a wide
 // family — instead of being crushed to fit one page.
-export function OnlineFamilyTree({ tree, t, style }) {
+export function OnlineFamilyTree({ tree, t, style, onJump }) {
   const vars = useBookVars();
   const people = tree?.people || [];
   const { honoreeName, honoreeSpouse } = honoreeNames(tree, t);
@@ -63,9 +75,15 @@ export function OnlineFamilyTree({ tree, t, style }) {
       <div className="ot-head">
         <p className="ft-kicker">{t.forGrandma}</p>
         <h2 className="ft-title" dir="auto">{t.treeTitle}</h2>
+        {onJump && <p className="ot-hint">{t.treeTapHint}</p>}
       </div>
       <div className={`ot-scroll book style-${style}`} style={vars}>
-        <TreeGraph people={people} honoreeName={honoreeName} honoreeSpouse={honoreeSpouse} />
+        <TreeGraph
+          people={people}
+          honoreeName={honoreeName}
+          honoreeSpouse={honoreeSpouse}
+          onJump={onJump}
+        />
       </div>
     </section>
   );

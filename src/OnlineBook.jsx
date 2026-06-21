@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { useLang } from "./i18n.jsx";
 import { useBookVars, useBookContent } from "./bookStyle.jsx";
 import {
@@ -16,16 +16,50 @@ import { FamilyTreePage, OnlineFamilyTree } from "./FamilyTree.jsx";
 import { LifeSpread } from "./LifeAlbum.jsx";
 import { useLife } from "./life.jsx";
 import { useTree } from "./tree.jsx";
+import Lightbox from "./Lightbox.jsx";
+
+// Photos that should open in the lightbox (excludes QR codes + backgrounds).
+const ZOOMABLE = ".pl-portrait img, .pr-float img, .life-float:not(.bg) img";
+
+// Fades + lifts a section into view the first time it's scrolled to.
+function Reveal({ children, className = "", id }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setShown(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((en) => en.isIntersecting)) {
+          setShown(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.06 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return (
+    <div ref={ref} id={id} className={`reveal ${className} ${shown ? "in" : ""}`}>
+      {children}
+    </div>
+  );
+}
 
 // One scaled, scrollable book page (square).
-function OnlinePage({ style, children }) {
+function OnlinePage({ style, children, id }) {
   const vars = useBookVars();
   return (
-    <div className="online-page">
+    <Reveal className="online-page" id={id}>
       <FitBox w={PAGE_PX} h={PAGE_PX} maxWidth={760}>
         <div className={`book style-${style}`} style={vars}>{children}</div>
       </FitBox>
-    </div>
+    </Reveal>
   );
 }
 
@@ -33,11 +67,11 @@ function OnlinePage({ style, children }) {
 function WideOnlinePage({ style, children }) {
   const vars = useBookVars();
   return (
-    <div className="online-page wide">
+    <Reveal className="online-page wide">
       <FitBox w={SPREAD_PX} h={PAGE_PX} maxWidth={900}>
         <div className={`book style-${style}`} style={vars}>{children}</div>
       </FitBox>
-    </div>
+    </Reveal>
   );
 }
 
@@ -48,18 +82,39 @@ export default function OnlineBook({ items, qrMap, style }) {
   const { spreads } = useLife();
   const { tree } = useTree();
   const { cover, closing } = useBookContent();
+  const rootRef = useRef(null);
+  const [box, setBox] = useState(null); // { srcs, index } | null
+
   const treeNames = orderedApproved(items).map((p) => p.name).filter(Boolean);
   // Contributor pages and life spreads in one arranged sequence.
   const seq = orderedBook(items, spreads, { approvedOnly: true });
   let pageNo = 0; // running page number for the contributor spreads
 
+  // Tap any photo to open it full-screen (with prev/next across the book).
+  function onBookClick(e) {
+    const img = e.target.closest("img");
+    if (!img || !rootRef.current) return;
+    const all = [...rootRef.current.querySelectorAll(ZOOMABLE)];
+    const idx = all.indexOf(img);
+    if (idx < 0) return; // not a zoomable photo (QR / background)
+    setBox({ srcs: all.map((im) => im.currentSrc || im.src), index: idx });
+  }
+
+  // Clickable tree → jump to that person's page.
+  const jumpToPerson = useCallback((messageId) => {
+    const el = document.getElementById(`person-${messageId}`);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   return (
-    <div className="online-book screen-only">
+    <div className="online-book screen-only" ref={rootRef} onClick={onBookClick}>
       <OnlinePage style={style}>
         <CoverPage t={t} cover={cover} />
       </OnlinePage>
       {tree?.people?.length ? (
-        <OnlineFamilyTree tree={tree} t={t} style={style} />
+        <Reveal className="reveal-tree">
+          <OnlineFamilyTree tree={tree} t={t} style={style} onJump={jumpToPerson} />
+        </Reveal>
       ) : (
         <OnlinePage style={style}>
           <FamilyTreePage names={treeNames} t={t} />
@@ -79,14 +134,14 @@ export default function OnlineBook({ items, qrMap, style }) {
         pageNo += 2;
         return (
           <Fragment key={e.id}>
-            <OnlinePage style={style}>
+            <OnlinePage style={style} id={`person-${it.id}`}>
               <LeftPage it={it} t={t} num={base + 1} />
             </OnlinePage>
             <OnlinePage style={style}>
               <RightPage it={it} qr={qrMap[it.id]} t={t} num={base + 2} />
             </OnlinePage>
             {it.clipURL && (
-              <div className="online-player">
+              <Reveal className="online-player">
                 <span className="op-name" dir="auto">
                   {it.clipKind === "video" ? "🎬" : "🔊"} {it.name}
                 </span>
@@ -95,7 +150,7 @@ export default function OnlineBook({ items, qrMap, style }) {
                 ) : (
                   <audio src={it.clipURL} controls />
                 )}
-              </div>
+              </Reveal>
             )}
           </Fragment>
         );
@@ -104,6 +159,15 @@ export default function OnlineBook({ items, qrMap, style }) {
       <OnlinePage style={style}>
         <ClosingPage t={t} closing={closing} />
       </OnlinePage>
+
+      {box && (
+        <Lightbox
+          srcs={box.srcs}
+          index={box.index}
+          onIndex={(i) => setBox((b) => (b ? { ...b, index: i } : b))}
+          onClose={() => setBox(null)}
+        />
+      )}
     </div>
   );
 }

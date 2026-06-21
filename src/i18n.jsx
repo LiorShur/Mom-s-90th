@@ -137,6 +137,7 @@ const STRINGS = {
     treeTitle: "האילן המשפחתי שלנו",
     treeHonoree: "מרים",
     treeBtn: "אילן יוחסין",
+    treeTapHint: "הקישו על שם מסומן כדי לקפוץ לעמוד שלו",
     treeEditorHint:
       "בנו את אילן היוחסין: ייבאו שמות מההגשות, הוסיפו בני משפחה שלא שלחו (בני/בנות זוג, ילדים, סבא המנוח), וקבעו לכל אחד מי ההורה ומי בן/בת הזוג שנישא/ה למשפחה. עמוד האילן בספר נבנה מכאן.",
     treeHonoreeName: "שם בעלת היום",
@@ -328,6 +329,7 @@ const STRINGS = {
     treeTitle: "Our Family Tree",
     treeHonoree: "Miriam",
     treeBtn: "Family tree",
+    treeTapHint: "Tap a highlighted name to jump to their page",
     treeEditorHint:
       "Build the family tree: import names from the submissions, add anyone who didn't submit (spouses, kids, the late grandfather), and set each person's parent and married-in partner. The book's tree page is built from this.",
     treeHonoreeName: "Honoree's name",
