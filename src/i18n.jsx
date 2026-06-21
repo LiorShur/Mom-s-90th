@@ -140,6 +140,8 @@ const STRINGS = {
     treeTapHint: "הקישו על שם מסומן כדי לקפוץ לעמוד שלו",
     treeEditorHint:
       "בנו את אילן היוחסין: ייבאו שמות מההגשות, הוסיפו בני משפחה שלא שלחו (בני/בנות זוג, ילדים, סבא המנוח), וקבעו לכל אחד מי ההורה ומי בן/בת הזוג שנישא/ה למשפחה. עמוד האילן בספר נבנה מכאן.",
+    treeBackdropLabel: "רקע לאילן (תמונה רחבה 2:1)",
+    treeBackdropHint: "תמונת רקע רחבה שתופיע מאחורי אילן היוחסין בספר הדיגיטלי.",
     treeHonoreeName: "שם בעלת היום",
     treeHonoreeSpouse: "בן/בת זוגה (לא חובה)",
     treeImportBtn: "ייבוא שמות מההגשות",
@@ -335,6 +337,8 @@ const STRINGS = {
     treeTapHint: "Tap a highlighted name to jump to their page",
     treeEditorHint:
       "Build the family tree: import names from the submissions, add anyone who didn't submit (spouses, kids, the late grandfather), and set each person's parent and married-in partner. The book's tree page is built from this.",
+    treeBackdropLabel: "Tree backdrop (wide 2:1 image)",
+    treeBackdropHint: "A wide background image shown behind the family tree in the digital book.",
     treeHonoreeName: "Honoree's name",
     treeHonoreeSpouse: "Her spouse (optional)",
     treeImportBtn: "Import names from submissions",

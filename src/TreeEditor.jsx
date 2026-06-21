@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLang } from "./i18n.jsx";
 import { useTree, makePerson, descendantIds } from "./tree.jsx";
+import { uploadFileResumable } from "./storageUpload.js";
+
+const sanitize = (n = "f") => n.replace(/[^A-Za-z0-9._-]/g, "_").slice(-32);
 
 // Organizer screen: build the family tree. Seed names from the submissions,
 // add anyone who didn't submit (spouses, kids, the late grandfather), and set
@@ -11,6 +14,7 @@ export default function TreeEditor({ items = [] }) {
   const { tree, saveTree } = useTree();
   const [draft, setDraft] = useState(tree);
   const [saved, setSaved] = useState(false);
+  const [bgBusy, setBgBusy] = useState(false);
 
   // Adopt data once it loads, as long as we haven't started editing.
   useEffect(() => {
@@ -56,6 +60,24 @@ export default function TreeEditor({ items = [] }) {
       return { ...d, people: [...d.people, ...added] };
     });
 
+  async function pickBackdrop(e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    e.target.value = "";
+    setBgBusy(true);
+    try {
+      const url = await uploadFileResumable(
+        `messages/__tree__/backdrop_${Date.now()}_${sanitize(f.name)}`,
+        f
+      );
+      setDraft((d) => ({ ...d, backdrop: url }));
+    } catch (err) {
+      alert(err.message || "Error");
+    } finally {
+      setBgBusy(false);
+    }
+  }
+
   async function save() {
     await saveTree(draft);
     setSaved(true);
@@ -88,6 +110,22 @@ export default function TreeEditor({ items = [] }) {
             />
           </label>
         </div>
+        <span className="field-title">{t.treeBackdropLabel}</span>
+        <div className="bg-slots">
+          <div className="bg-slot">
+            <label className="slot-drop">
+              {draft.backdrop ? <img src={draft.backdrop} alt="" /> : <span className="slot-plus">＋</span>}
+              <input type="file" accept="image/*" hidden onChange={pickBackdrop} />
+            </label>
+            <span className="slot-cap">{bgBusy ? t.savingBtn : t.treeBackdropLabel}</span>
+            {draft.backdrop && (
+              <button type="button" className="link" onClick={() => setDraft((d) => ({ ...d, backdrop: "" }))}>
+                {t.remove}
+              </button>
+            )}
+          </div>
+        </div>
+        <p className="bg-note">{t.treeBackdropHint}</p>
       </div>
 
       <div className="tree-actions">

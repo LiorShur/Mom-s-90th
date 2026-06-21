@@ -391,24 +391,26 @@ small.warn { color: #a3690f; }
 .ft-node.ft-root .ft-person { font-family: var(--bk-script); font-size: 1.9rem; color: var(--bk-accent); }
 .ft-node.ft-root .ft-spouse { font-size: 1.1rem; }
 
-/* DIGITAL book: legible, horizontally-scrollable family tree (not crushed to
-   fit one page). */
-.online-tree {
-  width: 100%; max-width: 980px; margin: 0 auto 26px;
-  background: var(--paper-2); border: 1px solid var(--line); border-radius: 8px;
-  box-shadow: var(--shadow); padding: 22px 0 24px; overflow: hidden;
+/* DIGITAL book: the family tree as a wide 2:1 spread with a backdrop image
+   behind it; the whole tree is scaled to fit. */
+.tree-spread {
+  position: relative; width: 100%; max-width: 1120px; margin: 0 auto 26px;
+  aspect-ratio: 2 / 1; overflow: hidden; border-radius: 8px;
+  box-shadow: var(--shadow); background: var(--bk-paper);
 }
-.online-tree .ot-head { text-align: center; padding: 0 20px 4px; }
-.online-tree .ft-kicker { font-family: var(--body); font-style: italic; color: var(--accent); margin: 0; font-size: 0.95rem; }
-.online-tree .ft-title { font-family: var(--display); font-weight: 500; font-size: 2rem; margin: 4px 0 0; color: var(--ink); }
-.ot-scroll { overflow-x: auto; padding: 18px 22px 10px; }
-.ot-scroll > .ft-tree { width: max-content; margin: 0 auto; }
-/* Bigger, clearly readable nodes in the on-screen tree. */
-.online-tree .ft-node { padding: 0.18cm 0.5cm; }
-.online-tree .ft-node .ft-person { font-size: 1.25rem; }
-.online-tree .ft-node .ft-spouse { font-size: 1.05rem; }
-.online-tree .ft-node.ft-root .ft-person { font-size: 2.4rem; }
-.online-tree .ft-node.ft-root .ft-spouse { font-size: 1.3rem; }
+.tree-spread .ts-bg { position: absolute; inset: 0; z-index: 0; }
+.tree-spread .ts-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tree-spread .ts-head { position: absolute; top: 0; left: 0; right: 0; z-index: 2; text-align: center; padding: 1.6% 3% 0; }
+.tree-spread .ft-kicker { font-family: var(--bk-body); font-style: italic; color: var(--bk-accent); margin: 0; font-size: 0.95rem; }
+.tree-spread .ft-title { font-family: var(--bk-name); font-weight: 500; font-size: 1.9rem; margin: 2px 0 0; color: var(--bk-ink); }
+.tree-spread .ot-hint { font-family: var(--bk-body); font-style: italic; color: var(--bk-soft); font-size: 0.8rem; margin: 2px 0 0; }
+.tree-spread .ts-tree { position: absolute; top: 15%; left: 0; right: 0; bottom: 2%; z-index: 1; padding: 0 2.5%; }
+/* Cream node boxes keep names readable over the watercolor backdrop. */
+.tree-spread .ft-node { padding: 0.16cm 0.42cm; box-shadow: 0 0.04cm 0.16cm rgba(60, 45, 30, 0.12); }
+.tree-spread .ft-node .ft-person { font-size: 1.15rem; }
+.tree-spread .ft-node .ft-spouse { font-size: 0.98rem; }
+.tree-spread .ft-node.ft-root .ft-person { font-size: 2.1rem; }
+.tree-spread .ft-node.ft-root .ft-spouse { font-size: 1.2rem; }
 
 /* ---- Family tree editor (organizer) ---- */
 .tree-editor { max-width: 940px; margin: 0 auto; }
@@ -720,7 +722,6 @@ small.warn { color: #a3690f; }
 .ft-clickable:hover { border-color: var(--bk-accent); background: #fff; transform: translateY(-1px); }
 .ft-clickable:focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 2px; }
 .ft-clickable .ft-person { text-decoration: underline; text-decoration-color: var(--bk-gold); text-underline-offset: 0.06cm; }
-.online-tree .ot-hint { font-family: var(--body); font-style: italic; color: var(--ink-soft); font-size: 0.85rem; margin: 4px 0 0; }
 
 /* Full-screen photo lightbox */
 .lightbox {

@@ -63,28 +63,32 @@ const honoreeNames = (tree, t) => ({
   honoreeSpouse: (tree?.honoreeSpouse || "").trim(),
 });
 
-// DIGITAL book: a legible, horizontally-scrollable tree. The tree keeps its
-// natural size (so names stay readable) and you scroll sideways for a wide
-// family — instead of being crushed to fit one page.
+// DIGITAL book: the family tree as a wide 58×29-style spread, with the
+// organizer's backdrop image behind it and the whole tree scaled to fit.
 export function OnlineFamilyTree({ tree, t, style, onJump }) {
   const vars = useBookVars();
   const people = tree?.people || [];
   const { honoreeName, honoreeSpouse } = honoreeNames(tree, t);
   return (
-    <section className="online-tree">
-      <div className="ot-head">
+    <section className={`tree-spread book style-${style}`} style={vars}>
+      {tree?.backdrop && (
+        <div className="ts-bg" aria-hidden="true">
+          <img src={tree.backdrop} alt="" />
+        </div>
+      )}
+      <div className="ts-head">
         <p className="ft-kicker">{t.forGrandma}</p>
         <h2 className="ft-title" dir="auto">{t.treeTitle}</h2>
         {onJump && <p className="ot-hint">{t.treeTapHint}</p>}
       </div>
-      <div className={`ot-scroll book style-${style}`} style={vars}>
+      <ScaleToFit className="ts-tree">
         <TreeGraph
           people={people}
           honoreeName={honoreeName}
           honoreeSpouse={honoreeSpouse}
           onJump={onJump}
         />
-      </div>
+      </ScaleToFit>
     </section>
   );
 }

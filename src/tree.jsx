@@ -4,7 +4,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 
 // The organizer-built family tree, stored in config/tree (public read,
 // organizer write — same rules as config/life).
-//   config/tree = { honoreeName, honoreeSpouse, people: [ Person ] }
+//   config/tree = { honoreeName, honoreeSpouse, backdrop, people: [ Person ] }
 //   Person = { id, name, parentId, spouseName, messageId }
 //     parentId === "" (or null)  -> a child of the honoree (the tree root)
 //     spouseName                 -> the partner who married in (shown beside)
@@ -14,7 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 const Ctx = createContext(null);
 const uid = () => `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-const EMPTY = { honoreeName: "", honoreeSpouse: "", people: [] };
+const EMPTY = { honoreeName: "", honoreeSpouse: "", backdrop: "", people: [] };
 
 export function makePerson(name = "", extra = {}) {
   return { id: uid(), name, parentId: "", spouseName: "", messageId: null, ...extra };
@@ -32,6 +32,7 @@ export function TreeProvider({ children }) {
           setTree({
             honoreeName: d.honoreeName || "",
             honoreeSpouse: d.honoreeSpouse || "",
+            backdrop: d.backdrop || "",
             people: Array.isArray(d.people) ? d.people : [],
           });
         }
