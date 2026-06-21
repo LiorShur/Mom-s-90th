@@ -38,8 +38,7 @@ export function orderedAll(items) {
 // spreads by a shared `order`, so spreads can be positioned anywhere among the
 // pages (and reordered on the arrange screen). Each entry is:
 //   { kind: "msg"|"life", id, order, msg?, life?, lifeIndex? }
-// Life spreads default to the front of the sequence (where they render today)
-// until the organizer arranges them.
+// An un-arranged spread sorts to the end until the organizer places it.
 export function orderedBook(items = [], spreads = [], { approvedOnly = false } = {}) {
   const entries = [];
   items.forEach((it, idx) => {
@@ -56,7 +55,9 @@ export function orderedBook(items = [], spreads = [], { approvedOnly = false } =
     entries.push({
       kind: "life",
       id: sp.id || `life-${idx}`,
-      order: typeof sp.order === "number" ? sp.order : -1000 + idx,
+      // Un-arranged spreads sort to the END (so adding one never disrupts an
+      // already-arranged book); once arranged they carry an explicit order.
+      order: typeof sp.order === "number" ? sp.order : 1e6 + idx,
       life: sp,
       lifeIndex: idx,
     });
@@ -153,6 +154,16 @@ export function relLabel(t, it) {
 
 export function CoverPage({ t, cover }) {
   const c = cover || {};
+  // "Photo only": a self-contained cover image stands alone, no overlaid text.
+  if (c.bg && c.photoOnly) {
+    return (
+      <section className="book-cover cover-photo-only">
+        <div className="page-bg" style={{ opacity: c.bgOpacity ?? 1 }}>
+          <img src={c.bg} alt="" />
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="book-cover">
       {c.bg && (

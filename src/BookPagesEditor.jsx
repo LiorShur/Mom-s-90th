@@ -34,6 +34,11 @@ export default function BookPagesEditor({ style }) {
               <input value={draft.subtitle || ""} dir="auto"
                 onChange={(e) => set({ subtitle: e.target.value })} />
             </label>
+            <label className="fx-toggle">
+              <input type="checkbox" checked={!!draft.photoOnly}
+                onChange={(e) => set({ photoOnly: e.target.checked })} />
+              {t.coverPhotoOnly}
+            </label>
           </>
         )}
       />

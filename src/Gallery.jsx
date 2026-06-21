@@ -100,39 +100,40 @@ export default function Gallery() {
     );
   }
 
-  // Move a book entry up (-1) or down (+1) by swapping its order with its
-  // neighbour — works whether each is a contributor page or a life spread.
+  // Move a book entry up (-1) or down (+1). Renumbers the whole merged
+  // sequence (pages + life spreads) to a clean 0..N-1 and persists only what
+  // changed — robust even if some entries arrived with default/non-contiguous
+  // order values (e.g. a freshly added life spread).
   async function move(entry, dir) {
     const entries = orderedBook(items, spreads);
     const idx = entries.findIndex(
       (x) => x.kind === entry.kind && x.id === entry.id
     );
+    if (idx < 0) return;
     const j = idx + dir;
     if (j < 0 || j >= entries.length) return;
-    const a = entries[idx];
-    const b = entries[j];
+    const arr = [...entries];
+    [arr[idx], arr[j]] = [arr[j], arr[idx]];
 
     const msgWrites = []; // [id, order]
-    let nextSpreads = null;
-    const apply = (e, ord) => {
+    const nextSpreads = spreads.map((sp) => ({ ...sp }));
+    let spreadsTouched = false;
+    arr.forEach((e, i) => {
       if (e.kind === "msg") {
-        msgWrites.push([e.id, ord]);
+        if (e.msg.order !== i) msgWrites.push([e.id, i]);
       } else {
-        nextSpreads = nextSpreads || spreads.map((sp) => ({ ...sp }));
-        nextSpreads[e.lifeIndex] = {
-          ...nextSpreads[e.lifeIndex],
-          order: ord,
-          id: nextSpreads[e.lifeIndex].id || lifeId(),
-        };
+        const sp = nextSpreads[e.lifeIndex];
+        if (sp.order !== i || !sp.id) {
+          nextSpreads[e.lifeIndex] = { ...sp, order: i, id: sp.id || lifeId() };
+          spreadsTouched = true;
+        }
       }
-    };
-    apply(a, b.order);
-    apply(b, a.order);
+    });
 
     await Promise.all(
       msgWrites.map(([id, o]) => updateDoc(doc(db, "messages", id), { order: o }))
     );
-    if (nextSpreads) await saveSpreads(nextSpreads);
+    if (spreadsTouched) await saveSpreads(nextSpreads);
     if (msgWrites.length) {
       setItems((prev) =>
         prev.map((p) => {

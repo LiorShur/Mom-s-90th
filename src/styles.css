@@ -524,6 +524,9 @@ small.warn { color: #a3690f; }
 /* Optional full-page background image (behind all the page content) */
 .page-bg { position: absolute; inset: 0; z-index: -100; }
 .page-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* A self-contained decorative cover image: show the WHOLE thing (don't crop
+   its border) and centre it on the page. */
+.cover-photo-only .page-bg img { object-fit: contain; }
 
 /* One image spanning the whole Dutch-bind spread: each page holds a double-
    width copy and shows its half. Logical insets keep the halves continuous in
