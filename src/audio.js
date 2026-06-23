@@ -31,7 +31,18 @@ function encodeWav(channelData, sampleRate) {
   return new Blob([view], { type: "audio/wav" });
 }
 
-export async function blobToWav(blob) {
+// Samples of leading "silence" to drop, keeping `keep` seconds of lead-in so
+// the start isn't clipped. Returns 0 if the whole clip is quiet (don't trim).
+function leadingSilenceSamples(data, rate, { thresh = 0.012, keep = 0.4 } = {}) {
+  let i = 0;
+  for (; i < data.length; i++) {
+    if (Math.abs(data[i]) > thresh) break;
+  }
+  if (i >= data.length) return 0;
+  return Math.max(0, i - Math.round(keep * rate));
+}
+
+export async function blobToWav(blob, { trimSilence = false } = {}) {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtx) throw new Error("no AudioContext");
   const arrayBuf = await blob.arrayBuffer();
@@ -48,5 +59,11 @@ export async function blobToWav(blob) {
   src.connect(offline.destination);
   src.start();
   const rendered = await offline.startRendering();
-  return encodeWav(rendered.getChannelData(0), targetRate);
+
+  let data = rendered.getChannelData(0);
+  if (trimSilence) {
+    const start = leadingSilenceSamples(data, targetRate);
+    if (start > 0) data = data.subarray(start);
+  }
+  return encodeWav(data, targetRate);
 }

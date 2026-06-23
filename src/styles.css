@@ -590,12 +590,15 @@ small.warn { color: #a3690f; }
   padding: 3.2cm 2.4cm; text-align: start;
 }
 /* Online book: the note text plays the contributor's reading when tapped. */
+.pl-text { position: relative; }
 .pl-text.playable { cursor: pointer; }
+/* Floated in the top padding so it never pushes the note/signature down. */
 .pl-audio-badge {
-  align-self: center; display: inline-flex; align-items: center; gap: 0.1cm;
+  position: absolute; top: 0.9cm; left: 50%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 0.1cm;
   font-family: var(--bk-body); font-size: 0.82rem; letter-spacing: 0.04em;
   text-transform: uppercase; color: #fff; background: var(--bk-accent);
-  padding: 0.12cm 0.42cm; border-radius: 999px; margin-bottom: 0.5cm;
+  padding: 0.12cm 0.42cm; border-radius: 999px;
   box-shadow: 0 0.06cm 0.2cm rgba(60, 45, 30, 0.22); white-space: nowrap;
 }
 .pl-text.playable:hover .pl-audio-badge { filter: brightness(1.08); }
