@@ -528,8 +528,13 @@ export default function Gallery() {
                     <div className="sub-meta">
                       {it.clipURL ? (
                         <span className="tag">🔊 {t.kinds[it.clipKind] || it.clipKind}</span>
+                      ) : it.textAudioURL ? (
+                        <span className="tag">🔊 {t.readingTag}</span>
                       ) : (
                         <span className="tag muted">{t.noVoice}</span>
+                      )}
+                      {it.clipURL && it.textAudioURL && (
+                        <span className="tag">📖 {t.readingTag}</span>
                       )}
                       {it.photoURLs?.filter(Boolean).length ? (
                         <span className="tag">🖼 {it.photoURLs.filter(Boolean).length}</span>

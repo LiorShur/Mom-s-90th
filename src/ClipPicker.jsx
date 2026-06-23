@@ -5,7 +5,7 @@ import { blobToWav } from "./audio.js";
 // Record in-browser (saved as iOS-friendly WAV) or upload a clip, with a
 // listen-back player. `clip` shape: { url, kind, blob?, ext? }.
 // A clip with a `blob` is new (to upload); without one it's an existing clip.
-export default function ClipPicker({ clip, setClip }) {
+export default function ClipPicker({ clip, setClip, label }) {
   const { t } = useLang();
   const [recording, setRecording] = useState(false);
   const recorderRef = useRef(null);
@@ -49,7 +49,7 @@ export default function ClipPicker({ clip, setClip }) {
 
   return (
     <div className="field">
-      <span>{t.voiceLabel}</span>
+      <span>{label || t.voiceLabel}</span>
       <div className="clip-controls">
         {!recording ? (
           <button type="button" className="record" onClick={startRecording}>

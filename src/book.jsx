@@ -209,7 +209,9 @@ export function ClosingPage({ t, closing }) {
 }
 
 // LEFT page: message column + a single full-bleed portrait (photo #1).
-export function LeftPage({ it, t, num }) {
+// `hasAudio`/`playing` are passed only by the online book, which makes the note
+// text tap-to-play the contributor's reading of it.
+export function LeftPage({ it, t, num, hasAudio, playing }) {
   const { pull, body } = splitText(it);
   const portrait = (it.photoURLs || [])[0] || null;
   const portraitFx = (it.photoFx || [])[0];
@@ -230,7 +232,13 @@ export function LeftPage({ it, t, num }) {
           {it.bgLeftPanel && <div className="text-panel" />}
         </>
       )}
-      <div className="pl-text">
+      <div className={`pl-text ${hasAudio ? "playable" : ""} ${playing ? "playing" : ""}`}>
+        {hasAudio && (
+          <span className="pl-audio-badge">
+            {playing ? "❚❚ " : "▶ "}
+            {playing ? t.audioPlaying : t.audioListen}
+          </span>
+        )}
         <span className="pl-qmark" aria-hidden>“</span>
         {pull && <p className="pl-quote" dir="auto">{pull}</p>}
         <span className="pl-divider" aria-hidden>♡</span>

@@ -84,15 +84,43 @@ export default function OnlineBook({ items, qrMap, style }) {
   const { tree } = useTree();
   const { precover, cover, closing } = useBookContent();
   const rootRef = useRef(null);
+  const textAudioRef = useRef(null);
   const [box, setBox] = useState(null); // { srcs, index } | null
+  const [playingId, setPlayingId] = useState(null); // message id whose note is playing
 
   const treeNames = orderedApproved(items).map((p) => p.name).filter(Boolean);
   // Contributor pages and life spreads in one arranged sequence.
   const seq = orderedBook(items, spreads, { approvedOnly: true });
   let pageNo = 0; // running page number for the contributor spreads
 
-  // Tap any photo to open it full-screen (with prev/next across the book).
+  // Tap the note text → play that person's reading of it (toggle).
+  function playText(it) {
+    const a = textAudioRef.current;
+    if (!a) return;
+    if (playingId === it.id) {
+      a.pause();
+      setPlayingId(null);
+      return;
+    }
+    a.src = it.textAudioURL;
+    a.currentTime = 0;
+    a.play().catch(() => {});
+    setPlayingId(it.id);
+  }
+
   function onBookClick(e) {
+    // 1) note text → play the contributor's reading
+    const textEl = e.target.closest(".pl-text");
+    if (textEl) {
+      const pageEl = textEl.closest('[id^="person-"]');
+      const id = pageEl?.id.replace("person-", "");
+      const it = items.find((x) => x.id === id);
+      if (it?.textAudioURL) {
+        playText(it);
+        return;
+      }
+    }
+    // 2) any photo → open it full-screen (prev/next across the book)
     const img = e.target.closest("img");
     if (!img || !rootRef.current) return;
     const all = [...rootRef.current.querySelectorAll(ZOOMABLE)];
@@ -141,7 +169,13 @@ export default function OnlineBook({ items, qrMap, style }) {
         return (
           <Fragment key={e.id}>
             <OnlinePage style={style} id={`person-${it.id}`}>
-              <LeftPage it={it} t={t} num={base + 1} />
+              <LeftPage
+                it={it}
+                t={t}
+                num={base + 1}
+                hasAudio={!!it.textAudioURL}
+                playing={playingId === it.id}
+              />
             </OnlinePage>
             <OnlinePage style={style}>
               <RightPage it={it} qr={qrMap[it.id]} t={t} num={base + 2} />
@@ -174,6 +208,8 @@ export default function OnlineBook({ items, qrMap, style }) {
           onClose={() => setBox(null)}
         />
       )}
+
+      <audio ref={textAudioRef} onEnded={() => setPlayingId(null)} hidden />
     </div>
   );
 }

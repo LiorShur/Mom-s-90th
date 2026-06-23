@@ -589,6 +589,17 @@ small.warn { color: #a3690f; }
   display: flex; flex-direction: column; justify-content: center;
   padding: 3.2cm 2.4cm; text-align: start;
 }
+/* Online book: the note text plays the contributor's reading when tapped. */
+.pl-text.playable { cursor: pointer; }
+.pl-audio-badge {
+  align-self: center; display: inline-flex; align-items: center; gap: 0.1cm;
+  font-family: var(--bk-body); font-size: 0.82rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: #fff; background: var(--bk-accent);
+  padding: 0.12cm 0.42cm; border-radius: 999px; margin-bottom: 0.5cm;
+  box-shadow: 0 0.06cm 0.2cm rgba(60, 45, 30, 0.22); white-space: nowrap;
+}
+.pl-text.playable:hover .pl-audio-badge { filter: brightness(1.08); }
+.pl-text.playing .pl-audio-badge { background: var(--bk-gold); animation: pulse 1.2s infinite; }
 .pl-name { font-family: var(--t-name-font, var(--bk-script)); font-weight: var(--t-name-weight, 400); font-size: var(--t-name-size, 4.4rem); line-height: 1; margin: 0; color: var(--bk-ink); }
 .pl-rel { font-family: var(--bk-body); text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.95rem; color: var(--bk-soft); margin: 0.5cm 0 0; }
 .pl-qmark { font-family: var(--bk-name); font-size: 4rem; color: var(--bk-gold); line-height: 0; height: 0.5em; margin: 1.2cm 0 0; display: block; }

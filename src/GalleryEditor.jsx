@@ -28,6 +28,9 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
   const [clip, setClip] = useState(
     item.clipURL ? { url: item.clipURL, kind: item.clipKind || "audio" } : null
   );
+  const [textAudio, setTextAudio] = useState(
+    item.textAudioURL ? { url: item.textAudioURL, kind: "audio" } : null
+  );
   const [bgLeft, setBgLeft] = useState(item.bgLeft ? { url: item.bgLeft } : null);
   const [bgRight, setBgRight] = useState(item.bgRight ? { url: item.bgRight } : null);
   const [bgLeftOpacity, setBgLeftOpacity] = useState(item.bgLeftOpacity ?? 1);
@@ -75,6 +78,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         if (s.file) uploads.push({ kind: "photo", index: i, file: s.file });
       });
       if (clip?.blob) uploads.push({ kind: "clip", ext: clip.ext, file: clip.blob });
+      if (textAudio?.blob) uploads.push({ kind: "textaudio", ext: textAudio.ext, file: textAudio.blob });
       if (bgLeft?.file) uploads.push({ kind: "bgLeft", file: bgLeft.file });
       if (bgRight?.file) uploads.push({ kind: "bgRight", file: bgRight.file });
       if (bgSpread?.file) uploads.push({ kind: "bgSpread", file: bgSpread.file });
@@ -82,6 +86,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       const photoURLs = slots.map((s) => (s.url && !s.file ? s.url : null));
       let clipURL = clip ? (clip.blob ? null : clip.url) : null;
       const clipKind = clip ? clip.kind : null;
+      let textAudioURL = textAudio ? (textAudio.blob ? null : textAudio.url) : null;
       let bgLeftURL = bgLeft ? (bgLeft.file ? null : bgLeft.url) : null;
       let bgRightURL = bgRight ? (bgRight.file ? null : bgRight.url) : null;
       let bgSpreadURL = bgSpread ? (bgSpread.file ? null : bgSpread.url) : null;
@@ -90,6 +95,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         results.forEach((r) => {
           if (r.kind === "photo") photoURLs[r.index] = r.url;
           else if (r.kind === "clip") clipURL = r.url;
+          else if (r.kind === "textaudio") textAudioURL = r.url;
           else if (r.kind === "bgLeft") bgLeftURL = r.url;
           else if (r.kind === "bgRight") bgRightURL = r.url;
           else if (r.kind === "bgSpread") bgSpreadURL = r.url;
@@ -104,6 +110,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
         photoFx: fx,
         clipURL,
         clipKind,
+        textAudioURL,
         bgLeft: bgLeftURL,
         bgRight: bgRightURL,
         bgLeftOpacity,
@@ -268,6 +275,7 @@ export default function GalleryEditor({ item, onSaved, onClose, style }) {
       </div>
 
       <ClipPicker clip={clip} setClip={setClip} />
+      <ClipPicker clip={textAudio} setClip={setTextAudio} label={t.textAudioLabel} />
 
       {saving && progress != null && (
         <div className="progress">

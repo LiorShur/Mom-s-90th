@@ -34,8 +34,8 @@ export async function uploadAll(items, docId, onProgress) {
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
     const path =
-      it.kind === "clip"
-        ? `messages/${docId}/clip_${Date.now()}.${it.ext}`
+      it.kind === "clip" || it.kind === "textaudio"
+        ? `messages/${docId}/${it.kind}_${Date.now()}.${it.ext}`
         : `messages/${docId}/${it.kind}_${it.index ?? "x"}_${Date.now()}_${sanitize(it.file.name)}`;
     const url = await uploadFileResumable(path, it.file, (bt) => {
       done[i] = bt;
