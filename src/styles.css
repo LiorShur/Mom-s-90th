@@ -420,6 +420,13 @@ small.warn { color: #a3690f; }
 
 /* ---- Family tree editor (organizer) ---- */
 .tree-editor { max-width: 940px; margin: 0 auto; }
+.tree-publish {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  font-family: var(--display); font-size: 0.95rem; margin: 0 0 14px;
+  padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line);
+}
+.tree-publish.on { border-color: var(--accent); color: var(--accent-deep); background: #f6efe2; }
+.tree-publish.off { color: var(--ink-soft); background: var(--paper-2); }
 .tree-root-card { margin: 6px 0 14px; }
 .tree-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
 .tree-people { list-style: none; margin: 0; padding: 0; }

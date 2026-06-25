@@ -14,7 +14,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 const Ctx = createContext(null);
 const uid = () => `p-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-const EMPTY = { honoreeName: "", honoreeSpouse: "", honoreePhoto: "", backdrop: "", people: [] };
+const EMPTY = { honoreeName: "", honoreeSpouse: "", honoreePhoto: "", backdrop: "", published: true, people: [] };
 
 export function makePerson(name = "", extra = {}) {
   return { id: uid(), name, parentId: "", spouseName: "", photo: "", messageId: null, ...extra };
@@ -34,6 +34,7 @@ export function TreeProvider({ children }) {
             honoreeSpouse: d.honoreeSpouse || "",
             honoreePhoto: d.honoreePhoto || "",
             backdrop: d.backdrop || "",
+            published: d.published !== false,
             people: Array.isArray(d.people) ? d.people : [],
           });
         }

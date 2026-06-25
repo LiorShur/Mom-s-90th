@@ -145,7 +145,7 @@ export default function OnlineBook({ items, qrMap, style }) {
       <OnlinePage style={style}>
         <CoverPage t={t} cover={cover} />
       </OnlinePage>
-      {tree?.people?.length ? (
+      {tree?.published === false ? null : tree?.people?.length ? (
         <Reveal className="reveal-tree">
           <OnlineFamilyTree tree={tree} t={t} style={style} onJump={jumpToPerson} />
         </Reveal>

@@ -119,11 +119,25 @@ export default function TreeEditor({ items = [] }) {
     setTimeout(() => setSaved(false), 2500);
   }
 
+  // Show/hide the tree in the online book — persisted immediately so it's a
+  // one-click "take it out temporarily".
+  function togglePublish(e) {
+    const next = { ...draft, published: e.target.checked };
+    setDraft(next);
+    saveTree(next);
+  }
+
   const honoreeLabel = draft.honoreeName.trim() || t.treeHonoree;
+  const published = draft.published !== false;
 
   return (
     <section className="screen-only tree-editor">
       <p className="lede">{t.treeEditorHint}</p>
+
+      <label className={`tree-publish ${published ? "on" : "off"}`}>
+        <input type="checkbox" checked={published} onChange={togglePublish} />
+        {published ? t.treePublishOn : t.treePublishOff}
+      </label>
 
       <div className="card tree-root-card">
         <div className="row">

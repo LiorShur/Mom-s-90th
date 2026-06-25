@@ -143,6 +143,8 @@ const STRINGS = {
     treeHonoree: "מרים",
     treeBtn: "אילן יוחסין",
     treeTapHint: "הקישו על שם מסומן כדי לקפוץ לעמוד שלו",
+    treePublishOn: "✓ האילן מוצג בספר הדיגיטלי (הסירו את הסימון כדי להסתיר זמנית)",
+    treePublishOff: "האילן מוסתר מהספר הדיגיטלי (סמנו כדי להציג)",
     treeEditorHint:
       "בנו את אילן היוחסין: ייבאו שמות מההגשות, הוסיפו בני משפחה שלא שלחו (בני/בנות זוג, ילדים, סבא המנוח), וקבעו לכל אחד מי ההורה ומי בן/בת הזוג שנישא/ה למשפחה. עמוד האילן בספר נבנה מכאן.",
     treeBackdropLabel: "רקע לאילן (תמונה רחבה 2:1)",
@@ -346,6 +348,8 @@ const STRINGS = {
     treeHonoree: "Miriam",
     treeBtn: "Family tree",
     treeTapHint: "Tap a highlighted name to jump to their page",
+    treePublishOn: "✓ Family tree is shown in the digital book (uncheck to hide it temporarily)",
+    treePublishOff: "Family tree is hidden from the digital book (check to show it)",
     treeEditorHint:
       "Build the family tree: import names from the submissions, add anyone who didn't submit (spouses, kids, the late grandfather), and set each person's parent and married-in partner. The book's tree page is built from this.",
     treeBackdropLabel: "Tree backdrop (wide 2:1 image)",
