@@ -786,9 +786,20 @@ small.warn { color: #a3690f; }
   background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px;
   box-shadow: var(--shadow); padding: 16px 18px 18px;
 }
-.song-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.song-head-h { margin: 0; }
+.song-head {
+  width: 100%; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  background: none; border: none; padding: 0; cursor: pointer; text-align: start; color: inherit;
+}
 .song-title { font-family: var(--display); font-size: 1.4rem; margin: 0; color: var(--ink); }
-.song-artist { color: var(--ink-soft); font-style: italic; }
+.song-artist { color: var(--ink-soft); font-style: italic; font-size: 1rem; font-weight: 400; }
+.song-chevron {
+  margin-inline-start: auto; align-self: center; color: var(--ink-soft); font-weight: 400;
+  font-size: 0.95rem; line-height: 1; transition: transform 0.2s ease;
+}
+.song-card.open .song-chevron { transform: rotate(180deg); }
+.song-head:hover .song-title { color: var(--accent-deep); }
+.song-body { margin-top: 12px; }
 .song-video, .song-play { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; }
 .song-video iframe { width: 100%; height: 100%; display: block; }
 .song-play {
