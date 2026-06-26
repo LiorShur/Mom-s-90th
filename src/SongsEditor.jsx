@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useLang } from "./i18n.jsx";
 import { useSongs, makeSong, youtubeId, SEED_TITLES } from "./songs.jsx";
+import { uploadFileResumable } from "./storageUpload.js";
+
+const sanitize = (n = "f") => n.replace(/[^A-Za-z0-9._-]/g, "_").slice(-32);
 
 // Organizer screen: build the sing-along songbook. Each song has a title, an
 // optional YouTube link to play, and a lyrics box to paste the words into.
@@ -14,6 +17,7 @@ export default function SongsEditor() {
       : { published: true, items: SEED_TITLES.map((tt) => makeSong(tt)) }
   );
   const [saved, setSaved] = useState(false);
+  const [busyId, setBusyId] = useState(null);
 
   useEffect(() => {
     if (songs.items.length) setDraft((d) => (d.items.length ? d : songs));
@@ -32,6 +36,24 @@ export default function SongsEditor() {
       [arr[i], arr[j]] = [arr[j], arr[i]];
       return { ...d, items: arr };
     });
+
+  async function pickAudio(id, e) {
+    const f = e.target.files[0];
+    if (!f) return;
+    e.target.value = "";
+    setBusyId(id);
+    try {
+      const url = await uploadFileResumable(
+        `messages/__songs__/${id}_${Date.now()}_${sanitize(f.name)}`,
+        f
+      );
+      update(id, { audioUrl: url });
+    } catch (err) {
+      alert(err.message || "Error");
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   function togglePublish(e) {
     const next = { ...draft, published: e.target.checked };
@@ -90,6 +112,21 @@ export default function SongsEditor() {
                 placeholder={t.songYoutubePlaceholder}
                 onChange={(e) => update(s.id, { youtubeUrl: e.target.value })}
               />
+              <div className="song-audio-row">
+                <span className="song-or">{t.songOr}</span>
+                <label className="upload-btn">
+                  {busyId === s.id ? t.savingBtn : s.audioUrl ? t.songAudioReplace : t.songAudioUpload}
+                  <input type="file" accept="audio/*" hidden onChange={(e) => pickAudio(s.id, e)} />
+                </label>
+                {s.audioUrl && (
+                  <>
+                    <audio src={s.audioUrl} controls />
+                    <button type="button" className="link" onClick={() => update(s.id, { audioUrl: "" })}>
+                      {t.remove}
+                    </button>
+                  </>
+                )}
+              </div>
               <textarea
                 className="song-edit-lyrics"
                 rows={5}

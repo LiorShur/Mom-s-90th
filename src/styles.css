@@ -820,6 +820,9 @@ small.warn { color: #a3690f; }
 .song-edit-yt { width: 100%; margin-top: 8px; }
 .song-edit-lyrics { width: 100%; margin-top: 8px; line-height: 1.5; }
 .song-ok { color: var(--accent); }
+.song-audio-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.song-audio-row .song-or { color: var(--ink-soft); font-style: italic; font-size: 0.85rem; }
+.song-audio-row audio { height: 36px; }
 
 @media print {
   body { background: #fff; }
