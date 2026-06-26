@@ -7,8 +7,15 @@ import { useSongs, youtubeId } from "./songs.jsx";
 function SongCard({ song, open, onToggle }) {
   const { t } = useLang();
   const [playing, setPlaying] = useState(false);
+  const [phonetic, setPhonetic] = useState(false);
   const cardRef = useRef(null);
   const yid = youtubeId(song.youtubeUrl);
+
+  const hasLyrics = !!song.lyrics?.trim();
+  const hasPhonetic = !!song.phonetic?.trim();
+  // Show the phonetic transliteration when chosen (or when it's all we have).
+  const showPhonetic = hasPhonetic && (phonetic || !hasLyrics);
+  const lyricsText = showPhonetic ? song.phonetic : song.lyrics;
 
   useEffect(() => {
     if (open) {
@@ -61,8 +68,28 @@ function SongCard({ song, open, onToggle }) {
               organizer who added both still gets their audio file. */}
           {song.audioUrl && <audio src={song.audioUrl} controls />}
 
-          {song.lyrics?.trim() && (
-            <pre className="song-lyrics" dir="auto">{song.lyrics}</pre>
+          {(hasLyrics || hasPhonetic) && (
+            <>
+              {hasLyrics && hasPhonetic && (
+                <div className="lyric-toggle" role="group" aria-label={t.lyricsViewLabel}>
+                  <button
+                    type="button"
+                    className={!showPhonetic ? "on" : ""}
+                    onClick={() => setPhonetic(false)}
+                  >
+                    {t.lyricsHe}
+                  </button>
+                  <button
+                    type="button"
+                    className={showPhonetic ? "on" : ""}
+                    onClick={() => setPhonetic(true)}
+                  >
+                    {t.lyricsPhonetic}
+                  </button>
+                </div>
+              )}
+              <pre className="song-lyrics" dir={showPhonetic ? "ltr" : "auto"}>{lyricsText}</pre>
+            </>
           )}
         </div>
       )}

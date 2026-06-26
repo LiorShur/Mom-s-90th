@@ -819,6 +819,16 @@ small.warn { color: #a3690f; }
   font-size: 1.15rem; line-height: 1.7; color: var(--ink); margin: 14px 0 0;
   background: var(--paper); border-radius: 8px; padding: 14px 16px;
 }
+.lyric-toggle {
+  display: flex; width: fit-content; gap: 2px; margin: 14px auto 0; padding: 3px;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px;
+}
+.lyric-toggle button {
+  border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
+  font-family: var(--display); font-size: 0.85rem; padding: 4px 14px; border-radius: 999px; line-height: 1.2;
+}
+.lyric-toggle button.on { background: var(--accent); color: #fff; }
+.lyric-toggle + .song-lyrics { margin-top: 8px; }
 
 /* Clear the fixed contents button when scrolling a section/song into view. */
 [id^="person-"], #songbook { scroll-margin-top: 64px; }

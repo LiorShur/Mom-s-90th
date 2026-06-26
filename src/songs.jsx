@@ -25,7 +25,7 @@ export const SEED_TITLES = [
 ];
 
 export function makeSong(title = "", extra = {}) {
-  return { id: uid(), title, artist: "", youtubeUrl: "", audioUrl: "", lyrics: "", ...extra };
+  return { id: uid(), title, artist: "", youtubeUrl: "", audioUrl: "", lyrics: "", phonetic: "", ...extra };
 }
 
 export function SongsProvider({ children }) {

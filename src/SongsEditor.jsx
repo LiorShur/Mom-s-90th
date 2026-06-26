@@ -135,6 +135,14 @@ export default function SongsEditor() {
                 placeholder={t.songLyricsPlaceholder}
                 onChange={(e) => update(s.id, { lyrics: e.target.value })}
               />
+              <textarea
+                className="song-edit-lyrics"
+                rows={5}
+                value={s.phonetic || ""}
+                dir="ltr"
+                placeholder={t.songPhoneticPlaceholder}
+                onChange={(e) => update(s.id, { phonetic: e.target.value })}
+              />
             </li>
           );
         })}
