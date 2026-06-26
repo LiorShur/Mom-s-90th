@@ -5,6 +5,7 @@ import { LanguageProvider } from "./i18n.jsx";
 import { BookStyleProvider } from "./bookStyle.jsx";
 import { LifeProvider } from "./life.jsx";
 import { TreeProvider } from "./tree.jsx";
+import { SongsProvider } from "./songs.jsx";
 import "./styles.css";
 
 // Entry point — index.html loads this and the whole app hangs off <App />.
@@ -15,7 +16,9 @@ createRoot(document.getElementById("root")).render(
       <BookStyleProvider>
         <LifeProvider>
           <TreeProvider>
-            <App />
+            <SongsProvider>
+              <App />
+            </SongsProvider>
           </TreeProvider>
         </LifeProvider>
       </BookStyleProvider>

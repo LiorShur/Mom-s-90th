@@ -18,6 +18,7 @@ import { LifeSpread } from "./LifeAlbum.jsx";
 import { useLife } from "./life.jsx";
 import { useTree } from "./tree.jsx";
 import Lightbox from "./Lightbox.jsx";
+import Songbook from "./Songbook.jsx";
 
 // Photos that should open in the lightbox (excludes QR codes + backgrounds).
 const ZOOMABLE = ".pl-portrait img, .pr-float img, .life-float:not(.bg) img";
@@ -195,6 +196,10 @@ export default function OnlineBook({ items, qrMap, style }) {
           </Fragment>
         );
       })}
+
+      <Reveal className="reveal-songbook">
+        <Songbook />
+      </Reveal>
 
       <OnlinePage style={style}>
         <ClosingPage t={t} closing={closing} />

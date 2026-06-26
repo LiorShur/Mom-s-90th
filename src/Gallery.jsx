@@ -22,6 +22,7 @@ import OnlineBook from "./OnlineBook.jsx";
 import GalleryEditor from "./GalleryEditor.jsx";
 import LifeEditor from "./LifeEditor.jsx";
 import TreeEditor from "./TreeEditor.jsx";
+import SongsEditor from "./SongsEditor.jsx";
 import BookPagesEditor from "./BookPagesEditor.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderedBook } from "./book.jsx";
 import { useLife } from "./life.jsx";
@@ -423,6 +424,12 @@ export default function Gallery() {
           >
             {view === "tree" ? t.backToList : t.treeBtn}
           </button>
+          <button
+            className="ghost"
+            onClick={() => setView(view === "songs" ? "grid" : "songs")}
+          >
+            {view === "songs" ? t.backToList : t.songsBtn}
+          </button>
           <button className="ghost" onClick={() => printAs("proof")}>
             {t.printProofBtn}
           </button>
@@ -466,6 +473,8 @@ export default function Gallery() {
       {view === "life" && <LifeEditor style={bookStyle} />}
 
       {view === "tree" && <TreeEditor items={items} />}
+
+      {view === "songs" && <SongsEditor />}
 
       {view === "arrange" && (
         <section className="screen-only arrange">
