@@ -1,0 +1,14 @@
+{
+  "name": "ספר שכולו אהבה",
+  "short_name": "ספר אהבה",
+  "description": "ספר הזיכרונות הדיגיטלי לכבוד יום ההולדת ה-90 של מרים",
+  "start_url": "/book",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f1e6",
+  "theme_color": "#7d4529",
+  "icons": [
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
