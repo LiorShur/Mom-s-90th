@@ -802,7 +802,7 @@ small.warn { color: #a3690f; }
   display: flex; align-items: center; justify-content: center; padding-inline-start: 4px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
-.song-card audio { width: 100%; }
+.song-card audio { width: 100%; margin-top: 12px; }
 .song-lyrics {
   font-family: var(--body); white-space: pre-wrap; text-align: center;
   font-size: 1.15rem; line-height: 1.7; color: var(--ink); margin: 14px 0 0;

@@ -15,8 +15,8 @@ function SongCard({ song }) {
         {song.artist?.trim() && <span className="song-artist" dir="auto">{song.artist}</span>}
       </header>
 
-      {yid ? (
-        playing ? (
+      {yid &&
+        (playing ? (
           <div className="song-video">
             <iframe
               src={`https://www.youtube.com/embed/${yid}?autoplay=1&rel=0`}
@@ -36,10 +36,11 @@ function SongCard({ song }) {
           >
             <span className="song-play-icon">▶</span>
           </button>
-        )
-      ) : song.audioUrl ? (
-        <audio src={song.audioUrl} controls />
-      ) : null}
+        ))}
+
+      {/* Uploaded audio plays independently of any YouTube clip, so an
+          organizer who added both still gets their audio file. */}
+      {song.audioUrl && <audio src={song.audioUrl} controls />}
 
       {song.lyrics?.trim() && (
         <pre className="song-lyrics" dir="auto">{song.lyrics}</pre>
