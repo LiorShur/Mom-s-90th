@@ -41,7 +41,11 @@ function Reveal({ children, className = "", id }) {
           io.disconnect();
         }
       },
-      { rootMargin: "0px 0px -8% 0px", threshold: 0.06 }
+      // threshold 0: reveal as soon as any part enters. A ratio-based
+      // threshold breaks for tall sections (e.g. the songbook with many
+      // songs + lyrics): visible-area ÷ total-area can never reach the
+      // threshold, so it would stay hidden at opacity 0.
+      { rootMargin: "0px 0px -8% 0px", threshold: 0 }
     );
     io.observe(el);
     return () => io.disconnect();
