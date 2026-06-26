@@ -866,6 +866,31 @@ small.warn { color: #a3690f; }
 }
 .bm-link:hover { color: var(--accent-deep); }
 
+/* ---- Home-screen icon chooser (gallery) ---- */
+.icon-chooser .bg-note { margin: 4px 0 12px; }
+.icon-opts { display: flex; gap: 14px; flex-wrap: wrap; }
+.icon-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: none; border: 2px solid var(--line); border-radius: 14px;
+  padding: 12px; cursor: pointer; color: var(--ink-soft);
+  font-family: var(--display); font-size: 0.9rem;
+}
+.icon-opt:hover:not(:disabled) { border-color: var(--accent); }
+.icon-opt.on { border-color: var(--accent); color: var(--accent-deep); }
+.icon-opt:disabled { opacity: 0.5; cursor: default; }
+.icon-opt .icon-prev {
+  width: 96px; height: 96px; border-radius: 20px; display: block;
+  background-size: cover; background-position: center; object-fit: cover;
+  box-shadow: var(--shadow);
+}
+.icon-opt .icon-prev.empty {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: var(--ink-soft); background: var(--paper);
+}
+/* Off-screen square node used to rasterize the photo icon. */
+.icon-render { position: fixed; left: -9999px; top: 0; width: 512px; height: 512px; overflow: hidden; }
+.icon-render img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
 /* ---- Sing-along editor (organizer) ---- */
 .songs-editor { max-width: 820px; margin: 0 auto; }
 .songs-list { list-style: none; padding: 0; margin: 0; }

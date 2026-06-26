@@ -24,6 +24,7 @@ import LifeEditor from "./LifeEditor.jsx";
 import TreeEditor from "./TreeEditor.jsx";
 import SongsEditor from "./SongsEditor.jsx";
 import BookPagesEditor from "./BookPagesEditor.jsx";
+import IconChooser from "./IconChooser.jsx";
 import { SpreadThumb, splitText, PAGE_PX, orderedAll, orderedBook } from "./book.jsx";
 import { useLife } from "./life.jsx";
 import { useBookStyle, FONTS, ROLES } from "./bookStyle.jsx";
@@ -517,6 +518,7 @@ export default function Gallery() {
         <section className="screen-only">
           <div className="grid">
             <BookPagesEditor style={bookStyle} />
+            <IconChooser />
             {orderedAll(items).map((it) => (
               <article key={it.id} className={`card sub ${it.approved ? "on" : ""}`}>
                 {it.prompt && <p className="kicker" dir="auto">{it.prompt}</p>}
