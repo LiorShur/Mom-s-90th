@@ -17,8 +17,10 @@ import { FamilyTreePage, OnlineFamilyTree } from "./FamilyTree.jsx";
 import { LifeSpread } from "./LifeAlbum.jsx";
 import { useLife } from "./life.jsx";
 import { useTree } from "./tree.jsx";
+import { useSongs } from "./songs.jsx";
 import Lightbox from "./Lightbox.jsx";
 import Songbook from "./Songbook.jsx";
+import BookMenu from "./BookMenu.jsx";
 
 // Photos that should open in the lightbox (excludes QR codes + backgrounds).
 const ZOOMABLE = ".pl-portrait img, .pr-float img, .life-float:not(.bg) img";
@@ -87,6 +89,7 @@ export default function OnlineBook({ items, qrMap, style }) {
   const { t } = useLang();
   const { spreads } = useLife();
   const { tree } = useTree();
+  const { songs } = useSongs();
   const { precover, cover, closing } = useBookContent();
   const rootRef = useRef(null);
   const textAudioRef = useRef(null);
@@ -97,6 +100,15 @@ export default function OnlineBook({ items, qrMap, style }) {
   // Contributor pages and life spreads in one arranged sequence.
   const seq = orderedBook(items, spreads, { approvedOnly: true });
   let pageNo = 0; // running page number for the contributor spreads
+
+  // Contents menu: one entry per family member (by name), plus the sing-along.
+  const songbookShown = songs.published !== false && !!songs.items?.length;
+  const menuEntries = [
+    ...seq
+      .filter((e) => e.kind !== "life")
+      .map((e) => ({ id: `person-${e.msg.id}`, label: e.msg.name?.trim() || t.bookMenuUnnamed })),
+    ...(songbookShown ? [{ id: "songbook", label: t.songbookTitle }] : []),
+  ];
 
   // Tap the note text → play that person's reading of it (toggle).
   function playText(it) {
@@ -134,14 +146,17 @@ export default function OnlineBook({ items, qrMap, style }) {
     setBox({ srcs: all.map((im) => im.currentSrc || im.src), index: idx });
   }
 
-  // Clickable tree → jump to that person's page.
-  const jumpToPerson = useCallback((messageId) => {
-    const el = document.getElementById(`person-${messageId}`);
+  // Scroll a section (by element id) to the top of the view.
+  const jumpTo = useCallback((id) => {
+    const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
+  // Clickable tree → jump to that person's page.
+  const jumpToPerson = useCallback((messageId) => jumpTo(`person-${messageId}`), [jumpTo]);
 
   return (
     <div className="online-book screen-only" ref={rootRef} onClick={onBookClick}>
+      <BookMenu entries={menuEntries} onJump={jumpTo} />
       {precover?.bg && (
         <OnlinePage style={style}>
           <PreCoverPage precover={precover} />
@@ -201,7 +216,7 @@ export default function OnlineBook({ items, qrMap, style }) {
         );
       })}
 
-      <Reveal className="reveal-songbook">
+      <Reveal className="reveal-songbook" id="songbook">
         <Songbook />
       </Reveal>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLang } from "./i18n.jsx";
 import { useSongs, youtubeId } from "./songs.jsx";
 
@@ -7,16 +7,23 @@ import { useSongs, youtubeId } from "./songs.jsx";
 function SongCard({ song, open, onToggle }) {
   const { t } = useLang();
   const [playing, setPlaying] = useState(false);
+  const cardRef = useRef(null);
   const yid = youtubeId(song.youtubeUrl);
 
-  // Collapsing a card stops its video (the iframe unmounts), so make sure it
-  // reopens to the poster rather than auto-playing again.
   useEffect(() => {
-    if (!open) setPlaying(false);
+    if (open) {
+      // Scroll the title to the top so the song is read from its start, not
+      // jumped to its end after the layout above collapses.
+      cardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      // Collapsing stops the video (the iframe unmounts), so it reopens to the
+      // poster rather than auto-playing again.
+      setPlaying(false);
+    }
   }, [open]);
 
   return (
-    <article className={`song-card ${open ? "open" : ""}`}>
+    <article ref={cardRef} className={`song-card ${open ? "open" : ""}`}>
       <h3 className="song-head-h">
         <button type="button" className="song-head" onClick={onToggle} aria-expanded={open}>
           <span className="song-title" dir="auto">{song.title}</span>
