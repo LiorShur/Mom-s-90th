@@ -3,16 +3,26 @@ import { useLang } from "./i18n.jsx";
 import { useBookStyle } from "./bookStyle.jsx";
 import { uploadFileResumable } from "./storageUpload.js";
 
+// Load an image element, optionally requesting it CORS-clean (needed before a
+// remote image can be read back off a canvas without tainting it).
+function loadImage(src, crossOrigin) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    if (crossOrigin) img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("image-load"));
+    img.src = src;
+  });
+}
+
 // Organizer picks the home-screen / favicon icon: the gold "90" emblem, the
-// book's cover photo, or a different uploaded photo. A chosen photo is squared
-// (via html-to-image, the same path the page export uses), uploaded, and its
-// URL stored in config/book.icon = { type, src, url }.
+// book's cover photo, or a different uploaded photo. A chosen photo is
+// center-cropped to a 512 square on a canvas, uploaded, and its URL stored in
+// config/book.icon = { type, src, url }.
 export default function IconChooser() {
   const { t } = useLang();
   const { book, saveBook } = useBookStyle();
   const [busy, setBusy] = useState(false);
-  const renderRef = useRef(null);
-  const imgRef = useRef(null);
   const fileRef = useRef(null);
 
   const coverBg = book.cover?.bg;
@@ -20,22 +30,20 @@ export default function IconChooser() {
   const isPhoto = icon.type === "photo" && icon.url;
   const current = !isPhoto ? "emblem" : icon.src === "upload" ? "upload" : "cover";
 
-  // Square a source image into a 512 PNG icon, upload it, and save the choice.
-  async function rasterizeAndSave(srcUrl, src) {
-    const img = imgRef.current;
-    await new Promise((res, rej) => {
-      img.onload = () => res();
-      img.onerror = () => rej(new Error("image load failed"));
-      img.src = srcUrl;
-    });
-    const { toPng } = await import("html-to-image");
-    const dataUrl = await toPng(renderRef.current, {
-      cacheBust: true,
-      width: 512,
-      height: 512,
-      pixelRatio: 1,
-    });
-    const blob = await (await fetch(dataUrl)).blob();
+  // Center-crop an already-loaded image to a 512 square PNG, upload it, save.
+  async function squareUploadSave(img, src) {
+    const S = 512;
+    const canvas = document.createElement("canvas");
+    canvas.width = S;
+    canvas.height = S;
+    const ctx = canvas.getContext("2d");
+    const scale = Math.max(S / img.naturalWidth, S / img.naturalHeight);
+    const w = img.naturalWidth * scale;
+    const h = img.naturalHeight * scale;
+    ctx.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+    const blob = await new Promise((res, rej) =>
+      canvas.toBlob((b) => (b ? res(b) : rej(new Error("encode"))), "image/png")
+    );
     const url = await uploadFileResumable(`messages/__book__/icon_${Date.now()}.png`, blob);
     await saveBook({ ...book, icon: { type: "photo", src, url } });
   }
@@ -53,10 +61,12 @@ export default function IconChooser() {
     }
     setBusy(true);
     try {
-      await rasterizeAndSave(coverBg, "cover");
+      // Remote photo: must load CORS-clean to read it back off the canvas.
+      const img = await loadImage(coverBg, true);
+      await squareUploadSave(img, "cover");
     } catch (e) {
       console.error(e);
-      alert(t.iconError);
+      alert(t.iconCoverFailed);
     } finally {
       setBusy(false);
     }
@@ -69,7 +79,8 @@ export default function IconChooser() {
     const obj = URL.createObjectURL(f);
     setBusy(true);
     try {
-      await rasterizeAndSave(obj, "upload");
+      const img = await loadImage(obj); // local file — no CORS needed
+      await squareUploadSave(img, "upload");
     } catch (err) {
       console.error(err);
       alert(t.iconError);
@@ -123,11 +134,6 @@ export default function IconChooser() {
           <span>{busy ? t.savingBtn : t.iconUpload}</span>
         </button>
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={onUpload} />
-      </div>
-
-      {/* Off-screen square node rasterized into the photo icon. */}
-      <div className="icon-render" aria-hidden="true" ref={renderRef}>
-        <img ref={imgRef} alt="" />
       </div>
     </article>
   );
