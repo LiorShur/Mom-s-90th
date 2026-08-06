@@ -924,3 +924,55 @@ small.warn { color: #a3690f; }
 @media (max-width: 520px) {
   .row { flex-direction: column; gap: 0; }
 }
+
+/* ---- Photo cropper (framing editor) ---- */
+.cropper { width: 260px; max-width: 100%; margin: 0 auto; }
+.cropper-frame {
+  position: relative;
+  width: 260px; height: 260px; max-width: 100%;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  touch-action: none; /* let us own drag gestures on touch */
+  user-select: none;
+}
+.cropper-frame.grab { cursor: grab; }
+.cropper-frame.grab:active { cursor: grabbing; }
+.cropper-frame img { pointer-events: none; -webkit-user-drag: none; }
+.cropper-controls {
+  display: flex; align-items: center; gap: 12px; margin-top: 8px;
+}
+.cropper-controls input[type="range"] {
+  flex: 1; accent-color: var(--accent); cursor: pointer;
+}
+.cropper-hint {
+  display: block; margin-top: 2px;
+  color: var(--ink-soft); font-size: 0.78rem; line-height: 1.35;
+}
+
+/* ---- Photo cropper modal ---- */
+.cropper-modal {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.cropper-modal-card {
+  background: var(--paper, #fff);
+  border-radius: 10px;
+  padding: 18px 20px 20px;
+  max-width: 340px; width: 100%;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+.cropper-modal-title {
+  margin: 0 0 12px; font-size: 1.05rem; text-align: center;
+}
+.cropper-modal-actions {
+  display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;
+}
+.cropper-done {
+  background: var(--accent); color: #fff; border: none;
+  padding: 8px 18px; border-radius: 6px; font-weight: 600;
+}
+.cropper-done:hover { filter: brightness(0.95); }
