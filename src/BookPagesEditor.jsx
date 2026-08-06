@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLang } from "./i18n.jsx";
 import { useBookStyle } from "./bookStyle.jsx";
 import { uploadFileResumable } from "./storageUpload.js";
-import { CoverPage, ClosingPage, FitBox, PAGE_PX } from "./book.jsx";
+import { PreCoverPage, CoverPage, ClosingPage, FitBox, PAGE_PX } from "./book.jsx";
 
 const sanitize = (n = "f") => n.replace(/[^A-Za-z0-9._-]/g, "_").slice(-32);
 
@@ -15,6 +15,15 @@ export default function BookPagesEditor({ style }) {
 
   return (
     <>
+      <BookEndCard
+        kind="precover"
+        title={t.bookEndsPreCover}
+        content={book.precover || {}}
+        style={style}
+        onSave={(next) => saveBook({ ...book, precover: next })}
+        render={(c) => <PreCoverPage precover={c} />}
+        fields={() => <p className="bg-note">{t.preCoverHint}</p>}
+      />
       <BookEndCard
         kind="cover"
         title={t.bookEndsCover}
@@ -33,6 +42,11 @@ export default function BookPagesEditor({ style }) {
               <span>{t.coverSubtitleField}</span>
               <input value={draft.subtitle || ""} dir="auto"
                 onChange={(e) => set({ subtitle: e.target.value })} />
+            </label>
+            <label className="fx-toggle">
+              <input type="checkbox" checked={!!draft.photoOnly}
+                onChange={(e) => set({ photoOnly: e.target.checked })} />
+              {t.coverPhotoOnly}
             </label>
           </>
         )}

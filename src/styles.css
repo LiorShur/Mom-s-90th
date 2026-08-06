@@ -315,7 +315,7 @@ small.warn { color: #a3690f; }
 
 /* ---- Life spread (free-form 58×29 layflat: photos + text) ---- */
 .life-spread { width: 60cm; height: 30cm; position: relative; overflow: hidden; background: var(--bk-paper); isolation: isolate; }
-.life-float { position: absolute; background: #fdf9f2; padding: 0.35cm; }
+.life-float { position: absolute; background: #f3ead7; padding: 0.35cm; }
 .life-float img { width: 100%; height: auto; display: block; }
 /* Background photo: cover the whole spread, no mat */
 .life-float.bg { padding: 0; background: none; box-shadow: none !important; }
@@ -350,6 +350,104 @@ small.warn { color: #a3690f; }
 .family-tree .ft-leaf { font-family: var(--bk-body); font-size: 1.5rem; color: var(--bk-ink); white-space: nowrap; }
 .family-tree .ft-honoree { font-family: var(--bk-script); font-size: 3.6rem; color: var(--bk-accent); line-height: 1; }
 
+/* Structured family tree (built from config/tree). Top-down: honoree at the
+   root, couples paired, children nested under their parents. */
+.scale-to-fit { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.scale-to-fit-inner { transform-origin: center center; }
+.family-tree .ft-tree-wrap { flex: 1; width: 100%; min-height: 0; margin-top: 0.6cm; }
+
+.ft-tree, .ft-tree ul { list-style: none; margin: 0; padding: 0; }
+/* The connector technique assumes LTR; pin it so it isn't mirrored/broken on
+   the RTL (Hebrew) page. Names inside each node keep their own dir="auto". */
+.ft-tree { display: flex; flex-direction: column; align-items: center; direction: ltr; }
+.ft-tree ul { display: flex; justify-content: center; position: relative; padding-top: 1cm; }
+.ft-tree li {
+  position: relative; display: flex; flex-direction: column; align-items: center;
+  padding: 1cm 0.4cm 0; text-align: center;
+}
+.ft-tree > li { padding-top: 0; } /* the honoree root has no incoming line */
+/* sibling + parent connectors (everything below the root) */
+.ft-tree ul li::before, .ft-tree ul li::after {
+  content: ""; position: absolute; top: 0; right: 50%;
+  border-top: 0.05cm solid var(--bk-gold); width: 50%; height: 1cm;
+}
+.ft-tree ul li::after { right: auto; left: 50%; border-left: 0.05cm solid var(--bk-gold); }
+.ft-tree ul li:only-child { padding-top: 0; }
+.ft-tree ul li:only-child::before, .ft-tree ul li:only-child::after { display: none; }
+.ft-tree ul li:first-child::before, .ft-tree ul li:last-child::after { border: 0 none; }
+.ft-tree ul li:last-child::before { border-right: 0.05cm solid var(--bk-gold); }
+.ft-tree ul::before {
+  content: ""; position: absolute; top: 0; left: 50%;
+  width: 0; height: 1cm; border-left: 0.05cm solid var(--bk-gold);
+}
+.ft-node {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 0.1cm;
+  white-space: nowrap; border: 0.05cm solid var(--bk-gold); border-radius: 0.14cm;
+  background: var(--bk-paper); padding: 0.16cm 0.4cm;
+}
+.ft-name-row { display: inline-flex; gap: 0.18cm; align-items: baseline; }
+.ft-photo {
+  display: block; width: 1.5cm; height: 1.5cm; object-fit: cover;
+  border-radius: 50%; border: 0.05cm solid var(--bk-gold);
+}
+.ft-node .ft-person { font-family: var(--bk-name); font-size: 1.05rem; color: var(--bk-ink); }
+.ft-node .ft-spouse { font-family: var(--bk-body); font-size: 0.9rem; color: var(--bk-soft); }
+.ft-node.ft-root { border-color: var(--bk-accent); background: #fff; padding: 0.22cm 0.6cm; }
+.ft-node.ft-root .ft-photo { width: 2.4cm; height: 2.4cm; border-color: var(--bk-accent); }
+.ft-node.ft-root .ft-person { font-family: var(--bk-script); font-size: 1.9rem; color: var(--bk-accent); }
+.ft-node.ft-root .ft-spouse { font-size: 1.1rem; }
+
+/* DIGITAL book: the family tree as a wide 2:1 spread with a backdrop image
+   behind it; the whole tree is scaled to fit. */
+.tree-spread {
+  position: relative; width: 100%; max-width: 1120px; margin: 0 auto 26px;
+  aspect-ratio: 2 / 1; overflow: hidden; border-radius: 8px;
+  box-shadow: var(--shadow); background: var(--bk-paper);
+}
+.tree-spread .ts-bg { position: absolute; inset: 0; z-index: 0; }
+.tree-spread .ts-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tree-spread .ts-head { position: absolute; top: 0; left: 0; right: 0; z-index: 2; text-align: center; padding: 1.6% 3% 0; }
+.tree-spread .ft-kicker { font-family: var(--bk-body); font-style: italic; color: var(--bk-accent); margin: 0; font-size: 0.95rem; }
+.tree-spread .ft-title { font-family: var(--bk-name); font-weight: 500; font-size: 1.9rem; margin: 2px 0 0; color: var(--bk-ink); }
+.tree-spread .ot-hint { font-family: var(--bk-body); font-style: italic; color: var(--bk-soft); font-size: 0.8rem; margin: 2px 0 0; }
+.tree-spread .ts-tree { position: absolute; top: 15%; left: 0; right: 0; bottom: 2%; z-index: 1; padding: 0 2.5%; }
+/* Cream node boxes keep names readable over the watercolor backdrop. */
+.tree-spread .ft-node { padding: 0.16cm 0.42cm; box-shadow: 0 0.04cm 0.16cm rgba(60, 45, 30, 0.12); }
+.tree-spread .ft-node .ft-person { font-size: 1.15rem; }
+.tree-spread .ft-node .ft-spouse { font-size: 0.98rem; }
+.tree-spread .ft-node.ft-root .ft-person { font-size: 2.1rem; }
+.tree-spread .ft-node.ft-root .ft-spouse { font-size: 1.2rem; }
+
+/* ---- Family tree editor (organizer) ---- */
+.tree-editor { max-width: 940px; margin: 0 auto; }
+.tree-publish {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  font-family: var(--display); font-size: 0.95rem; margin: 0 0 14px;
+  padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line);
+}
+.tree-publish.on { border-color: var(--accent); color: var(--accent-deep); background: #f6efe2; }
+.tree-publish.off { color: var(--ink-soft); background: var(--paper-2); }
+.tree-root-card { margin: 6px 0 14px; }
+.tree-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.tree-people { list-style: none; margin: 0; padding: 0; }
+.tree-person-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--paper-2); margin-bottom: 8px;
+}
+.tree-person-row input, .tree-person-row select { width: 100%; }
+.tp-order { display: flex; flex-direction: column; gap: 1px; }
+.tp-order button { padding: 0 8px; font-size: 0.85rem; line-height: 1.3; }
+.tp-photo.slot-drop { width: 48px; height: 48px; min-width: 48px; border-radius: 50%; flex: 0 0 auto; }
+.tp-photo.slot-drop img { width: 100%; height: 100%; object-fit: cover; }
+.tp-field { display: flex; flex-direction: column; gap: 2px; }
+.tp-field > span { font-size: 0.68rem; letter-spacing: 0.02em; color: var(--ink-soft); }
+.tp-name { flex: 1 1 150px; min-width: 110px; }
+.tp-parent { flex: 1 1 200px; min-width: 130px; }
+.tp-spouse { flex: 1 1 180px; min-width: 130px; }
+.tp-linked { color: var(--accent); align-self: end; padding-bottom: 6px; }
+.tp-remove { white-space: nowrap; align-self: end; padding-bottom: 6px; }
+
 /* Off-screen stage for hi-res image export (must stay rendered, not display:none) */
 .export-stage { position: fixed; left: -100000px; top: 0; width: max-content; z-index: -1; }
 /* Layflat ("Dutch bind") spread: two pages joined side by side (58×29 cm) */
@@ -382,6 +480,8 @@ small.warn { color: #a3690f; }
   background: var(--paper-2); margin-bottom: 8px;
 }
 .arrange-list li.muted { opacity: 0.5; }
+.arrange-list li.life-row { border-color: var(--gold); background: #fbf4e6; }
+.arrange-list li.life-row .ord-name { color: var(--accent-deep); }
 .arrange-list .ord-num { width: 26px; text-align: center; color: var(--ink-soft); font-family: var(--display); }
 .arrange-list .ord-name { font-family: var(--display); white-space: nowrap; }
 .arrange-list .ord-quote { flex: 1; color: var(--ink-soft); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -441,6 +541,9 @@ small.warn { color: #a3690f; }
 /* Optional full-page background image (behind all the page content) */
 .page-bg { position: absolute; inset: 0; z-index: -100; }
 .page-bg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* A self-contained decorative cover image: show the WHOLE thing (don't crop
+   its border) and centre it on the page. */
+.cover-photo-only .page-bg img { object-fit: contain; }
 
 /* One image spanning the whole Dutch-bind spread: each page holds a double-
    width copy and shows its half. Logical insets keep the halves continuous in
@@ -493,6 +596,20 @@ small.warn { color: #a3690f; }
   display: flex; flex-direction: column; justify-content: center;
   padding: 3.2cm 2.4cm; text-align: start;
 }
+/* Online book: the note text plays the contributor's reading when tapped. */
+.pl-text { position: relative; }
+.pl-text.playable { cursor: pointer; }
+/* Floated in the top padding so it never pushes the note/signature down. */
+.pl-audio-badge {
+  position: absolute; top: 0.9cm; left: 50%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 0.1cm;
+  font-family: var(--bk-body); font-size: 0.82rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: #fff; background: var(--bk-accent);
+  padding: 0.12cm 0.42cm; border-radius: 999px;
+  box-shadow: 0 0.06cm 0.2cm rgba(60, 45, 30, 0.22); white-space: nowrap;
+}
+.pl-text.playable:hover .pl-audio-badge { filter: brightness(1.08); }
+.pl-text.playing .pl-audio-badge { background: var(--bk-gold); animation: pulse 1.2s infinite; }
 .pl-name { font-family: var(--t-name-font, var(--bk-script)); font-weight: var(--t-name-weight, 400); font-size: var(--t-name-size, 4.4rem); line-height: 1; margin: 0; color: var(--bk-ink); }
 .pl-rel { font-family: var(--bk-body); text-transform: uppercase; letter-spacing: 0.22em; font-size: 0.95rem; color: var(--bk-soft); margin: 0.5cm 0 0; }
 .pl-qmark { font-family: var(--bk-name); font-size: 4rem; color: var(--bk-gold); line-height: 0; height: 0.5em; margin: 1.2cm 0 0; display: block; }
@@ -508,14 +625,14 @@ small.warn { color: #a3690f; }
    the text page meets the collage page. */
 .pl-portrait::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  box-shadow: inset 0 0 1.9cm 0.7cm var(--bk-paper);
+  box-shadow: inset 0 0 1.4cm 0.5cm var(--bk-paper);
 }
 
 /* Scrapbook "tilt" — a white-bordered, soft-shadowed photo angled on the page.
    The rotate slider sets the angle; the card no longer bleeds to the edges. */
 .pl-portrait img.tilted {
   width: 76%; height: 76%;
-  border: 0.5cm solid #fdf9f2; border-radius: 2px;
+  border: 0.5cm solid #f3ead7; border-radius: 2px;
   box-shadow: 0 0.4cm 1.1cm rgba(40, 30, 20, 0.28);
 }
 .pl-portrait:has(img.tilted)::after { display: none; } /* no feather over a tilted card */
@@ -534,12 +651,13 @@ small.warn { color: #a3690f; }
 .pr-float {
   position: absolute; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 3px;
   transform-origin: center center;
-  /* Soft cream matte behind a photo shown whole (zoomed out), not stark white. */
-  background: #fdf9f2;
 }
-.pr-float img { width: 100%; height: 100%; object-fit: contain; display: block; transform-origin: center center; }
-/* Same thin frame as before — only the colour is softened from white to cream. */
-.pr-float.tilted { border: 0.4cm solid #fdf9f2; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
+.pr-float img { width: 100%; height: 100%; object-fit: cover; display: block; transform-origin: center center; }
+/* "Fit whole photo": frame follows the image's natural shape — nothing cropped. */
+.pr-float.fit { aspect-ratio: auto; }
+.pr-float.fit img { height: auto; object-fit: contain; }
+/* Original 0.4cm frame — only the colour is changed from white to cream. */
+.pr-float.tilted { border: 0.4cm solid #f3ead7; box-shadow: 0 0.3cm 0.9cm rgba(40, 30, 20, 0.28); }
 
 .pr-qr {
   position: absolute; bottom: 2.4cm; inset-inline-end: 2.4cm;
@@ -615,6 +733,175 @@ small.warn { color: #a3690f; }
 .online-player .op-name { font-family: var(--display); color: var(--ink); }
 .online-player audio { height: 38px; }
 .online-player video { max-width: 280px; border-radius: 6px; }
+
+/* Tap-to-zoom affordance on book photos */
+.online-book .pl-portrait img,
+.online-book .pr-float img,
+.online-book .life-float:not(.bg) img { cursor: zoom-in; }
+
+/* Scroll-reveal: sections fade + lift in the first time they're seen */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* Clickable tree nodes (jump to that person's page) */
+.ft-clickable { cursor: pointer; transition: background 0.15s, border-color 0.15s, transform 0.15s; }
+.ft-clickable:hover { border-color: var(--bk-accent); background: #fff; transform: translateY(-1px); }
+.ft-clickable:focus-visible { outline: 2px solid var(--bk-accent); outline-offset: 2px; }
+.ft-clickable .ft-person { text-decoration: underline; text-decoration-color: var(--bk-gold); text-underline-offset: 0.06cm; }
+
+/* Full-screen photo lightbox */
+.lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(20, 15, 10, 0.92);
+  display: flex; align-items: center; justify-content: center;
+  padding: 4vh 4vw;
+}
+.lb-img {
+  max-width: 92vw; max-height: 92vh; object-fit: contain;
+  border-radius: 4px; box-shadow: 0 10px 44px rgba(0, 0, 0, 0.5); cursor: default;
+}
+.lb-close, .lb-nav {
+  position: absolute; background: rgba(255, 255, 255, 0.14); color: #fff; border: none;
+  border-radius: 999px; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.lb-close:hover, .lb-nav:hover { background: rgba(255, 255, 255, 0.28); }
+.lb-close { top: 16px; right: 16px; width: 44px; height: 44px; font-size: 1.2rem; }
+.lb-nav { top: 50%; transform: translateY(-50%); width: 52px; height: 52px; font-size: 2rem; padding-bottom: 4px; }
+.lb-prev { left: 12px; }
+.lb-next { right: 12px; }
+.lb-count { position: absolute; bottom: 16px; left: 0; right: 0; text-align: center; color: rgba(255, 255, 255, 0.85); font-family: var(--body); font-size: 0.9rem; }
+
+/* ---- Sing-along songbook (online book) ---- */
+.songbook { max-width: 760px; margin: 0 auto 30px; }
+.sb-head { text-align: center; margin: 10px 0 18px; }
+.sb-kicker { font-family: var(--body); font-style: italic; color: var(--accent); margin: 0; }
+.sb-title { font-family: var(--display); font-weight: 500; font-size: 2.2rem; margin: 4px 0 6px; color: var(--ink); }
+.sb-sub { color: var(--ink-soft); margin: 0; }
+.sb-list { display: flex; flex-direction: column; gap: 20px; }
+.song-card {
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: var(--shadow); padding: 16px 18px 18px;
+}
+.song-head-h { margin: 0; }
+.song-head {
+  width: 100%; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  background: none; border: none; padding: 0; cursor: pointer; text-align: start; color: inherit;
+}
+.song-title { font-family: var(--display); font-size: 1.4rem; margin: 0; color: var(--ink); }
+.song-artist { color: var(--ink-soft); font-style: italic; font-size: 1rem; font-weight: 400; }
+.song-chevron {
+  margin-inline-start: auto; align-self: center; color: var(--ink-soft); font-weight: 400;
+  font-size: 0.95rem; line-height: 1; transition: transform 0.2s ease;
+}
+.song-card.open .song-chevron { transform: rotate(180deg); }
+.song-head:hover .song-title { color: var(--accent-deep); }
+.song-body { margin-top: 12px; }
+.song-video, .song-play { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; }
+.song-video iframe { width: 100%; height: 100%; display: block; }
+.song-play {
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  background-size: cover; background-position: center; border: none;
+}
+.song-play::after { content: ""; position: absolute; inset: 0; background: rgba(20, 15, 10, 0.28); }
+.song-play-icon {
+  position: relative; z-index: 1; width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92); color: var(--accent-deep); font-size: 1.5rem;
+  display: flex; align-items: center; justify-content: center; padding-inline-start: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.song-card audio { width: 100%; margin-top: 12px; }
+.song-lyrics {
+  font-family: var(--body); white-space: pre-wrap; text-align: center;
+  font-size: 1.15rem; line-height: 1.7; color: var(--ink); margin: 14px 0 0;
+  background: var(--paper); border-radius: 8px; padding: 14px 16px;
+}
+.lyric-toggle {
+  display: flex; width: fit-content; gap: 2px; margin: 14px auto 0; padding: 3px;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px;
+}
+.lyric-toggle button {
+  border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
+  font-family: var(--display); font-size: 0.85rem; padding: 4px 14px; border-radius: 999px; line-height: 1.2;
+}
+.lyric-toggle button.on { background: var(--accent); color: #fff; }
+.lyric-toggle + .song-lyrics { margin-top: 8px; }
+
+/* Clear the fixed contents button when scrolling a section/song into view. */
+[id^="person-"], #songbook { scroll-margin-top: 64px; }
+.song-card { scroll-margin-top: 70px; }
+
+/* ---- Book contents menu (hamburger) ---- */
+.book-menu-btn {
+  position: fixed; top: 14px; inset-inline-start: 14px; z-index: 60;
+  width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px;
+  box-shadow: var(--shadow); cursor: pointer;
+}
+.bm-bars { display: flex; flex-direction: column; gap: 4px; width: 18px; }
+.bm-bars i { display: block; height: 2px; background: var(--ink); border-radius: 2px; }
+.book-menu-backdrop { position: fixed; inset: 0; z-index: 65; background: rgba(20, 15, 10, 0.32); }
+.book-menu-panel {
+  position: fixed; top: 0; bottom: 0; inset-inline-start: 0; z-index: 70;
+  width: min(82vw, 300px); padding: 16px 14px; overflow-y: auto;
+  background: var(--paper); box-shadow: var(--shadow); border-inline-end: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  transform: translateX(-100%); transition: transform 0.25s ease;
+}
+.book-menu-panel.open { transform: none; }
+[dir="rtl"] .book-menu-panel { transform: translateX(100%); }
+[dir="rtl"] .book-menu-panel.open { transform: none; }
+.bm-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.bm-title { font-family: var(--display); font-size: 1.2rem; color: var(--ink); }
+.bm-close { background: none; border: none; font-size: 1.6rem; line-height: 1; color: var(--ink-soft); cursor: pointer; padding: 0 4px; }
+.bm-list { list-style: none; margin: 0; padding: 0; }
+.bm-list li { border-bottom: 1px solid var(--line); }
+.bm-link {
+  width: 100%; text-align: start; background: none; border: none; cursor: pointer;
+  font-family: var(--display); font-size: 1.05rem; color: var(--ink);
+  padding: 11px 6px; line-height: 1.3;
+}
+.bm-link:hover { color: var(--accent-deep); }
+
+/* ---- Home-screen icon chooser (gallery) ---- */
+.icon-chooser .bg-note { margin: 4px 0 12px; }
+.icon-opts { display: flex; gap: 14px; flex-wrap: wrap; }
+.icon-opt {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: none; border: 2px solid var(--line); border-radius: 14px;
+  padding: 12px; cursor: pointer; color: var(--ink-soft);
+  font-family: var(--display); font-size: 0.9rem;
+}
+.icon-opt:hover:not(:disabled) { border-color: var(--accent); }
+.icon-opt.on { border-color: var(--accent); color: var(--accent-deep); }
+.icon-opt:disabled { opacity: 0.5; cursor: default; }
+.icon-opt .icon-prev {
+  width: 96px; height: 96px; border-radius: 20px; display: block;
+  background-size: cover; background-position: center; object-fit: cover;
+  box-shadow: var(--shadow);
+}
+.icon-opt .icon-prev.empty {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem; color: var(--ink-soft); background: var(--paper);
+}
+
+/* ---- Sing-along editor (organizer) ---- */
+.songs-editor { max-width: 820px; margin: 0 auto; }
+.songs-list { list-style: none; padding: 0; margin: 0; }
+.song-edit { border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); padding: 10px 12px; margin-bottom: 12px; }
+.song-edit-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.song-edit-bar input { width: auto; }
+.song-edit-title { flex: 1 1 200px; font-family: var(--display); }
+.song-edit-artist { flex: 1 1 130px; }
+.song-edit-yt { width: 100%; margin-top: 8px; }
+.song-edit-lyrics { width: 100%; margin-top: 8px; line-height: 1.5; }
+.song-ok { color: var(--accent); }
+.song-audio-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.song-audio-row .song-or { color: var(--ink-soft); font-style: italic; font-size: 0.85rem; }
+.song-audio-row audio { height: 36px; }
 
 @media print {
   body { background: #fff; }

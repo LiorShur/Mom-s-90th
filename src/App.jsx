@@ -4,6 +4,7 @@ import MessageView from "./MessageView.jsx";
 import Gallery from "./Gallery.jsx";
 import PublicBook from "./PublicBook.jsx";
 import LanguageToggle from "./LanguageToggle.jsx";
+import FaviconManager from "./FaviconManager.jsx";
 import { GALLERY_SECRET } from "./firebase.js";
 
 // Tiny router — no dependency needed.
@@ -35,6 +36,7 @@ export default function App() {
   const route = useRoute();
   return (
     <>
+      <FaviconManager />
       <LanguageToggle />
       {route.view === "message" ? (
         <MessageView id={route.id} />

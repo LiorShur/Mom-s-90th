@@ -34,6 +34,40 @@ export function orderedAll(items) {
     .sort((a, b) => orderKey(a, a._idx) - orderKey(b, b._idx));
 }
 
+// One unified book sequence that merges contributor pages and life-in-photos
+// spreads by a shared `order`, so spreads can be positioned anywhere among the
+// pages (and reordered on the arrange screen). Each entry is:
+//   { kind: "msg"|"life", id, order, msg?, life?, lifeIndex? }
+// An un-arranged spread sorts to the end until the organizer places it.
+export function orderedBook(items = [], spreads = [], { approvedOnly = false } = {}) {
+  const entries = [];
+  items.forEach((it, idx) => {
+    if (approvedOnly && !it.approved) return;
+    entries.push({
+      kind: "msg",
+      id: it.id,
+      order: typeof it.order === "number" ? it.order : idx,
+      msg: it,
+    });
+  });
+  spreads.forEach((sp, idx) => {
+    if (approvedOnly && !sp.approved) return;
+    entries.push({
+      kind: "life",
+      id: sp.id || `life-${idx}`,
+      // Un-arranged spreads sort to the END (so adding one never disrupts an
+      // already-arranged book); once arranged they carry an explicit order.
+      order: typeof sp.order === "number" ? sp.order : 1e6 + idx,
+      life: sp,
+      lifeIndex: idx,
+    });
+  });
+  return entries
+    .map((e, i) => ({ ...e, _i: i }))
+    .sort((a, b) => a.order - b.order || a._i - b._i)
+    .map(({ _i, ...e }) => e);
+}
+
 // Split the note into a short "pull-quote" + the longer body.
 export function splitText(it) {
   const text = (it.text || "").trim();
@@ -65,9 +99,7 @@ export function floatFx(fx, idx) {
   const f = fx || {};
   return {
     x: f.x ?? d.x, y: f.y ?? d.y, w: f.w ?? d.w,
-    // zoom 1 = whole photo (object-fit: contain); you zoom IN to crop/fill.
-    // Clamp legacy values from the old cover-based slider that allowed < 1.
-    rot: f.rot ?? 0, zoom: Math.max(1, f.zoom ?? 1), ox: f.ox ?? 50, oy: f.oy ?? 50,
+    rot: f.rot ?? 0, zoom: f.zoom ?? 1, ox: f.ox ?? 50, oy: f.oy ?? 50,
     shadow: f.shadow ?? 0, tilt: f.tilt ?? false, fit: f.fit ?? false, z: f.z ?? 0,
   };
 }
@@ -91,9 +123,7 @@ export function frameStyle(f) {
   };
 }
 
-// Style for the image inside the frame. The image is laid out `object-fit:
-// contain`, so zoom = 1 shows the WHOLE photo (nothing cropped on import);
-// zooming in past 1 scales up and the square frame crops, with ox/oy panning.
+// Style for the image inside the frame (crop: zoom + pan).
 export function cropStyle(f) {
   return {
     transform: `scale(${f.zoom})`,
@@ -122,8 +152,33 @@ export function relLabel(t, it) {
   );
 }
 
+// An optional full-page opening photo, shown BEFORE the titled cover. Renders
+// nothing until a photo is set. Shown whole (contain) so a decorative border
+// isn't cropped.
+export function PreCoverPage({ precover }) {
+  const c = precover || {};
+  if (!c.bg) return null;
+  return (
+    <section className="book-cover cover-photo-only">
+      <div className="page-bg" style={{ opacity: c.bgOpacity ?? 1 }}>
+        <img src={c.bg} alt="" />
+      </div>
+    </section>
+  );
+}
+
 export function CoverPage({ t, cover }) {
   const c = cover || {};
+  // "Photo only": a self-contained cover image stands alone, no overlaid text.
+  if (c.bg && c.photoOnly) {
+    return (
+      <section className="book-cover cover-photo-only">
+        <div className="page-bg" style={{ opacity: c.bgOpacity ?? 1 }}>
+          <img src={c.bg} alt="" />
+        </div>
+      </section>
+    );
+  }
   return (
     <section className="book-cover">
       {c.bg && (
@@ -154,7 +209,9 @@ export function ClosingPage({ t, closing }) {
 }
 
 // LEFT page: message column + a single full-bleed portrait (photo #1).
-export function LeftPage({ it, t, num }) {
+// `hasAudio`/`playing` are passed only by the online book, which makes the note
+// text tap-to-play the contributor's reading of it.
+export function LeftPage({ it, t, num, hasAudio, playing }) {
   const { pull, body } = splitText(it);
   const portrait = (it.photoURLs || [])[0] || null;
   const portraitFx = (it.photoFx || [])[0];
@@ -175,7 +232,13 @@ export function LeftPage({ it, t, num }) {
           {it.bgLeftPanel && <div className="text-panel" />}
         </>
       )}
-      <div className="pl-text">
+      <div className={`pl-text ${hasAudio ? "playable" : ""} ${playing ? "playing" : ""}`}>
+        {hasAudio && (
+          <span className="pl-audio-badge">
+            {playing ? "❚❚ " : "▶ "}
+            {playing ? t.audioPlaying : t.audioListen}
+          </span>
+        )}
         <span className="pl-qmark" aria-hidden>“</span>
         {pull && <p className="pl-quote" dir="auto">{pull}</p>}
         <span className="pl-divider" aria-hidden>♡</span>
@@ -239,10 +302,10 @@ export function RightPage({ it, qr, t, num }) {
         c.url ? (
           <div
             key={i}
-            className={`pr-float ${c.fx.tilt ? "tilted" : ""}`}
+            className={`pr-float ${c.fx.tilt ? "tilted" : ""} ${c.fx.fit ? "fit" : ""}`}
             style={frameStyle(c.fx)}
           >
-            <img src={c.url} alt="" style={cropStyle(c.fx)} />
+            <img src={c.url} alt="" style={c.fx.fit ? undefined : cropStyle(c.fx)} />
           </div>
         ) : null
       )}
@@ -260,6 +323,39 @@ export function RightPage({ it, qr, t, num }) {
       <p className="pr-caption" dir="auto">{t.bookHeartCaption}</p>
       {num != null && <span className="page-num">— {num} —</span>}
     </section>
+  );
+}
+
+// Scales variable-size content (e.g. the family tree) down so it fits inside
+// its box, centred. Never scales up past 1.
+export function ScaleToFit({ className = "", children }) {
+  const boxRef = useRef(null);
+  const innerRef = useRef(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const box = boxRef.current;
+    const inner = innerRef.current;
+    if (!box || !inner) return;
+    const fit = () => {
+      const bw = box.clientWidth;
+      const bh = box.clientHeight;
+      const iw = inner.scrollWidth;
+      const ih = inner.scrollHeight;
+      if (!iw || !ih) return;
+      setScale(Math.min(1, bw / iw, bh / ih));
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, []);
+  return (
+    <div ref={boxRef} className={`scale-to-fit ${className}`}>
+      <div ref={innerRef} className="scale-to-fit-inner" style={{ transform: `scale(${scale})` }}>
+        {children}
+      </div>
+    </div>
   );
 }
 

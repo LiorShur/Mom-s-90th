@@ -3,6 +3,7 @@ import { useLang } from "./i18n.jsx";
 import { useBookVars, useBookContent } from "./bookStyle.jsx";
 import {
   orderedApproved,
+  PreCoverPage,
   CoverPage,
   ClosingPage,
   LeftPage,
@@ -16,11 +17,12 @@ import { FamilyTreePage } from "./FamilyTree.jsx";
 export default function PrintBook({ items, qrMap, style }) {
   const { t } = useLang();
   const vars = useBookVars();
-  const { cover, closing } = useBookContent();
+  const { precover, cover, closing } = useBookContent();
   const pages = orderedApproved(items);
 
   return (
     <div className={`book style-${style}`} style={vars}>
+      {precover?.bg && <PreCoverPage precover={precover} />}
       <CoverPage t={t} cover={cover} />
       <FamilyTreePage names={pages.map((p) => p.name).filter(Boolean)} t={t} />
       {pages.map((it, idx) => (

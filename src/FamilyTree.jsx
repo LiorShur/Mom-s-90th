@@ -1,7 +1,114 @@
-// A family-tree opening page: a stylised tree whose canopy is filled with all
-// the family members' names, with the honoree at the root. Auto-populated from
-// the approved submissions; styled with the book's palette/fonts.
-export function FamilyTreePage({ names, t }) {
+import { ScaleToFit } from "./book.jsx";
+import { useBookVars } from "./bookStyle.jsx";
+
+// One person (and their married-in partner), with their children nested below.
+function TreeNode({ person, people, onJump }) {
+  const kids = people.filter((p) => p.parentId === person.id);
+  const clickable = onJump && person.messageId;
+  return (
+    <li>
+      <div
+        className={`ft-node ${clickable ? "ft-clickable" : ""}`}
+        onClick={clickable ? () => onJump(person.messageId) : undefined}
+        role={clickable ? "button" : undefined}
+        tabIndex={clickable ? 0 : undefined}
+        onKeyDown={
+          clickable
+            ? (e) => (e.key === "Enter" || e.key === " ") && onJump(person.messageId)
+            : undefined
+        }
+        title={clickable ? person.name : undefined}
+      >
+        {person.photo && <img className="ft-photo" src={person.photo} alt="" />}
+        <span className="ft-name-row">
+          <span className="ft-person" dir="auto">{person.name}</span>
+          {person.spouseName?.trim() && (
+            <span className="ft-spouse" dir="auto">&amp; {person.spouseName}</span>
+          )}
+        </span>
+      </div>
+      {kids.length > 0 && (
+        <ul>
+          {kids.map((k) => (
+            <TreeNode key={k.id} person={k} people={people} onJump={onJump} />
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
+
+// The actual node-link graph: honoree at the root, then each top-level person
+// (a child of the honoree) and their descendants.
+function TreeGraph({ people, honoreeName, honoreeSpouse, honoreePhoto, onJump }) {
+  const roots = people.filter((p) => !p.parentId);
+  return (
+    <ul className="ft-tree">
+      <li>
+        <div className="ft-node ft-root">
+          {honoreePhoto && <img className="ft-photo" src={honoreePhoto} alt="" />}
+          <span className="ft-name-row">
+            <span className="ft-person" dir="auto">{honoreeName}</span>
+            {honoreeSpouse && <span className="ft-spouse" dir="auto">&amp; {honoreeSpouse}</span>}
+          </span>
+        </div>
+        {roots.length > 0 && (
+          <ul>
+            {roots.map((r) => (
+              <TreeNode key={r.id} person={r} people={people} onJump={onJump} />
+            ))}
+          </ul>
+        )}
+      </li>
+    </ul>
+  );
+}
+
+const honoreeNames = (tree, t) => ({
+  honoreeName: (tree?.honoreeName || "").trim() || t.treeHonoree,
+  honoreeSpouse: (tree?.honoreeSpouse || "").trim(),
+  honoreePhoto: tree?.honoreePhoto || "",
+});
+
+// DIGITAL book: the family tree as a wide 58×29-style spread, with the
+// organizer's backdrop image behind it and the whole tree scaled to fit.
+export function OnlineFamilyTree({ tree, t, style, onJump }) {
+  const vars = useBookVars();
+  const people = tree?.people || [];
+  const { honoreeName, honoreeSpouse, honoreePhoto } = honoreeNames(tree, t);
+  return (
+    <section className={`tree-spread book style-${style}`} style={vars}>
+      {tree?.backdrop && (
+        <div className="ts-bg" aria-hidden="true">
+          <img src={tree.backdrop} alt="" />
+        </div>
+      )}
+      <div className="ts-head">
+        <p className="ft-kicker">{t.forGrandma}</p>
+        <h2 className="ft-title" dir="auto">{t.treeTitle}</h2>
+        {onJump && <p className="ot-hint">{t.treeTapHint}</p>}
+      </div>
+      <ScaleToFit className="ts-tree">
+        <TreeGraph
+          people={people}
+          honoreeName={honoreeName}
+          honoreeSpouse={honoreeSpouse}
+          honoreePhoto={honoreePhoto}
+          onJump={onJump}
+        />
+      </ScaleToFit>
+    </section>
+  );
+}
+
+// PRINT/page version: a fixed family-tree book page. When the organizer has
+// built a tree it renders the structured graph (scaled to fit the page);
+// otherwise it falls back to the stylised canopy of names from the submissions.
+export function FamilyTreePage({ names, tree, t }) {
+  const people = tree?.people || [];
+  const hasTree = people.length > 0;
+  const { honoreeName, honoreeSpouse, honoreePhoto } = honoreeNames(tree, t);
+
   return (
     <section className="book-page family-tree">
       <svg className="ft-bg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
@@ -32,12 +139,21 @@ export function FamilyTreePage({ names, t }) {
           <p className="ft-kicker">{t.forGrandma}</p>
           <h2 className="ft-title" dir="auto">{t.treeTitle}</h2>
         </div>
-        <div className="ft-names">
-          {names.map((n, i) => (
-            <span className="ft-leaf" key={i} dir="auto">{n}</span>
-          ))}
-        </div>
-        <div className="ft-honoree" dir="auto">{t.treeHonoree}</div>
+
+        {hasTree ? (
+          <ScaleToFit className="ft-tree-wrap">
+            <TreeGraph people={people} honoreeName={honoreeName} honoreeSpouse={honoreeSpouse} honoreePhoto={honoreePhoto} />
+          </ScaleToFit>
+        ) : (
+          <>
+            <div className="ft-names">
+              {names.map((n, i) => (
+                <span className="ft-leaf" key={i} dir="auto">{n}</span>
+              ))}
+            </div>
+            <div className="ft-honoree" dir="auto">{honoreeName}</div>
+          </>
+        )}
       </div>
     </section>
   );

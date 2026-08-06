@@ -38,7 +38,7 @@ const Ctx = createContext(null);
 
 // Editable cover/closing content (text + optional background image). Empty
 // fields fall back to the language defaults in CoverPage/ClosingPage.
-export const DEFAULT_BOOK = { cover: {}, closing: {} };
+export const DEFAULT_BOOK = { precover: {}, cover: {}, closing: {}, icon: {} };
 
 export function BookStyleProvider({ children }) {
   const [settings, setSettings] = useState(DEFAULT_TEXT);
@@ -51,7 +51,12 @@ export function BookStyleProvider({ children }) {
         if (snap.exists()) {
           const data = snap.data();
           if (data.text) setSettings((s) => ({ ...s, ...data.text }));
-          setBook({ cover: data.cover || {}, closing: data.closing || {} });
+          setBook({
+            precover: data.precover || {},
+            cover: data.cover || {},
+            closing: data.closing || {},
+            icon: data.icon || {},
+          });
         }
       } catch {
         /* not signed in / no doc yet — use defaults */
@@ -73,7 +78,12 @@ export function BookStyleProvider({ children }) {
     try {
       await setDoc(
         doc(db, "config", "book"),
-        { cover: next.cover, closing: next.closing },
+        {
+          precover: next.precover,
+          cover: next.cover,
+          closing: next.closing,
+          icon: next.icon || {},
+        },
         { merge: true }
       );
     } catch (e) {

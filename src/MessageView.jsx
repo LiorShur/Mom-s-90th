@@ -46,12 +46,14 @@ export default function MessageView({ id }) {
           wrote them, so let the browser auto-detect direction per item. */}
       {msg.prompt && <p className="kicker" dir="auto">{msg.prompt}</p>}
 
-      {msg.clipURL && (
+      {/* QR target audio: the primary clip if there is one, otherwise fall back
+          to the contributor's reading of their note. */}
+      {(msg.clipURL || msg.textAudioURL) && (
         <div className="player">
-          {msg.clipKind === "video" ? (
+          {msg.clipURL && msg.clipKind === "video" ? (
             <video src={msg.clipURL} controls playsInline />
           ) : (
-            <audio src={msg.clipURL} controls />
+            <audio src={msg.clipURL || msg.textAudioURL} controls />
           )}
           <small>{t.pressPlay(msg.name.split(" ")[0])}</small>
         </div>
